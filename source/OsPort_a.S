@@ -78,10 +78,10 @@ uLipeFirstSwt:
 uLipeCtxSwt:
 		ldr r0, =highPrioTask	;
 		ldr r1, =currentTask	;
-		ldr r2, [r1]			;
-		ldr r2, [r2]			; takes the current task stack:
-		mrs r2, psp				; takes the current stack pointer
-		stmdb r2!, {r4 - r11}	; save the software context
+		ldr r2, [r1]			; takes the current task stack:
+		mrs r3, psp				; takes the current stack pointer
+		stmdb r3!, {r4 - r11}	; save the software context
+		str   r3, [r2]			;
 		dsb						; flushes the pipeline
 
 		ldr r2,[r0]				;
