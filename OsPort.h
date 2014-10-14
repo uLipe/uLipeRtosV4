@@ -20,7 +20,7 @@
 /*
  *  Machine dependent header files:
  */
-#include "stm32f4xx.h"
+#include "cmsis_device.h"
 
 /*
  * Enter and exit criticals macro:
