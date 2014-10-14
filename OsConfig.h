@@ -26,7 +26,7 @@
  */
 
 #define OS_CPU_RATE  			8000000 //in Hz
-#define OS_TICKS_PER_SECOND			100	//in Hz
+#define OS_TICK_RATE			100	//in Hz
 
 /*
  * 	Kernel configurations:

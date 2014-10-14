@@ -28,6 +28,7 @@ volatile uint32_t tickCounter;    //Incremented every os tick interrupt
 uint8_t  osConfigured = FALSE;
 uint8_t  osRunning;				  //Kernel executing flag
 uint16_t irqCounter;     		  //Irq nesting counter
+OsStack_t idleTaskStack[OS_IDLE_TASK_STACK_SIZE];
 /*
  *	Extenal  variables:
  */
@@ -296,6 +297,8 @@ OsStatus_t uLipePrioClr(uint16_t prio, OsPrioListPtr_t prioList)
  */
 OsStatus_t uLipeRtosInit(void)
 {
+	uint16_t err;
+
 	//put all local variables in known state:
 	currentTask  = NULL;
 	highPrioTask = NULL;
@@ -303,11 +306,18 @@ OsStatus_t uLipeRtosInit(void)
 	osRunning = FALSE;
 	irqCounter = 0x0000;
 
-	//TODO: Put function to init low level hardware.
-
-	//TODO: Install idle task:
-
 	//Init all kernel objects:
+	err = uLipeTaskInit();
+	uLipeAssert(err == kStatusOk);
+
+
+	//init low level hardware
+	uLipeInitMachine();
+
+	//Install idle task:
+	err = uLipeCreateTask(&uLipeKernelIdleTask,(OsStackPtr_t)&idleTaskStack, OS_IDLE_TASK_STACK_SIZE
+						  OS_LEAST_PRIO, 0);
+	uLipeAssert(err == kStatusOk);
 
 	osConfigured = TRUE;
 
@@ -334,7 +344,11 @@ OsStatus_t uLipeRtosStart(void)
 	//os is running:
 	osRunning = TRUE;
 
-	//TODO: routine to perform the first ctx switch:
+	//perform the first ctx switch:
+	asm(" 	cpsie I \n\r"
+		"	svc	  0 \n\r");
+
+	//The os is running.
 
 	//this function should not return:
 	return(kKernelStartFail);
