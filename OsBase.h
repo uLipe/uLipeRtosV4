@@ -27,6 +27,8 @@
 typedef uint32_t 	OsStack_t;		//Stack pointer type normalization
 typedef uint32_t *  OsStackPtr_t;	//
 
+typedef uint32_t	OsHandler_t;	//custom handler for kernel objects.
+
 
 typedef enum						//Rtos status codes
 {									//
@@ -34,8 +36,11 @@ typedef enum						//Rtos status codes
 	kInvalidParam,					//
 	kKernelStartFail,				//
 	kOutOfTasks,					//
-	kCantSuspend						//
-									//
+	kCantSuspend,					//
+	kQueueTooManyData,				//
+	kQueueFull,						//
+	kQueueEmpty,					//
+	kOutOfQueue,					//
 }OsStatus_t;						//
 
 

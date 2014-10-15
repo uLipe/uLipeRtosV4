@@ -50,25 +50,25 @@
  * event flags kernel objects and code:
  */
 #define OS_FLAGS_MODULE_EN			 0
-#define OS_NUMBER_OF_FLAGS			 2
+#define OS_FLAGS_COUNT				 2
 
 /*
  * semaphore kernel objects and code
  */
 #define OS_SEM_MODULE_EN			0
-#define OS_NUMBER_OF_SEM			2
+#define OS_SEM_COUNT				2
 
 /*
  * Mutex kernel objects and code
  */
 #define OS_MTX_MODULE_EN			0
-#define OS_NUMBER_OF_MTX			2
+#define OS_MTX_COUNT				2
 
 /*
  * Queue kernel objects and code
  */
 #define OS_QUEUE_MODULE_EN			0
-#define OS_NUMBER_OF_MTX			2
+#define OS_QUEUE_COUNT				2
 
 
 #endif
