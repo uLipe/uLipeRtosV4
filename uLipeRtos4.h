@@ -25,5 +25,6 @@
 #include "OsKernel.h"
 #include "OsTask.h"
 #include "OsPort.h"
+#include "OsTinyQueue.h"
 
 #endif
