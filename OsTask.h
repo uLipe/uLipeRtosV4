@@ -50,7 +50,7 @@ struct OsTCB_
 	OsStackPtr_t stackBot;		//Pointer to bottom of stack
 	uint32_t	 stackSize;		//The stack size in number of entries
 	uint16_t	 taskPrio;		//Id of this tcb, corresponds to its priority
-	uint16_t	 flagsPending;	//flags to pend register
+	uint32_t	 flagsPending;	//flags to pend register
 	uint16_t     delayTime;
 	TaskState_t  taskStatus;	//The current status of the task
 	uint8_t		 tcbTaken;		///.;

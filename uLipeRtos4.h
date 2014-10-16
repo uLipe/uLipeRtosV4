@@ -26,5 +26,6 @@
 #include "OsTask.h"
 #include "OsPort.h"
 #include "OsTinyQueue.h"
+#include "tlsf.h"
 
 #endif
