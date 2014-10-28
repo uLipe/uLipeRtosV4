@@ -29,7 +29,7 @@
  * Module internal variables
  */
 
-QueuePtr_t freeList;				//Pointer to next freeblock of queue
+static QueuePtr_t freeList;			//Pointer to next freeblock of queue
 Queue_t queueTbl[OS_QUEUE_COUNT];	//Table with the current block of queues
 
 /*

@@ -34,7 +34,7 @@
  */
 
 static FlagsGrpPtr_t freeList;				//pointer to next free block
-static FlagsGrp_t flagsTbl[OS_FLAGS_COUNT];//Flags node linked list
+FlagsGrp_t flagsTbl[OS_FLAGS_COUNT];//Flags node linked list
 
 /*
  *  Module external variables

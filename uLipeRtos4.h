@@ -27,5 +27,6 @@
 #include "OsTask.h"
 #include "OsFlags.h"
 #include "OsQueue.h"
+#include "OsMutex.h"
 
 #endif
