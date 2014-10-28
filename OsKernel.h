@@ -42,6 +42,8 @@ typedef struct OsPrioList_* OsPrioListPtr_t;
  *  Kernel functions proto:
  */
 
+
+
 /*!
  * 	uLipeKernelIrqIn()
  *

@@ -41,10 +41,24 @@ typedef enum						//Rtos status codes
 	kQueueFull,						//
 	kQueueEmpty,					//
 	kOutOfQueue,					//
+	kOutOfFlags,					//
 }OsStatus_t;						//
 
-
 /*
+ * Generic Event Block
+ * Reserved for future use.
+
+struct ecb_
+{
+	void *eventNode;							//Node for event type block
+	uint8_t eventType;							//event type
+	uint8_t tasksPending[OS_NUMBER_OF_TASKS];	//tasks pending this evnt
+};
+
+typedef struct ecb_  Event_t;
+typedef struct ecb_* EventPtr_t;
+
+ *
  *  custom rtos defitions
  */
 #define TRUE  		0xFF
@@ -56,6 +70,14 @@ typedef enum						//Rtos status codes
  */
 #define OS_LEAST_PRIO	(0)
 #define OS_INVALID_PRIO (0xFFFF)
+
+#if IDLE_TASK_HOOK_EN > 0
+/*
+ * User Hook proto:
+ */
+extern void IdleTaskHook(void);
+#endif
+
 
 /*
  *  assert definition:

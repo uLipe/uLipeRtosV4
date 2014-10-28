@@ -49,6 +49,10 @@ void uLipeKernelIdleTask(void)
 
 	for(;;)
 	{
+#if IDLE_TASK_HOOK_EN > 0
+		//Hook for a user defined callback:
+		IdleTaskHook();
+#endif
 		//Stays here:
 		execCounter++;
 		(void)execCounter;
@@ -191,9 +195,7 @@ void uLipeKernelRtosTick(void)
 			if(tcb->delayTime == 0)
 			{
 				//make this task ready:
-				tcb->taskStatus |= (1 << kTaskReady);
-				//clear delay pending:
-				tcb->taskStatus &= ~(1 << kTaskPendDelay);
+				tcb->taskStatus = (1 << kTaskReady);
 			}
 		}
 
@@ -309,6 +311,7 @@ OsStatus_t uLipeRtosInit(void)
 	//Init all kernel objects:
 	err = uLipeTaskInit();
 	uLipeAssert(err == kStatusOk);
+	uLipeFlagsInit();
 
 
 	//init low level hardware

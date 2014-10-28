@@ -34,8 +34,7 @@ typedef enum					//
 	kTaskSuspend,				//
 	kTaskDeleted,				//
 	kTaskPendDelay,				//
-	kTaskPendFlagAll,			//
-	kTaskPendFlagAny,			//
+	kTaskPendFlag,				//
 	kTaskPendSem,				//
 	kTaskPendMtx,				//
 	kTaskPendQueue,				//
