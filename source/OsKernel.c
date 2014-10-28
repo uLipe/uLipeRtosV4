@@ -311,7 +311,14 @@ OsStatus_t uLipeRtosInit(void)
 	//Init all kernel objects:
 	err = uLipeTaskInit();
 	uLipeAssert(err == kStatusOk);
+
+#if OS_FLAGS_MODULE_EN > 0
 	uLipeFlagsInit();
+#endif
+
+#if OS_QUEUE_MODULE_EN > 0
+	uLipeQueueInit();
+#endif
 
 
 	//init low level hardware

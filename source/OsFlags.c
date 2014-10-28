@@ -27,14 +27,14 @@
 #define OS_PEND_ANY_C	0x08  //Pend for any flags and consume when asserted
 #define OS_PEND_NOT		0x80  //Task which no wait for a flags
 
-#if FLAGS_MODULE_EN > 0
+#if OS_FLAGS_MODULE_EN > 0
 
 /*
  * Module internal variables:
  */
 
-FlagsGrpPtr_t freeList;				//pointer to next free block
-FlagsGrp_t flagsTbl[OS_FLAGS_COUNT];//Flags node linked list
+static FlagsGrpPtr_t freeList;				//pointer to next free block
+static FlagsGrp_t flagsTbl[OS_FLAGS_COUNT];//Flags node linked list
 
 /*
  *  Module external variables
