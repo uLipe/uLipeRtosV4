@@ -22,9 +22,10 @@
   */
 
 #include "OsBase.h"
+#include "OsPort.h"
 #include "OsKernel.h"
 #include "OsTask.h"
-#include "OsPort.h"
-#include "OsTinyQueue.h"
+#include "OsFlags.h"
+
 
 #endif
