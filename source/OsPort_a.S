@@ -82,6 +82,7 @@ uLipeCtxSwt:
 		mrs r3, psp				; takes the current stack pointer
 		stmdb r3!, {r4 - r11}	; save the software context
 		str   r3, [r2]			;
+		isb						;
 		dsb						; flushes the pipeline
 
 		ldr r2,[r0]				;
@@ -91,6 +92,7 @@ uLipeCtxSwt:
 
 		ldr r2, [r0]			;
 		str r0, [r1]			; the high prio task is the current task
+		isb						;
 		dsb						; flushes pipeline for data
 		bx	lr					; the return depennds of current task stack contents
 

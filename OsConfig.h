@@ -67,7 +67,7 @@
 /*
  * Queue kernel objects and code
  */
-#define OS_QUEUE_MODULE_EN			0
+#define OS_QUEUE_MODULE_EN			1
 #define OS_QUEUE_COUNT				2
 
 

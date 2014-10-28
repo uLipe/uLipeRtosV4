@@ -40,7 +40,7 @@ struct flag_
 typedef struct flag_  FlagsGrp_t;
 typedef struct flag_* FlagsGrpPtr_t;
 
-#if FLAGS_MODULE_EN > 0
+#if OS_FLAGS_MODULE_EN > 0
 
 /*
  * Function prototypes:

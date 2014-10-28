@@ -14,8 +14,8 @@
  *
  */
 
-#ifndef __ULIPE_RTOS_VERSION_4_H
-#define __ULIPE_RTOS_VERSION_4_H
+#ifndef __ULIPE_RTOS_4_H
+#define __ULIPE_RTOS_4_H
 
  /*
   *  all the include files here:
@@ -26,6 +26,6 @@
 #include "OsKernel.h"
 #include "OsTask.h"
 #include "OsFlags.h"
-
+#include "OsQueue.h"
 
 #endif
