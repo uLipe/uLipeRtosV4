@@ -37,11 +37,12 @@ typedef enum						//Rtos status codes
 	kKernelStartFail,				//
 	kOutOfTasks,					//
 	kCantSuspend,					//
-	kQueueTooManyData,				//
 	kQueueFull,						//
 	kQueueEmpty,					//
 	kOutOfQueue,					//
 	kOutOfFlags,					//
+	kOutOfMutex,					//
+	kMutexOwned,					//
 }OsStatus_t;						//
 
 /*
@@ -69,6 +70,7 @@ typedef struct ecb_* EventPtr_t;
  * 	priorities custom definitions
  */
 #define OS_LEAST_PRIO	(0)
+#define OS_HIGEST_PRIO  (OS_NUMBER_OF_TASKS - 1)
 #define OS_INVALID_PRIO (0xFFFF)
 
 #if IDLE_TASK_HOOK_EN > 0
