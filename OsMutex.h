@@ -21,7 +21,7 @@
 /*
  * Mutex priority value (default)
  */
-#define OS_MUTEX_PRIO OS_HIGHEST_PRIO
+#define OS_MUTEX_PRIO (OS_HIGHEST_PRIO)
 
 
 /*
@@ -60,14 +60,6 @@ void uLipeMutexInit(void);
  */
 OsHandler_t uLipeMutexCreate(OsStatus_t *err);
 
-/*!
- * uLipeMutexTryTake()
- * \brief try to take a mutex, without suspending a task if not available
- * \param
- * \return
- */
-OsStatus_t uLipeMutexTryTake(OsHandler_t h);
-
 
 /*!
  * uLipeMutexTake()
@@ -92,7 +84,7 @@ OsStatus_t uLipeMutexGive(OsHandler_t h);
  * \param
  * \return
  */
-OsStatus_t uLipeMutexDelete(OsHandler_t h);
+OsStatus_t uLipeMutexDelete(OsHandler_t *h);
 
 
 #endif
