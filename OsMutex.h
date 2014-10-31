@@ -40,6 +40,7 @@ struct mutex_
 typedef struct mutex_  Mutex_t;
 typedef struct mutex_* MutexPtr_t;
 
+#if OS_MTX_MODULE_EN > 0
 
 /*
  * Function prototypes:
@@ -86,5 +87,5 @@ OsStatus_t uLipeMutexGive(OsHandler_t h);
  */
 OsStatus_t uLipeMutexDelete(OsHandler_t *h);
 
-
+#endif
 #endif

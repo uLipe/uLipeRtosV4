@@ -415,6 +415,8 @@ OsStatus_t uLipeQueueDelete(OsHandler_t *h)
 
 	OS_CRITICAL_OUT();
 
+	uLipeTaskYield();
+
 	//All gone well:
 	return(kStatusOk);
 }
