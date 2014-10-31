@@ -17,6 +17,8 @@
 
 #include "uLipeRtos4.h"
 
+#if OS_MTX_MODULE_EN > 0
+
 /*
  * Module internal variables
  */
@@ -257,8 +259,8 @@ OsStatus_t uLipeMutexDelete(OsHandler_t *h)
 	h = NULL;
 	m = NULL;
 
-
 	//all gone well:
 	return(kStatusOk);
 }
 
+#endif

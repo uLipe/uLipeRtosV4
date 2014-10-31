@@ -377,6 +377,9 @@ OsStatus_t uLipeFlagsDelete(OsHandler_t *h)
 	h = NULL;
 	f = NULL;
 
+
+	uLipeTaskYield();
+
 	//All gone well:
 	return(kStatusOk);
 }

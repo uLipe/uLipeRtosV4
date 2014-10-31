@@ -55,7 +55,7 @@
 /*
  * semaphore kernel objects and code
  */
-#define OS_SEM_MODULE_EN			0
+#define OS_SEM_MODULE_EN			1
 #define OS_SEM_COUNT				2
 
 /*

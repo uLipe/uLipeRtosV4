@@ -320,6 +320,13 @@ OsStatus_t uLipeRtosInit(void)
 	uLipeQueueInit();
 #endif
 
+#if OS_MTX_MODULE_EN > 0
+	uLipeMutexInit();
+#endif
+
+#if OS_SEM_MODULE_EN > 0
+	uLipeSemInit();
+#endif
 
 	//init low level hardware
 	uLipeInitMachine();

@@ -43,6 +43,7 @@ typedef enum						//Rtos status codes
 	kOutOfFlags,					//
 	kOutOfMutex,					//
 	kMutexOwned,					//
+	kOutOfSem,						//
 }OsStatus_t;						//
 
 /*
@@ -84,7 +85,7 @@ extern void IdleTaskHook(void);
 /*
  *  assert definition:
  */
-static inline void _uLipeAssert(uint32_t x)
+static __inline void _uLipeAssert(uint32_t x)
 {
 	if(x != TRUE)
 	{
