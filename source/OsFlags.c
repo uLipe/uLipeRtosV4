@@ -365,7 +365,7 @@ OsStatus_t uLipeFlagsDelete(OsHandler_t *h)
 	OS_CRITICAL_IN();
 
 	//Assert all flag events before to destroy it:
-	FlagsDeleteLoop(h);
+	FlagsDeleteLoop(*h);
 
 	//link this handler on freelists:
 	f->nextNode = freeList;

@@ -264,7 +264,7 @@ OsStatus_t uLipeSemDelete(OsHandler_t *h)
 	OS_CRITICAL_IN();
 
 	//Signal tasks which this sem will be deleted:
-	SemDeleteLoop(h);
+	SemDeleteLoop(*h);
 
 	h = NULL;
 
