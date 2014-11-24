@@ -332,7 +332,7 @@ OsStatus_t uLipeRtosInit(void)
 	uLipeInitMachine();
 
 	//Install idle task:
-	err = uLipeCreateTask(&uLipeKernelIdleTask,(OsStackPtr_t)&idleTaskStack, OS_IDLE_TASK_STACK_SIZE
+	err = uLipeCreateTask(&uLipeKernelIdleTask,(OsStackPtr_t)&idleTaskStack, OS_IDLE_TASK_STACK_SIZE,
 						  OS_LEAST_PRIO, 0);
 	uLipeAssert(err == kStatusOk);
 
@@ -353,7 +353,7 @@ OsStatus_t uLipeRtosStart(void)
 	if(osConfigured != TRUE) return(kKernelStartFail);
 
 	//Find the first task to run:
-	highPrioTask = tcbPtrTbl[uLipeKernelFinHighPrio(&taskPrioList)];
+	highPrioTask = tcbPtrTbl[uLipeKernelFindHighPrio(&taskPrioList)];
 
 	//check for problems:
 	uLipeAssert(highPrioTask != NULL);

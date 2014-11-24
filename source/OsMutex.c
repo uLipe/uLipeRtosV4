@@ -122,7 +122,7 @@ OsStatus_t uLipeMutexTake(OsHandler_t h)
 	if(m->mutexTaken != FALSE)
 	{
 		//Add a new task to wait list:
-		uLipePrioSet(currentTask->taskPrio, m->tasksPending);
+		uLipePrioSet(currentTask->taskPrio, &m->tasksPending);
 
 		//Suspend current task execution:
 		uLipePrioClr(currentTask->taskPrio, &taskPrioList);
@@ -180,7 +180,7 @@ OsStatus_t uLipeMutexGive(OsHandler_t h)
 	OS_CRITICAL_IN();
 
 	//Suspend mutex task:
-	uLipePrioClr(mutexTCB->taskPrio, taskPrioList);
+	uLipePrioClr(mutexTCB->taskPrio, &taskPrioList);
 	mutexTCB->taskStatus = (1 << kTaskSuspend);
 
 	//swap priorities:
