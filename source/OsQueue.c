@@ -287,7 +287,7 @@ OsStatus_t uLipeQueueInsert(OsHandler_t h, void *data, uint8_t opt, uint16_t tim
 	OS_CRITICAL_OUT();
 
 	//check for a context switch:
-	uLipeTaskYield();
+	uLipeKernelTaskYield();
 
 	//All gone ok:
 	return(kStatusOk);
@@ -374,7 +374,7 @@ OsStatus_t uLipeQueueRemove(OsHandler_t h, void *data, uint8_t opt, uint16_t tim
 	OS_CRITICAL_OUT();
 
 	//Check for context switching:
-	uLipeTaskYield();
+	uLipeKernelTaskYield();
 
 	//All gone well:
 	return(kStatusOk);
@@ -411,11 +411,12 @@ OsStatus_t uLipeQueueDelete(OsHandler_t *h)
 	freeList = q;
 
 	//Destroy the reference:
-	h = NULL;
+	*h = NULL;
+	 q = NULL;
 
 	OS_CRITICAL_OUT();
 
-	uLipeTaskYield();
+	uLipeKernelTaskYield();
 
 	//All gone well:
 	return(kStatusOk);

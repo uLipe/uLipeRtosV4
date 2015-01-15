@@ -26,9 +26,10 @@ OsTCBPtr_t   currentTask;   	  //pointer to current tcb is being executed
 OsTCBPtr_t   highPrioTask;		  //pointer to high priority task ready to run
 volatile uint32_t tickCounter;    //Incremented every os tick interrupt
 uint8_t  osConfigured = FALSE;
-uint8_t  osRunning;				  //Kernel executing flag
+uint8_t  osRunning = FALSE;				  //Kernel executing flag
 uint16_t irqCounter;     		  //Irq nesting counter
 OsStack_t idleTaskStack[OS_IDLE_TASK_STACK_SIZE];
+OsStack_t osMainStk[48];		  //Initial stack pointer
 /*
  *	Extenal  variables:
  */
@@ -65,6 +66,7 @@ void uLipeKernelIdleTask(void)
  * This internal function counts the number of leading zeros
  *
  */
+#ifndef OS_FAST_SCHED
 uint16_t uLipeKernelClz(uint32_t reg)
 {
 	uint32_t i = 0;
@@ -90,6 +92,40 @@ uint16_t uLipeKernelClz(uint32_t reg)
 
 	}
 	return(ret);
+}
+#endif
+/*
+ * 	uLipeTaskEntry()
+ *
+ * 	This internal function, is used to prepare task to start
+ * 	its execution, and catch possible task return
+ */
+void uLipeTaskEntry(void *args)
+{
+	OsTCBPtr_t tcb;
+	OsStatus_t err;
+
+	//Takes the current task to start execution:
+	tcb = currentTask;
+
+	//start task:
+	tcb->task(args);
+
+	//if this task return, suspend it:
+	if(tcb->taskPrio != 0)
+	{
+		err = uLipeTaskSuspend(tcb->taskPrio);
+		if(err != kStatusOk)
+		{
+			//if cant suspend, task may have some fault, so for safety,
+			//delete it:
+			err = uLipeTaskDelete(tcb->taskPrio);
+
+		}
+	}
+
+	//task trapped for debugf purposes.
+	while(1);
 }
 
 /*
@@ -123,6 +159,9 @@ void uLipeKernelIrqOut(void)
 /*
  * 	ulipeKernelFindHighPrio()
  */
+
+
+#ifndef OS_FAST_SCHED
 uint16_t uLipeKernelFindHighPrio(OsPrioListPtr_t prioList)
 {
 	uint16_t x   = 0;
@@ -142,6 +181,7 @@ uint16_t uLipeKernelFindHighPrio(OsPrioListPtr_t prioList)
 	return(ret);
 
 }
+#endif
 
 /*
  * 	ulipeKernelTaskYield()
@@ -176,6 +216,9 @@ void uLipeKernelTaskYield(void)
 void uLipeKernelRtosTick(void)
 {
 	OsTCBPtr_t tcb = NULL;
+	OsStatus_t err = kStatusOk;
+
+	if(osRunning != TRUE)return;
 
 	uLipeKernelIrqIn();
 
@@ -196,6 +239,9 @@ void uLipeKernelRtosTick(void)
 			{
 				//make this task ready:
 				tcb->taskStatus = (1 << kTaskReady);
+				err = uLipePrioSet(tcb->taskPrio, &taskPrioList);
+				uLipeAssert(err == kStatusOk);
+
 			}
 		}
 
@@ -221,6 +267,7 @@ OsStatus_t uLipeKernelObjCopy(uint8_t * dest, const uint8_t * src, uint16_t objS
 	while(objSize)
 	{
 		*dest++ = *src++;
+		objSize--;
 	}
 
 	return(kStatusOk);
@@ -239,6 +286,7 @@ OsStatus_t uLipeKernelObjSet(uint8_t * dest, const uint8_t value, uint16_t objSi
 	while(objSize)
 	{
 		*dest++ = value;
+		objSize--;
 	}
 
 	return(kStatusOk);
@@ -332,7 +380,7 @@ OsStatus_t uLipeRtosInit(void)
 	uLipeInitMachine();
 
 	//Install idle task:
-	err = uLipeCreateTask(&uLipeKernelIdleTask,(OsStackPtr_t)&idleTaskStack, OS_IDLE_TASK_STACK_SIZE,
+	err = uLipeTaskCreate(&uLipeKernelIdleTask,(OsStackPtr_t)&idleTaskStack, OS_IDLE_TASK_STACK_SIZE,
 						  OS_LEAST_PRIO, 0);
 	uLipeAssert(err == kStatusOk);
 
@@ -349,6 +397,8 @@ OsStatus_t uLipeRtosInit(void)
  */
 OsStatus_t uLipeRtosStart(void)
 {
+	uint32_t sReg = 0;
+
 	//check if os was pre configured:
 	if(osConfigured != TRUE) return(kKernelStartFail);
 
@@ -359,11 +409,12 @@ OsStatus_t uLipeRtosStart(void)
 	uLipeAssert(highPrioTask != NULL);
 
 	//os is running:
-	osRunning = TRUE;
+	//osRunning = TRUE;
 
 	//perform the first ctx switch:
-	asm(" 	cpsie I \n\r"
-		"	svc	  0 \n\r");
+	asm("		movs r0, #0x00 \n\r"
+		"		msr  primask, r0 \n\r"
+		"		svc	 #0x00     \n\r");
 
 	//The os is running.
 

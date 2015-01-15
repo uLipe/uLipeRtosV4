@@ -48,6 +48,7 @@ struct OsTCB_
 	OsStackPtr_t stackTop;		//Pointer that contain the current top of stack
 	OsStackPtr_t stackBot;		//Pointer to bottom of stack
 	uint32_t	 stackSize;		//The stack size in number of entries
+	void        (*task) (void*);//function pointer to task.
 	uint16_t	 taskPrio;		//Id of this tcb, corresponds to its priority
 	uint32_t	 flagsPending;	//flags to pend register
 	uint16_t     delayTime;

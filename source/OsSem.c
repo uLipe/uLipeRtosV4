@@ -64,7 +64,7 @@ static void SemPostLoop(OsHandler_t h)
 
 			//Make this task ready, and add it to ready list:
 			tcbPtrTbl[i]->taskStatus = (1 << kTaskReady);
-			uLipePrioClr(i, &taskPrioList);
+			uLipePrioSet(i, &taskPrioList);
 		}
 
 	}
@@ -88,7 +88,7 @@ static void SemDeleteLoop(OsHandler_t h)
 		{
 			//Make this task ready, and add it to ready list:
 			tcbPtrTbl[i]->taskStatus = (1 << kTaskReady);
-			uLipePrioClr(i, &taskPrioList);
+			uLipePrioSet(i, &taskPrioList);
 		}
 		s->tasksPending[i] = OS_SEM_NOT;
 	}
@@ -191,7 +191,7 @@ OsStatus_t uLipeSemTake(OsHandler_t h, uint16_t timeout)
 		OS_CRITICAL_OUT();
 
 		//Check for a context switch:
-		uLipeTaskYield();
+		uLipeKernelTaskYield();
 
 		return(kStatusOk);
 	}
@@ -224,7 +224,7 @@ OsStatus_t uLipeSemGive(OsHandler_t h, uint16_t count)
 	OS_CRITICAL_IN();
 
 	total = s->semCount + count;
-	if(total > s->semCount)
+	if(total > s->semLimit)
 	{
 		s->semCount = s->semLimit;
 	}
@@ -239,7 +239,7 @@ OsStatus_t uLipeSemGive(OsHandler_t h, uint16_t count)
 	OS_CRITICAL_OUT();
 
 	//Check for context switch:
-	uLipeTaskYield();
+	uLipeKernelTaskYield();
 
 
 	return(kStatusOk);
@@ -266,19 +266,17 @@ OsStatus_t uLipeSemDelete(OsHandler_t *h)
 	//Signal tasks which this sem will be deleted:
 	SemDeleteLoop(*h);
 
-	h = NULL;
-
 	//Add this sem object to freelist:
 	s->nextNode = freeList;
 	freeList = s;
 
 	OS_CRITICAL_OUT();
 
-	h = NULL;
+	*h = NULL;
 	s = NULL;
 
 	//check for a context switch:
-	uLipeTaskYield();
+	uLipeKernelTaskYield();
 
 	return(kStatusOk);
 }
