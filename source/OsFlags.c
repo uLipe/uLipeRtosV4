@@ -62,7 +62,7 @@ static void FlagsPostLoop(OsHandler_t h)
 	for(i = 0; i < OS_NUMBER_OF_TASKS; i++)
 	{
 		//check for pend type of this task:
-		switch(f->taskPending[i])
+		switch(f->taskPending[i] & ~(OS_PEND_ANY_C | OS_PEND_ALL_C))
 		{
 			case OS_PEND_NOT:
 				 match = FALSE; //task waiting nothing
@@ -97,10 +97,10 @@ static void FlagsPostLoop(OsHandler_t h)
 			uLipePrioSet(i, &taskPrioList);
 
 			//Check if this assert will consume flags:
-			if((f->taskPending[i] & OS_PEND_ANY_C) || (f->taskPending[i] & OS_PEND_ANY_C))
+			if((f->taskPending[i] & OS_PEND_ANY_C) || (f->taskPending[i] & OS_PEND_ALL_C))
 			{
 				//clear these flags
-				f->flagRegister &= ~(tcbPtrTbl[i]->flagsPending);
+				f->flagRegister &= ~(mask);
 			}
 			//clear code of pending type
 			f->taskPending[i] = OS_PEND_NOT;
@@ -225,11 +225,11 @@ OsStatus_t uLipeFlagsPend(OsHandler_t h, uint32_t flags, uint8_t opt, uint16_t t
 
 
 	//check the pend type:
-	switch(opt)
+	switch(opt & ~(OS_FLAGS_CONSUME))
 	{
 		case OS_FLAGS_PEND_ALL:
 		{
-			if(mask != currentTask->flagsPending)
+			if(mask != flags)
 			{
 
 				//Put the flag code to pend:
@@ -238,7 +238,7 @@ OsStatus_t uLipeFlagsPend(OsHandler_t h, uint32_t flags, uint8_t opt, uint16_t t
 				//check if wants to consume:
 				if(opt & OS_FLAGS_CONSUME)
 				{
-					f->taskPending[currentTask->taskPrio] = OS_PEND_ALL_C;
+					f->taskPending[currentTask->taskPrio] |= OS_PEND_ALL_C;
 				}
 
 			}
@@ -261,7 +261,7 @@ OsStatus_t uLipeFlagsPend(OsHandler_t h, uint32_t flags, uint8_t opt, uint16_t t
 				//check if wants to consume:
 				if(opt & OS_FLAGS_CONSUME)
 				{
-					f->taskPending[currentTask->taskPrio] = OS_PEND_ANY_C;
+					f->taskPending[currentTask->taskPrio] |= OS_PEND_ANY_C;
 				}
 			}
 			else
@@ -305,7 +305,7 @@ OsStatus_t uLipeFlagsPend(OsHandler_t h, uint32_t flags, uint8_t opt, uint16_t t
 	OS_CRITICAL_OUT();
 
 	//Check for a context switch:
-	uLipeTaskYield();
+	uLipeKernelTaskYield();
 
 
 	//all gone well:
@@ -340,7 +340,7 @@ OsStatus_t uLipeFlagsPost(OsHandler_t h, uint32_t flags)
 
 
 	//Check for a context switch:
-	uLipeTaskYield();
+	uLipeKernelTaskYield();
 
 	//All gone well:
 	return(kStatusOk);
@@ -374,11 +374,11 @@ OsStatus_t uLipeFlagsDelete(OsHandler_t *h)
 	OS_CRITICAL_OUT();
 
 	//Destroy this handler:
-	h = NULL;
-	f = NULL;
+	*h = 0 ;
+	 f = NULL;
 
 
-	uLipeTaskYield();
+	uLipeKernelTaskYield();
 
 	//All gone well:
 	return(kStatusOk);

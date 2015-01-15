@@ -75,7 +75,11 @@ void uLipeKernelIrqOut(void);
  *  \return
  *
  */
+#ifndef OS_FAST_SCHED
 uint16_t uLipeKernelFindHighPrio(OsPrioListPtr_t prioList);
+#else
+extern uint16_t uLipeKernelFindHighPrio(OsPrioListPtr_t prioList);
+#endif
 
 /*!
  * 	ulipeKernelTaskYield()

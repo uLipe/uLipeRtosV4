@@ -256,7 +256,7 @@ OsStatus_t uLipeMutexDelete(OsHandler_t *h)
 	freeList = m;
 
 	//Destroy reference for this control block:
-	h = NULL;
+	*h = NULL;
 	m = NULL;
 
 	//all gone well:

@@ -38,11 +38,13 @@ void uLipeInitMachine(void)
 	SysTick->LOAD = OS_TIMER_LOAD_VAL;
 
 	//Enable double word align
-	SCB->CCR |= 0x200;
+	SCB->CCR = 0x200;
 
 	//Assign priority value to pendSv and systick exc:
-	SCB->SHP[11] = 0xFE;
-	SCB->SHP[10] = 0xFF;
+	SCB->SHP[10] = 0xFE;
+	SCB->SHP[11] = 0xFF;
+	SCB->SHP[7]  = 0xFF;
+
 
 	//Enable systick interrupts, ann use external clock source:
 	SysTick->CTRL |= 0x07;
@@ -58,7 +60,7 @@ OsStackPtr_t uLipeStackInit(OsStackPtr_t taskStk, void * task, void *taskArgs )
 
 	//Initialize the stkpointer on first free top position
 	ptr = (ArmCm4RegListPtr_t)taskStk - 1;
-	--ptr;
+	ptr;
 
 	ptr->lr = 0xFFFFFFFD;			//Adds exec return on link reg
 	ptr->pc = (uint32_t)task;		//task function at pc
@@ -88,8 +90,14 @@ OsStackPtr_t uLipeStackInit(OsStackPtr_t taskStk, void * task, void *taskArgs )
  */
 void uLipePortChange(void)
 {
+	uint32_t sReg;
+
+	OS_CRITICAL_IN();
+
 	//Request a pendSv execption:
-	SCB->ICSR |= 0x10000000;
+	SCB->ICSR |= (1<<28);
+
+	OS_CRITICAL_OUT();
 }
 
 
