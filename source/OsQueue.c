@@ -29,7 +29,7 @@
  * Module internal variables
  */
 
-static QueuePtr_t freeList;			//Pointer to next freeblock of queue
+static QueuePtr_t queueFree;			//Pointer to next freeblock of queue
 Queue_t queueTbl[OS_QUEUE_COUNT];	//Table with the current block of queues
 
 /*
@@ -133,7 +133,7 @@ void uLipeQueueInit(void)
 	uint32_t i = 0, j = 0;
 
 	//Inits the free list
-	freeList = &queueTbl[0];
+	queueFree = &queueTbl[0];
 
 	for(i = 0; i < OS_QUEUE_COUNT; i++)
 	{
@@ -177,17 +177,17 @@ OsHandler_t uLipeQueueCreate(QueueData_t data, uint32_t size, OsStatus_t *err)
 	OS_CRITICAL_IN();
 
 	//Check for free blocks:
-	if(freeList == NULL)
+	if(queueFree == NULL)
 	{
 		OS_CRITICAL_OUT();
 		err = kOutOfQueue;
 		return((OsHandler_t)NULL);
 	}
 
-	q = freeList;
+	q = queueFree;
 
-	//updates next freelist:
-	freeList = freeList->nextNode;
+	//updates next queueFree:
+	queueFree = queueFree->nextNode;
 
 	OS_CRITICAL_OUT();
 
@@ -287,7 +287,7 @@ OsStatus_t uLipeQueueInsert(OsHandler_t h, void *data, uint8_t opt, uint16_t tim
 	OS_CRITICAL_OUT();
 
 	//check for a context switch:
-	uLipeTaskYield();
+	uLipeKernelTaskYield();
 
 	//All gone ok:
 	return(kStatusOk);
@@ -374,7 +374,7 @@ OsStatus_t uLipeQueueRemove(OsHandler_t h, void *data, uint8_t opt, uint16_t tim
 	OS_CRITICAL_OUT();
 
 	//Check for context switching:
-	uLipeTaskYield();
+	uLipeKernelTaskYield();
 
 	//All gone well:
 	return(kStatusOk);
@@ -407,15 +407,16 @@ OsStatus_t uLipeQueueDelete(OsHandler_t *h)
 	//free this block:
 	q->queueBase = NULL;
 	q->queueBottom = NULL;
-	q->nextNode = freeList;
-	freeList = q;
+	q->nextNode = queueFree;
+	queueFree = q;
 
 	//Destroy the reference:
-	h = NULL;
+	*h = NULL;
+	 q = NULL;
 
 	OS_CRITICAL_OUT();
 
-	uLipeTaskYield();
+	uLipeKernelTaskYield();
 
 	//All gone well:
 	return(kStatusOk);

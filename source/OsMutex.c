@@ -22,7 +22,7 @@
 /*
  * Module internal variables
  */
-static MutexPtr_t freeList;			//Pointer to next free mutex block
+static MutexPtr_t mtxFree;			//Pointer to next free mutex block
 Mutex_t mutexTbl[OS_MTX_COUNT];		//table of mutex control block
 
 #define mutexTCB tcbPtrTbl[OS_MUTEX_PRIO]
@@ -46,8 +46,8 @@ void uLipeMutexInit(void)
 {
 	uint32_t i = 0, j = 0;
 
-	//Initializes freelist
-	freeList = &mutexTbl[0];
+	//Initializes mtxFree
+	mtxFree = &mutexTbl[0];
 
 
 	for( i = 0; i < OS_MTX_COUNT; i++)
@@ -78,7 +78,7 @@ OsHandler_t uLipeMutexCreate(OsStatus_t *err)
 	MutexPtr_t m = NULL;
 
 	//check if we have available mutex:
-	if(freeList == NULL)
+	if(mtxFree == NULL)
 	{
 		err = kOutOfMutex;
 		return((OsHandler_t)m);
@@ -86,10 +86,10 @@ OsHandler_t uLipeMutexCreate(OsStatus_t *err)
 
 	//If so, take a mutex control block:
 	OS_CRITICAL_IN();
-	m = freeList;
+	m = mtxFree;
 
-	//update current freelist:
-	freeList = freeList->nextNode;
+	//update current mtxFree:
+	mtxFree = mtxFree->nextNode;
 
 	OS_CRITICAL_OUT();
 
@@ -122,7 +122,7 @@ OsStatus_t uLipeMutexTake(OsHandler_t h)
 	if(m->mutexTaken != FALSE)
 	{
 		//Add a new task to wait list:
-		uLipePrioSet(currentTask->taskPrio, m->tasksPending);
+		uLipePrioSet(currentTask->taskPrio, &m->tasksPending);
 
 		//Suspend current task execution:
 		uLipePrioClr(currentTask->taskPrio, &taskPrioList);
@@ -131,7 +131,7 @@ OsStatus_t uLipeMutexTake(OsHandler_t h)
 		OS_CRITICAL_OUT();
 
 		//Check for new task to execute:
-		uLipeTaskYield();
+		uLipeKernelTaskYield();
 
 		return(kMutexOwned);
 	}
@@ -155,7 +155,7 @@ OsStatus_t uLipeMutexTake(OsHandler_t h)
 	OS_CRITICAL_OUT();
 
 	//request a context switch
-	uLipeTaskYield();
+	uLipeKernelTaskYield();
 
 	//all gone well:
 	return(kStatusOk);
@@ -180,7 +180,7 @@ OsStatus_t uLipeMutexGive(OsHandler_t h)
 	OS_CRITICAL_IN();
 
 	//Suspend mutex task:
-	uLipePrioClr(mutexTCB->taskPrio, taskPrioList);
+	uLipePrioClr(mutexTCB->taskPrio, &taskPrioList);
 	mutexTCB->taskStatus = (1 << kTaskSuspend);
 
 	//swap priorities:
@@ -194,7 +194,7 @@ OsStatus_t uLipeMutexGive(OsHandler_t h)
 	if(m->tasksPending.prioGrp != 0)
 	{
 		//so, take the new owner of mutex:
-		m->mutexOwner = uLipeFindHighPrio(&m->tasksPending);
+		m->mutexOwner = uLipeKernelFindHighPrio(&m->tasksPending);
 		OS_CRITICAL_IN();
 
 		//change priority
@@ -207,7 +207,7 @@ OsStatus_t uLipeMutexGive(OsHandler_t h)
 		OS_CRITICAL_OUT();
 
 		//Check for a context switch
-		uLipeTaskYield();
+		uLipeKernelTaskYield();
 
 
 		//all gone well:
@@ -220,7 +220,7 @@ OsStatus_t uLipeMutexGive(OsHandler_t h)
 	m->mutexOwner = OS_MUTEX_PRIO;
 
 	//Check for a context switch:
-	uLipeTaskYield();
+	uLipeKernelTaskYield();
 
 
 	//all gone well here too:
@@ -233,7 +233,7 @@ OsStatus_t uLipeMutexGive(OsHandler_t h)
 OsStatus_t uLipeMutexDelete(OsHandler_t *h)
 {
 	uint32_t sReg = 0;
-	MutexPtr_t m = (MutexPtr_t)h;
+	MutexPtr_t m = (MutexPtr_t)*h;
 
 	//check arguments:
 	if(*h == NULL)
@@ -251,12 +251,12 @@ OsStatus_t uLipeMutexDelete(OsHandler_t *h)
 		return(kMutexOwned);
 	}
 
-	//so insert this mutex on freelist:
-	m->nextNode = freeList;
-	freeList = m;
+	//so insert this mutex on mtxFree:
+	m->nextNode = mtxFree;
+	mtxFree = m;
 
 	//Destroy reference for this control block:
-	h = NULL;
+	*h = NULL;
 	m = NULL;
 
 	//all gone well:

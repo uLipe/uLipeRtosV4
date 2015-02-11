@@ -19,7 +19,7 @@
 /*
  * Queue custom types:
  */
-typedef void* QueueData_t;
+typedef uint32_t QueueData_t;
 
 /*
  * Custom macro to reserve an array of pointers to queue data:
@@ -40,16 +40,16 @@ typedef void* QueueData_t;
  */
 struct queue_
 {
-	QueueData_t queueBase;			//queue data base address
+	QueueData_t *queueBase;			//queue data base address
 	uint32_t queueFront;			//current queue remove point
 	uint32_t queueBack;			    //current queue insertion point
-	QueueData_t queueBottom;		//queue Bottom Address
+	QueueData_t *queueBottom;		//queue Bottom Address
 	uint32_t numSlots;				//Number of entries of current queue
 	uint32_t usedSlots;				//Number of current used slots
 
 	uint8_t tasksPending[OS_NUMBER_OF_TASKS]; //Wait list for pending tasks
 	struct queue_* nextNode;		//Pointer to next queue control block
-	
+
 };
 
 typedef struct queue_  Queue_t;

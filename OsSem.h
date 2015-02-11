@@ -23,7 +23,7 @@
  */
 struct sem_
 {
-	uint16_t semLimit;						   //Semaphore couting limit
+	uint16_t semLimit;						   //Semaphore counting limit
 	uint16_t semCount;						   //Semaphore current count
 	uint8_t  tasksPending[OS_NUMBER_OF_TASKS]; //Wait list of pending tasks
 
