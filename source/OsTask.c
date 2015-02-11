@@ -56,14 +56,14 @@ OsStatus_t uLipeTaskInit(void)
 		uLipeAssert(err == kStatusOk);
 
 		err = uLipeKernelObjSet(&tcbPtrTbl[i], 0 , sizeof(OsTCBPtr_t));
-		uLipeAssert(err = kStatusOk);
+		uLipeAssert(err == kStatusOk);
 
 		//Free all blocks too:
 		taskTbl[i].tcbTaken = FALSE;
 
 	}
 
-	return(kStatusOk);
+	return((OsStatus_t)err);
 }
 
 /*
@@ -72,6 +72,8 @@ OsStatus_t uLipeTaskInit(void)
 OsStatus_t uLipeTaskCreate(void (*task) (void * args), OsStackPtr_t taskStack, uint32_t stkSize,
 						   uint16_t taskPrio, void *taskArgs)
 {
+
+	extern void uLipeTaskEntry(void *);
 	uint32_t sReg = 0;
 	OsTCBPtr_t tcb_a = NULL;
 
@@ -110,9 +112,12 @@ OsStatus_t uLipeTaskCreate(void (*task) (void * args), OsStackPtr_t taskStack, u
 	taskTbl[taskPrio].taskPrio  = taskPrio;
 	taskTbl[taskPrio].stackBot  = taskStack;
 
+	taskStack += (OsStack_t)stkSize;
+
 	//Initialize the stack frame:
-	taskTbl[taskPrio].stackTop = uLipeStackInit(taskStack + stkSize, task, taskArgs);
+	taskTbl[taskPrio].stackTop = uLipeStackInit(taskStack, &uLipeTaskEntry, taskArgs);
 	taskTbl[taskPrio].stackSize = stkSize;
+	taskTbl[taskPrio].task = task;
 	taskTbl[taskPrio].taskStatus = 1 << kTaskReady;
 
 	//Attach the tcb in linked list:
@@ -129,7 +134,7 @@ OsStatus_t uLipeTaskCreate(void (*task) (void * args), OsStackPtr_t taskStack, u
 	else
 	{
 		OS_CRITICAL_IN();
-		if(tcb_a->nextTCB != NULL)
+		while(tcb_a->nextTCB != NULL)
 		{
 			tcb_a = tcb_a->nextTCB;
 		}

@@ -63,8 +63,8 @@ typedef struct ecb_* EventPtr_t;
  *
  *  custom rtos defitions
  */
-#define TRUE  		0xFF
-#define FALSE		0x00
+#define TRUE  		 0xFF
+#define FALSE		 0x00
 #define NULL		(void*)0x00000000
 
 /*
@@ -87,7 +87,7 @@ extern void IdleTaskHook(void);
  */
 static __inline void _uLipeAssert(uint32_t x)
 {
-	if(x != TRUE)
+	if(x == FALSE)
 	{
 		asm("   bkpt \n\r");
 
