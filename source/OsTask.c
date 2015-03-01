@@ -52,10 +52,10 @@ OsStatus_t uLipeTaskInit(void)
 	//clears all task kernel obj:
 	for( i = 0; i < OS_NUMBER_OF_TASKS; i++)
 	{
-		err = uLipeKernelObjSet(&taskTbl[i], 0, sizeof(OsTCB_t));
+		err = uLipeKernelObjSet((uint8_t*)&taskTbl[i], 0, sizeof(OsTCB_t));
 		uLipeAssert(err == kStatusOk);
 
-		err = uLipeKernelObjSet(&tcbPtrTbl[i], 0 , sizeof(OsTCBPtr_t));
+		err = uLipeKernelObjSet((uint8_t*)&tcbPtrTbl[i], 0 , sizeof(OsTCBPtr_t));
 		uLipeAssert(err == kStatusOk);
 
 		//Free all blocks too:
@@ -136,12 +136,12 @@ OsStatus_t uLipeTaskCreate(void (*task) (void * args), OsStackPtr_t taskStack, u
 		OS_CRITICAL_IN();
 		while(tcb_a->nextTCB != NULL)
 		{
-			tcb_a = tcb_a->nextTCB;
+			tcb_a = (OsTCBPtr_t)tcb_a->nextTCB;
 		}
 
 		//attach tcb:
 		tcb_a->nextTCB = tcbPtrTbl[taskPrio];
-		tcbPtrTbl[taskPrio]->prevTCB = tcb_a;
+		tcbPtrTbl[taskPrio]->prevTCB = (OsTCBPtr_t)tcb_a;
 	}
 
 	//all ready, lets make this task ready to run:
@@ -172,9 +172,9 @@ OsStatus_t uLipeTaskDelete( uint16_t taskPrio)
 
 	//Detach from tcb linked list:
 	tcb_a = &taskTbl[taskPrio];
-	tcb_a = tcb_a->prevTCB;
+	tcb_a =(OsTCBPtr_t) tcb_a->prevTCB;
 	tcb_a->nextTCB = taskTbl[taskPrio].nextTCB;
-	taskTbl[taskPrio].prevTCB = tcb_a;
+	taskTbl[taskPrio].prevTCB = (OsTCBPtr_t)tcb_a;
 
 	OS_CRITICAL_OUT();
 

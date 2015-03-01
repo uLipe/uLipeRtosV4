@@ -19,13 +19,13 @@
 /*
  * Queue custom types:
  */
-typedef uint32_t QueueData_t;
+typedef void  QueueData_t;
 
 /*
  * Custom macro to reserve an array of pointers to queue data:
  */
 
-#define OS_QUEUE_RESERVE(dataName, numEntries) QueueData_t dataName[numEntries]
+#define OS_QUEUE_RESERVE(dataName, numEntries) QueueData_t *dataName[numEntries]
 
 /*
  * Queue custom codes
@@ -40,10 +40,10 @@ typedef uint32_t QueueData_t;
  */
 struct queue_
 {
-	QueueData_t *queueBase;			//queue data base address
+	QueueData_t **queueBase;			//queue data base address
 	uint32_t queueFront;			//current queue remove point
 	uint32_t queueBack;			    //current queue insertion point
-	QueueData_t *queueBottom;		//queue Bottom Address
+	QueueData_t **queueBottom;		//queue Bottom Address
 	uint32_t numSlots;				//Number of entries of current queue
 	uint32_t usedSlots;				//Number of current used slots
 
@@ -73,7 +73,7 @@ void uLipeQueueInit(void);
  * \param
  * \return
  */
-OsHandler_t uLipeQueueCreate(QueueData_t data, uint32_t size, OsStatus_t *err);
+OsHandler_t uLipeQueueCreate(QueueData_t *data, uint32_t size, OsStatus_t *err);
 
 /*!
  * uLipeQueueInsert()
@@ -89,7 +89,7 @@ OsStatus_t uLipeQueueInsert(OsHandler_t h, void *data, uint8_t opt, uint16_t tim
  * \param
  * \return
  */
-OsStatus_t uLipeQueueRemove(OsHandler_t h, void *data, uint8_t opt, uint16_t timeout);
+void *uLipeQueueRemove(OsHandler_t h, uint8_t opt, uint16_t timeout, OsStatus_t *err);
 
 /*!
  * uLipeQueueQuery()
@@ -99,6 +99,14 @@ OsStatus_t uLipeQueueRemove(OsHandler_t h, void *data, uint8_t opt, uint16_t tim
  * reserved for future use
  * OsStatus_t uLipeQueueQuery(OsHandler_t h, QueuePtr_t data);
  */
+
+/*!
+ * uLipeQueueFlush()
+ * \brief Flushes the queue
+ * \param
+ * \return
+ */
+OsStatus_t uLipeQueueFlush(OsHandler_t h);
 
 
 /*!

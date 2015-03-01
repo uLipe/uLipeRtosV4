@@ -63,9 +63,9 @@ typedef struct ecb_* EventPtr_t;
  *
  *  custom rtos defitions
  */
-#define TRUE  		 0xFF
-#define FALSE		 0x00
-#define NULL		(void*)0x00000000
+#define TRUE  		 1
+#define FALSE		 0
+#define NULL		 0
 
 /*
  * 	priorities custom definitions
