@@ -161,7 +161,7 @@ void uLipeQueueInit(void)
 /*
  * uLipeQueueCreate()
  */
-OsHandler_t uLipeQueueCreate(QueueData_t data, uint32_t size, OsStatus_t *err)
+OsHandler_t uLipeQueueCreate(QueueData_t *data, uint32_t size, OsStatus_t *err)
 {
 	uint32_t sReg = 0;
 	QueuePtr_t q;
@@ -197,7 +197,7 @@ OsHandler_t uLipeQueueCreate(QueueData_t data, uint32_t size, OsStatus_t *err)
 	q->queueBack = 0;
 	q->queueFront = 0;
 	q->usedSlots = 0;
-	q->queueBottom = data + size;
+	q->queueBottom = data + size-1;
 
 	err = kStatusOk;
 
@@ -237,21 +237,19 @@ OsStatus_t uLipeQueueInsert(OsHandler_t h, void *data, uint8_t opt, uint16_t tim
 		{
 			case OS_Q_BLOCK_FULL:
 			{
-				//task will block so:
-				OS_CRITICAL_IN();
-
 				//suspend current task:
 				uLipePrioClr(currentTask->taskPrio, &taskPrioList);
 				currentTask->taskStatus = (1 << kTaskPendQueue) | (1 << kTaskPendDelay);
 				currentTask->delayTime = timeout;
 
 				//Assert this task on queue wait list:
-				q->tasksPending[currentTask->taskPrio] = OS_Q_PEND_EMPTY;
+				q->tasksPending[currentTask->taskPrio] = OS_Q_PEND_FULL;
+
 
 				OS_CRITICAL_OUT();
 
 				//So check for a context switch:
-				uLipeTaskYield();
+				uLipeKernelTaskYield();
 
 				return(kQueueFull);
 			}
@@ -259,7 +257,7 @@ OsStatus_t uLipeQueueInsert(OsHandler_t h, void *data, uint8_t opt, uint16_t tim
 
 			default:
 			{
-				//All other cases, only return:
+
 				OS_CRITICAL_OUT();
 				return(kQueueFull);
 			}
@@ -269,7 +267,8 @@ OsStatus_t uLipeQueueInsert(OsHandler_t h, void *data, uint8_t opt, uint16_t tim
 
 
 	//freespace, Insert the data pointer on queue:
-	q->queueBase[q->queueFront] = (QueueData_t)data;
+
+	q->queueBase[q->queueFront] = (void *)data;
 	q->queueFront++;
 
 	//queue behaves as a circular FIFO fashion:
@@ -295,22 +294,17 @@ OsStatus_t uLipeQueueInsert(OsHandler_t h, void *data, uint8_t opt, uint16_t tim
 /*
  * uLipeQueueRemove()
  */
-OsStatus_t uLipeQueueRemove(OsHandler_t h, void *data, uint8_t opt, uint16_t timeout)
+void *uLipeQueueRemove(OsHandler_t h, uint8_t opt, uint16_t timeout, OsStatus_t *err)
 {
 	uint32_t sReg = 0;
 	QueuePtr_t q = (QueuePtr_t)h;
+	void *ptr = NULL;
 
 	//check arguments:
 	if(h == NULL)
 	{
 		return(kInvalidParam);
 	}
-
-	if(data == NULL)
-	{
-		return(kInvalidParam);
-	}
-
 
 	//Arguments valid, then proceed:
 	OS_CRITICAL_IN();
@@ -334,22 +328,24 @@ OsStatus_t uLipeQueueRemove(OsHandler_t h, void *data, uint8_t opt, uint16_t tim
 				currentTask->delayTime = timeout;
 
 				//Assert this task on queue wait list:
-				q->tasksPending[currentTask->taskPrio] = OS_Q_PEND_FULL;
+				q->tasksPending[currentTask->taskPrio] = OS_Q_PEND_EMPTY;
 
 				OS_CRITICAL_OUT();
 
 				//So check for a context switch:
-				uLipeTaskYield();
+				uLipeKernelTaskYield();
 
-				return(kQueueEmpty);
+				*err = kQueueEmpty;
+
+				return(ptr);
 			}
 			break;
 
 			default:
 			{
 				//All other cases, only return:
-				OS_CRITICAL_OUT();
-				return(kQueueEmpty);
+				*err = kQueueEmpty;
+				return(ptr);
 			}
 			break;
 		}
@@ -357,7 +353,7 @@ OsStatus_t uLipeQueueRemove(OsHandler_t h, void *data, uint8_t opt, uint16_t tim
 	}
 
 	//queue holds data, so remove it:
-	data = (void *)q->queueBase[q->queueBack];
+	ptr = (void *) q->queueBase[q->queueBack];
 	q->queueBack++;
 
 	//queue bevahes as circular FIFO fashion
@@ -376,11 +372,45 @@ OsStatus_t uLipeQueueRemove(OsHandler_t h, void *data, uint8_t opt, uint16_t tim
 	//Check for context switching:
 	uLipeKernelTaskYield();
 
+	*err = kStatusOk;
+
 	//All gone well:
-	return(kStatusOk);
+	return(ptr);
 }
+/*
+ * uLipeQueueFlush()
+ */
+OsStatus_t uLipeQueueFlush(OsHandler_t h)
+{
+	uint32_t sReg;
+	QueuePtr_t q = (QueuePtr_t)h;
 
+	//check parameters:
+	if(h == NULL)
+	{
+		return(kInvalidParam);
+	}
 
+	//So flush queue:
+	OS_CRITICAL_IN();
+
+	q->queueBack = 0;
+	q->queueFront = 0;
+	q->usedSlots = 0;
+
+	//Update for all pending tasks:
+	QueueRemoveLoop(h);
+	QueueInsertLoop(h);
+
+	//Queue flushed:
+	OS_CRITICAL_OUT();
+
+	//schedule a new task (if needed):
+	uLipeKernelTaskYield();
+
+	return(kStatusOk);
+
+}
 /*
  * uLipeQueueDelete()
  */
@@ -402,7 +432,7 @@ OsStatus_t uLipeQueueDelete(OsHandler_t *h)
 	OS_CRITICAL_IN();
 
 	//Assert all tasks pending the queue will be destroyed:
-	QueueDeleteLoop(h);
+	QueueDeleteLoop(*h);
 
 	//free this block:
 	q->queueBase = NULL;

@@ -102,10 +102,9 @@ uLipeFirstSwt:
 		ldr r0, [r0]			@
 		str r0, [r1]			@ the current task is the high prio task
 
-		ldr   r0, =osRunning	@
-		movs  r1, #0xFF			@ os is running
+		ldr   r0, =osRunning		@
+		movs  r1, #1			@ os is running
 		strb  r1, [r0]			@
-
 		orr   lr,lr, #0x04		@ensures the correct EXC_RETURN
 
 		bx	lr					@

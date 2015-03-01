@@ -246,7 +246,7 @@ void uLipeKernelRtosTick(void)
 		}
 
 		//goto to next task:
-		tcb = tcb->nextTCB;
+		tcb =(OsTCBPtr_t)tcb->nextTCB;
 	}while(tcb != NULL);
 
 	//find the next task ready to run:

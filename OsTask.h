@@ -55,8 +55,8 @@ struct OsTCB_
 	TaskState_t  taskStatus;	//The current status of the task
 	uint8_t		 tcbTaken;		///.;
 								//
-	struct OsTCB_t *nextTCB;	//the next tcb in the installed task list
-	struct OsTCB_t *prevTCB;	//the previous tcb in installed tasks
+	struct OsTCB_ *nextTCB;	//the next tcb in the installed task list
+	struct OsTCB_ *prevTCB;	//the previous tcb in installed tasks
 
 };
 

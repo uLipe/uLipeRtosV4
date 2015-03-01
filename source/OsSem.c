@@ -270,7 +270,6 @@ OsStatus_t uLipeSemDelete(OsHandler_t *h)
 	s->nextNode = semFree;
 	semFree = s;
 
-
 	OS_CRITICAL_OUT();
 
 	*h = NULL;
