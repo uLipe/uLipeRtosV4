@@ -239,8 +239,7 @@ void uLipeKernelRtosTick(void)
 			{
 				//make this task ready:
 				tcb->taskStatus = (1 << kTaskReady);
-				err = uLipePrioSet(tcb->taskPrio, &taskPrioList);
-				uLipeAssert(err == kStatusOk);
+				uLipePrioSet(tcb->taskPrio, &taskPrioList);
 
 			}
 		}
@@ -291,9 +290,20 @@ OsStatus_t uLipeKernelObjSet(uint8_t * dest, const uint8_t value, uint16_t objSi
 
 	return(kStatusOk);
 }
+
+/*
+ *
+ *
+ * 			DEPRECATED:
+ *
+ *
+ */
+
+
 /*
  * 	ulipePrioSet()
  */
+/*
 OsStatus_t uLipePrioSet(uint16_t prio, OsPrioListPtr_t prioList)
 {
 	uint16_t x,y;
@@ -311,10 +321,11 @@ OsStatus_t uLipePrioSet(uint16_t prio, OsPrioListPtr_t prioList)
 
 	return(kStatusOk);
 }
-
+*/
 /*
  * 	ulipePrioClr()
  */
+/*
 OsStatus_t uLipePrioClr(uint16_t prio, OsPrioListPtr_t prioList)
 {
 	uint16_t x,y;
@@ -338,7 +349,7 @@ OsStatus_t uLipePrioClr(uint16_t prio, OsPrioListPtr_t prioList)
 	return(kStatusOk);
 
 }
-
+*/
 
 
 

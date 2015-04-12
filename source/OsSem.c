@@ -50,7 +50,7 @@ extern OsPrioList_t taskPrioList;
  * Internal function, used to process tasks which waits for semaphore
  * when its assert.
  */
-static void SemPostLoop(OsHandler_t h)
+inline static void SemPostLoop(OsHandler_t h)
 {
 	SemPtr_t s = (SemPtr_t)h;
 	uint32_t i;
@@ -76,7 +76,7 @@ static void SemPostLoop(OsHandler_t h)
  * Internal function, used to signal all tasks which the sem object will
  * be deleted.
  */
-static void SemDeleteLoop(OsHandler_t h)
+inline static void SemDeleteLoop(OsHandler_t h)
 {
 	SemPtr_t s = (SemPtr_t)h;
 	uint32_t i;

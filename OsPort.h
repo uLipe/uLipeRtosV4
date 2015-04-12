@@ -17,10 +17,6 @@
 #ifndef __OS_PORT_H
 #define __OS_PORT_H
 
-/*
- *  Machine dependent header files:
- */
-#include "cmsis_device.h"
 
 /*
  * Enter and exit criticals macro:

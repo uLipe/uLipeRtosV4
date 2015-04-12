@@ -50,7 +50,7 @@ extern OsPrioList_t taskPrioList;
  * one slot became free, when a slot had its data removed
  *
  */
-static void QueueRemoveLoop(OsHandler_t h)
+inline static void QueueRemoveLoop(OsHandler_t h)
 {
 	QueuePtr_t q = (QueuePtr_t)h;
 	uint32_t i = 0;
@@ -77,7 +77,7 @@ static void QueueRemoveLoop(OsHandler_t h)
  * Internal function, used to proccess all tasks that waiting to at least
  * one slot became filled, when a slot had is space filled of data
  */
-static void QueueInsertLoop(OsHandler_t h)
+inline static void QueueInsertLoop(OsHandler_t h)
 {
 	QueuePtr_t q = (QueuePtr_t)h;
 	uint32_t i = 0;
@@ -104,7 +104,7 @@ static void QueueInsertLoop(OsHandler_t h)
  * to queue when a kernel object is about to be destroyed
  *
  */
-static void QueueDeleteLoop(OsHandler_t h)
+inline static void QueueDeleteLoop(OsHandler_t h)
 {
 	QueuePtr_t q = (QueuePtr_t)h;
 	uint32_t i = 0;

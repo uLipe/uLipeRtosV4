@@ -25,7 +25,7 @@
  * 	clock system and ticks per seconds
  */
 
-#define OS_CPU_RATE  			16800000 //in Hz
+#define OS_CPU_RATE  			18000000 //in Hz
 #define OS_TICK_RATE			100	//in Hz
 
 /*
