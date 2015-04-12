@@ -126,29 +126,6 @@ OsStatus_t uLipeKernelObjCopy(uint8_t * dest, const uint8_t * src, uint16_t objS
 OsStatus_t uLipeKernelObjSet(uint8_t * dest, const uint8_t value, uint16_t objSize );
 
 /*!
- * 	ulipePrioSet()
- *
- *  \brief Set a priority value in a prio list
- *  \param
- *
- *  \return
- *
- */
-OsStatus_t uLipePrioSet(uint16_t prio, OsPrioListPtr_t prioList);
-
-/*!
- * 	ulipePrioClr()
- *
- *  \brief clears a priority value in a prio list
- *  \param
- *
- *  \return
- *
- */
-OsStatus_t uLipePrioClr(uint16_t prio, OsPrioListPtr_t prioList);
-
-
-/*!
  * 	ulipeRtosInit()
  *
  *  \brief Perform kernel initialization
@@ -169,6 +146,58 @@ OsStatus_t uLipeRtosInit(void);
  *
  */
 OsStatus_t uLipeRtosStart(void);
+
+
+/*
+ *
+ * 	Inline fast functions:
+ *
+ */
+
+/*!
+ * 	ulipePrioSet()
+ *
+ *  \brief Set a priority value in a prio list
+ *  \param
+ *
+ *  \return
+ *
+ */
+static inline void uLipePrioSet(uint16_t prio, OsPrioListPtr_t prioList)
+{
+	uint16_t x,y;
+	//split prio in groups and elements:
+	x = prio >> 5;
+	y = prio & 0x1F;
+
+	prioList->prioGrp |= ( 1 << x);
+	prioList->prioTbl[x] |= (1 << y);
+}
+
+/*!
+ * 	ulipePrioClr()
+ *
+ *  \brief clears a priority value in a prio list
+ *  \param
+ *
+ *  \return
+ *
+ */
+static inline void uLipePrioClr(uint16_t prio, OsPrioListPtr_t prioList)
+{
+	uint16_t x,y;
+
+	//split prio in groups and elements:
+	x = prio >> 5;
+	y = prio & 0x1F;
+
+	prioList->prioTbl[x] &= ~(1 << y);
+	//Only clears a group if its is empty:
+	if(prioList->prioTbl[x] == 0)
+	{
+		prioList->prioGrp &= ~( 1 << x);
+	}
+}
 
 #endif
 

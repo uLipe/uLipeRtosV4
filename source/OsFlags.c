@@ -51,12 +51,13 @@ extern OsTCBPtr_t currentTask;
  * FlagsPostLoop()
  * Internal, used to process when all tasks when a flag is asserted
  */
-static void FlagsPostLoop(OsHandler_t h)
+inline static void FlagsPostLoop(OsHandler_t h)
 {
 	FlagsGrpPtr_t f = (FlagsGrpPtr_t)h;
 	uint16_t i = 0;
 	uint16_t match = FALSE;
 	uint32_t mask  = 0;
+	uint16_t tmp = 0;
 
 	//Search for a match flags:
 	for(i = 0; i < OS_NUMBER_OF_TASKS; i++)
@@ -100,13 +101,17 @@ static void FlagsPostLoop(OsHandler_t h)
 			if((f->taskPending[i] & OS_PEND_ANY_C) || (f->taskPending[i] & OS_PEND_ALL_C))
 			{
 				//clear these flags
-				f->flagRegister &= ~(mask);
+				tmp |= mask;
 			}
 			//clear code of pending type
 			f->taskPending[i] = OS_PEND_NOT;
 		}
 
+
 	}
+
+	//If we had a consume event, so clear these flags;
+	f->flagRegister &= ~(tmp);
 
 }
 
@@ -117,7 +122,7 @@ static void FlagsPostLoop(OsHandler_t h)
  *  all tasks which pending its
  */
 
-static void FlagsDeleteLoop(OsHandler_t h)
+inline static void FlagsDeleteLoop(OsHandler_t h)
 {
 	FlagsGrpPtr_t f = (FlagsGrpPtr_t)h;
 	uint16_t i = 0;

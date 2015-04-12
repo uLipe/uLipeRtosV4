@@ -55,6 +55,14 @@ struct OsTCB_
 	TaskState_t  taskStatus;	//The current status of the task
 	uint8_t		 tcbTaken;		///.;
 								//
+
+	//Another kernel objects link to lists:
+	struct OsTCB *flagsList;
+	struct OsTCB *qList;
+	struct OsTCB *semList;
+	struct OsTCB *mboxList;
+
+
 	struct OsTCB_ *nextTCB;	//the next tcb in the installed task list
 	struct OsTCB_ *prevTCB;	//the previous tcb in installed tasks
 
