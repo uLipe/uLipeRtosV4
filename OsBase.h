@@ -89,7 +89,7 @@ static __inline void _uLipeAssert(uint32_t x)
 {
 	if(x == FALSE)
 	{
-		asm("   bkpt \n\r");
+		asm("   bkpt  #0 \n\r");
 
 		//Trava aqui:
 		while(TRUE);
