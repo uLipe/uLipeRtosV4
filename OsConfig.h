@@ -33,7 +33,7 @@
  */
 #define OS_IDLE_TASK_HOOK_EN		0
 #define OS_FAST_SCHED				1
-
+#define OS_USE_DEPRECATED           0
 
 /*
  * 	task kernel objects and generation code:
