@@ -308,7 +308,7 @@ OsStatus_t uLipeQueueInsert(OsHandler_t h, void *data, uint8_t opt, uint16_t tim
 				q->tasksPending[currentTask->taskPrio] = OS_Q_PEND_FULL;
 #else
 				//Adds task to wait list:
-				uLipePrioClr(currentTask->taskPrio, &q->queueSlotWait);
+				uLipePriSet(currentTask->taskPrio, &q->queueSlotWait);
 #endif	
 
 
@@ -398,7 +398,7 @@ void *uLipeQueueRemove(OsHandler_t h, uint8_t opt, uint16_t timeout, OsStatus_t 
 				q->tasksPending[currentTask->taskPrio] = OS_Q_PEND_EMPTY;
 #else
 				//Adds task to wait list:
-				uLipePrioClr(currentTask->taskPrio, &q->queueInsertWait);
+				uLipePrioSet(currentTask->taskPrio, &q->queueInsertWait);
 #endif	
 				OS_CRITICAL_OUT();
 
