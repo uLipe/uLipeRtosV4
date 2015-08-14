@@ -55,6 +55,7 @@ inline static void SemPostLoop(OsHandler_t h)
 	SemPtr_t s = (SemPtr_t)h;
 	uint32_t i;
 
+#if OS_USE_DEPRECATED == 1
 	//update all tasks in wait list
 	for( i = 0; i < OS_NUMBER_OF_TASKS; i++)
 	{
@@ -68,6 +69,18 @@ inline static void SemPostLoop(OsHandler_t h)
 		}
 
 	}
+#else
+	//Extract the highest task which wait a semaphore:
+	i = uLipeFindHighPrio(&s->tasksWaiting);
+	if(i != 0)
+	{
+		uLipePrioClr(i, &s->tasksWaiting);
+
+		//Make this task ready, and add it to ready list:
+		tcbPtrTbl[i]->taskStatus = (1 << kTaskReady);
+		uLipePrioSet(i, &taskPrioList);
+	}
+#endif
 }
 
 /*
@@ -81,6 +94,7 @@ inline static void SemDeleteLoop(OsHandler_t h)
 	SemPtr_t s = (SemPtr_t)h;
 	uint32_t i;
 
+#if OS_USE_DEPRECATED == 1
 	//update all tasks in wait list
 	for( i = 0; i < OS_NUMBER_OF_TASKS; i++)
 	{
@@ -92,7 +106,21 @@ inline static void SemDeleteLoop(OsHandler_t h)
 		}
 		s->tasksPending[i] = OS_SEM_NOT;
 	}
+#else
+	//Extract all tasks from list and signal its as ready tasks:
+	do
+	{
+		i = uLipeFindHighPrio(&s->tasksWaiting);
+		if(i != 0)
+		{
+			uLipePrioClr(i, &s->tasksWaiting);
+			//Make this task ready, and add it to ready list:
+			tcbPtrTbl[i]->taskStatus = (1 << kTaskReady);
+			uLipePrioSet(i, &taskPrioList);
+		}
 
+	}while( i != 0);
+#endif
 }
 
 /*
@@ -114,11 +142,17 @@ void uLipeSemInit(void)
 		semTbl[i].semCount = 0;
 		semTbl[i].semLimit = 0;
 
+#if OS_USE_DEPRECATED == 1
+
 		for( j = 0 ; j < OS_NUMBER_OF_TASKS; j++)
 		{
 			semTbl[i].tasksPending[j] = OS_SEM_NOT;
 		}
+#else
 
+		memset(&semTbl[i].tasksWaiting, 0, sizeof(OsPrioList_t));
+
+#endif
 	}
 }
 
@@ -178,8 +212,11 @@ OsStatus_t uLipeSemTake(OsHandler_t h, uint16_t timeout)
 
 		OS_CRITICAL_OUT();
 
+#if OS_USE_DEPRECATED == 1
 		s->tasksPending[currentTask->taskPrio] = OS_SEM_PEND;
-
+#else
+		uLipePrioSet(currentTask->taskPrio, &s->tasksWaiting);
+#endif
 		OS_CRITICAL_IN();
 
 		//...suspend and add this task in wait list:

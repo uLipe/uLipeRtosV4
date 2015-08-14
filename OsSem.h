@@ -25,7 +25,12 @@ struct sem_
 {
 	uint16_t semLimit;						   //Semaphore counting limit
 	uint16_t semCount;						   //Semaphore current count
+
+#if OS_USE_DEPRECATED == 1
 	uint8_t  tasksPending[OS_NUMBER_OF_TASKS]; //Wait list of pending tasks
+#else
+	OsPrioList_t tasksWaiting;
+#endif
 
 	struct sem_* nextNode;					   //next node in sem linked list
 };

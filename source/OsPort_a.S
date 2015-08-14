@@ -36,6 +36,8 @@
 		.global uLipeKernelFindHighPrio
 		.global uLipeFirstSwt
 		.global uLipeCtxSwt
+		.global uLipeMemCpy
+		.global uLipeMemSet
 
 @
 @	place this code on text section:
@@ -59,6 +61,22 @@ uLipeEnterCritical:
 uLipeExitCritical:
 		msr	primask, r0		@pops the status register & interrupts
 		bx	lr				@
+
+@
+@   void uLipeMemCpy(void *dest, void *src, size_t size)
+@
+uLipeMemCpy:
+
+		bx lr
+
+
+@
+@   void uLipeMemCpy(void *dest, void *src, size_t size)
+@
+uLipeMemSet:
+
+		bx lr
+
 
 @
 @	uint16_t uLipeKernelFindHighPrio(OsPrioListPtr_t prioList)
