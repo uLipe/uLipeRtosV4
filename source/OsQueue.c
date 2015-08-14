@@ -77,10 +77,12 @@ inline static void QueueRemoveLoop(OsHandler_t h)
 	//valid prio?
 	if(i != 0)
 	{
+		//Remove task from wait list:
+		uLipePrioClr(i, &q->queueSlotWait);
+
+
 		//make this task ready:
 		tcbPtrTbl[i]->taskStatus = (1 << kTaskReady);
-		//make this task ready:
-		tcbPtrTbl[i]->taskStatus = (1 << kTaskReady);		
 		uLipePrioSet(i, &taskPrioList);
 	}	
 	
@@ -121,8 +123,10 @@ inline static void QueueInsertLoop(OsHandler_t h)
 	//valid prio?
 	if(i != 0)
 	{
-		//make this task ready:
-		tcbPtrTbl[i]->taskStatus = (1 << kTaskReady);
+		//Remove task from wait list:
+		uLipePrioClr(i, &q->queueInsertWait);
+
+
 		//make this task ready:
 		tcbPtrTbl[i]->taskStatus = (1 << kTaskReady);		
 		uLipePrioSet(i, &taskPrioList);
