@@ -116,7 +116,7 @@ inline static void QueueInsertLoop(OsHandler_t h)
 	}
 #else
 	//extract the highest priority task which waits for a slot:
-	i = (uint16_t)uLipeFindHighPrio(&q->queueInserWait);
+	i = (uint16_t)uLipeFindHighPrio(&q->queueInsertWait);
 
 	//valid prio?
 	if(i != 0)
@@ -160,7 +160,7 @@ inline static void QueueDeleteLoop(OsHandler_t h)
 #else
 		
 	//remove out all tasks of all wait lists:
-	while((q->queueSlotWait.prioGrp != 0)&&(q->queueInserWait.prioGrp != 0))
+	while((q->queueSlotWait.prioGrp != 0)&&(q->queueInsertWait.prioGrp != 0))
 	{
 		//Remove for priority order:
 		i = uLipeFindHighPrio(&q->queueSlotWait);
@@ -197,10 +197,20 @@ void uLipeQueueInit(void)
 		queueTbl[i].queueBase = NULL;
 		queueTbl[i].usedSlots = 0;
 
+#if OS_USE_DEPRECATED == 1
 		for( j = 0 ; j < OS_NUMBER_OF_TASKS; j++)
 		{
 			queueTbl[i].tasksPending[j] = OS_Q_PEND_NOT;
 		}
+#else
+		/*
+		 * Clears all wait lists:
+		 */
+		memset(&queueTbl[i].queueInsertWait, 0, sizeof(OsPrioList_t));
+		memset(&queueTbl[i].queueSlotWait, 0, sizeof(OsPrioList_t));
+
+#endif
+
 	}
 
 	//mark the end of linked list:
@@ -492,7 +502,6 @@ OsStatus_t uLipeQueueDelete(OsHandler_t *h)
 
 	//free this block:
 	q->queueBase = NULL;
-	q->queueBottom = NULL;
 	q->nextNode = queueFree;
 	queueFree = q;
 
