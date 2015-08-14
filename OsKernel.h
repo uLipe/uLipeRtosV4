@@ -163,7 +163,7 @@ OsStatus_t uLipeRtosStart(void);
  *  \return
  *
  */
-static inline void uLipePrioSet(uint16_t prio, OsPrioListPtr_t prioList)
+static __inline void uLipePrioSet(uint16_t prio, OsPrioListPtr_t prioList)
 {
 	uint16_t x,y;
 	//split prio in groups and elements:
@@ -183,7 +183,7 @@ static inline void uLipePrioSet(uint16_t prio, OsPrioListPtr_t prioList)
  *  \return
  *
  */
-static inline void uLipePrioClr(uint16_t prio, OsPrioListPtr_t prioList)
+static __inline void uLipePrioClr(uint16_t prio, OsPrioListPtr_t prioList)
 {
 	uint16_t x,y;
 
