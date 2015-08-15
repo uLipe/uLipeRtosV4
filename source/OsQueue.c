@@ -170,6 +170,10 @@ inline static void QueueDeleteLoop(OsHandler_t h)
 		i = uLipeFindHighPrio(&q->queueSlotWait);
 		j = uLipeFindHighPrio(&q->queueInsertWait);
 		
+		uLipePrioClr(i, &q->queueSlotWait);
+		uLipePrioClr(j, &q->queueInsertWait);
+
+
 		//Set these tasks as ready:
 		tcbPtrTbl[i]->taskStatus = (1 << kTaskReady);
 		uLipePrioSet(i, &taskPrioList);		
