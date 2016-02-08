@@ -18,15 +18,28 @@
 #ifndef __OS_CONFIG_H
 #define __OS_CONFIG_H
 
-#include <stdint.h>
-#include <string.h>
-
 /*
  * 	clock system and ticks per seconds
  */
 
 #define OS_CPU_RATE  			20000000 //in Hz
 #define OS_TICK_RATE			1000	//in Hz
+
+/*
+ *  Architecture selection:
+ */
+
+//
+// ARM Cortex:
+//
+#define OS_ARCH_CORTEX_M3 		0
+#define OS_ARCH_CORTEX_M4      	0
+#define OS_ARCH_CORTEX_M7      	1
+
+
+//
+// Other archs TBD
+//
 
 /*
  * 	Kernel configurations:
