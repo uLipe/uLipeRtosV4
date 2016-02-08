@@ -19,6 +19,9 @@
 #define __OS_BASE_H
 
 #include "OsConfig.h"
+#include <stdint.h>
+#include <string.h>
+
 
 /*
  *  custom rtos types:

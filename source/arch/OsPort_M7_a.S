@@ -16,6 +16,12 @@
 @
 @	execute this code in thumb mode:
 @
+
+#include "../../OsConfig.h"
+
+#if (OS_ARCH_CORTEX_M7 == 1)
+
+
  		.thumb
 		.syntax unified
 @
@@ -151,6 +157,6 @@ uLipeCtxSwt:
 		bx	lr					@ the return depennds of current task stack contents
 
 
-
+#endif
 
 .end
