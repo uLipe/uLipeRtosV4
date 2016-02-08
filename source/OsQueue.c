@@ -72,7 +72,7 @@ inline static void QueueRemoveLoop(OsHandler_t h)
 #else
 
 	//extract the highest priority task which waits for a slot:
-	i = (uint16_t)uLipeFindHighPrio(&q->queueSlotWait);
+	i = (uint16_t)uLipeKernelFindHighPrio(&q->queueSlotWait);
 
 	//valid prio?
 	if(i != 0)
@@ -118,7 +118,7 @@ inline static void QueueInsertLoop(OsHandler_t h)
 	}
 #else
 	//extract the highest priority task which waits for a slot:
-	i = (uint16_t)uLipeFindHighPrio(&q->queueInsertWait);
+	i = (uint16_t)uLipeKernelFindHighPrio(&q->queueInsertWait);
 
 	//valid prio?
 	if(i != 0)
@@ -167,8 +167,8 @@ inline static void QueueDeleteLoop(OsHandler_t h)
 	while((q->queueSlotWait.prioGrp != 0)&&(q->queueInsertWait.prioGrp != 0))
 	{
 		//Remove for priority order:
-		i = uLipeFindHighPrio(&q->queueSlotWait);
-		j = uLipeFindHighPrio(&q->queueInsertWait);
+		i = uLipeKernelFindHighPrio(&q->queueSlotWait);
+		j = uLipeKernelFindHighPrio(&q->queueInsertWait);
 		
 		uLipePrioClr(i, &q->queueSlotWait);
 		uLipePrioClr(j, &q->queueInsertWait);
@@ -216,6 +216,7 @@ void uLipeQueueInit(void)
 		 */
 		memset(&queueTbl[i].queueInsertWait, 0, sizeof(OsPrioList_t));
 		memset(&queueTbl[i].queueSlotWait, 0, sizeof(OsPrioList_t));
+		(void)j;
 
 #endif
 
@@ -236,7 +237,7 @@ OsHandler_t uLipeQueueCreate(QueueData_t *data, uint32_t size, OsStatus_t *err)
 	//Check arguments:
 	if(data == NULL)
 	{
-		err = kInvalidParam;
+		*err = kInvalidParam;
 		return((OsHandler_t)NULL);
 	}
 
@@ -247,7 +248,7 @@ OsHandler_t uLipeQueueCreate(QueueData_t *data, uint32_t size, OsStatus_t *err)
 	if(queueFree == NULL)
 	{
 		OS_CRITICAL_OUT();
-		err = kOutOfQueue;
+		*err = kOutOfQueue;
 		return((OsHandler_t)NULL);
 	}
 
@@ -284,7 +285,7 @@ OsStatus_t uLipeQueueInsert(OsHandler_t h, void *data, uint8_t opt, uint16_t tim
 	{
 		return(kInvalidParam);
 	}
-	if(h == NULL)
+	if(h == 0)
 	{
 		return(kInvalidParam);
 	}
@@ -312,7 +313,7 @@ OsStatus_t uLipeQueueInsert(OsHandler_t h, void *data, uint8_t opt, uint16_t tim
 				q->tasksPending[currentTask->taskPrio] = OS_Q_PEND_FULL;
 #else
 				//Adds task to wait list:
-				uLipePriSet(currentTask->taskPrio, &q->queueSlotWait);
+				uLipePrioSet(currentTask->taskPrio, &q->queueSlotWait);
 #endif	
 
 
@@ -371,9 +372,10 @@ void *uLipeQueueRemove(OsHandler_t h, uint8_t opt, uint16_t timeout, OsStatus_t 
 	void *ptr = NULL;
 
 	//check arguments:
-	if(h == NULL)
+	if(h == 0)
 	{
-		return(kInvalidParam);
+		*err = kInvalidParam ;
+		return(NULL);
 	}
 
 	//Arguments valid, then proceed:
@@ -460,7 +462,7 @@ OsStatus_t uLipeQueueFlush(OsHandler_t h)
 	QueuePtr_t q = (QueuePtr_t)h;
 
 	//check parameters:
-	if(h == NULL)
+	if(h == 0)
 	{
 		return(kInvalidParam);
 	}
@@ -495,7 +497,7 @@ OsStatus_t uLipeQueueDelete(OsHandler_t *h)
 
 
 	//check arguments:
-	if( *h == NULL)
+	if( h == (OsHandler_t *)NULL)
 	{
 		return(kInvalidParam);
 	}
@@ -514,7 +516,7 @@ OsStatus_t uLipeQueueDelete(OsHandler_t *h)
 	queueFree = q;
 
 	//Destroy the reference:
-	*h = NULL;
+	 h = (OsHandler_t *)NULL;
 	 q = NULL;
 
 	OS_CRITICAL_OUT();

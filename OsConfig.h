@@ -19,13 +19,13 @@
 #define __OS_CONFIG_H
 
 #include <stdint.h>
-
+#include <string.h>
 
 /*
  * 	clock system and ticks per seconds
  */
 
-#define OS_CPU_RATE  			18000000 //in Hz
+#define OS_CPU_RATE  			20000000 //in Hz
 #define OS_TICK_RATE			1000	//in Hz
 
 /*
@@ -39,7 +39,7 @@
  * 	task kernel objects and generation code:
  */
 
-#define OS_NUMBER_OF_TASKS 			 64 //MUST BE > 0
+#define OS_NUMBER_OF_TASKS 			  8 //MUST BE > 0
 #define OS_TASK_MODULE_EN			  1 //Gererate code for task management
 
 /*

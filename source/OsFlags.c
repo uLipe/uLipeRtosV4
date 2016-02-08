@@ -184,7 +184,7 @@ OsHandler_t uLipeFlagsCreate(OsStatus_t *err)
 	if(flagsFree == NULL)
 	{
 		OS_CRITICAL_OUT();
-		err = kOutOfFlags;
+		*err = kOutOfFlags;
 
 		//Return a null handler:
 		return((OsHandler_t)0);
@@ -216,7 +216,7 @@ OsStatus_t uLipeFlagsPend(OsHandler_t h, uint32_t flags, uint8_t opt, uint16_t t
 
 
 	//Check for valid handler
-	if(h == NULL)
+	if(h == 0)
 	{
 		return(kInvalidParam);
 	}
@@ -326,7 +326,7 @@ OsStatus_t uLipeFlagsPost(OsHandler_t h, uint32_t flags)
 	uint32_t sReg = 0;
 
 	//Check argument:
-	if(h == NULL)
+	if(h == 0)
 	{
 		return(kInvalidParam);
 	}

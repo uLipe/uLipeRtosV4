@@ -109,7 +109,6 @@ OsStackPtr_t uLipeStackInit(OsStackPtr_t taskStk, void * task, void *taskArgs )
 
 	//Initialize the stkpointer on first free top position
 	ptr = (ArmCm4RegListPtr_t)taskStk - 1;
-	ptr;
 
 	ptr->lr = 0xFFFFFFFD;			//Adds exec return on link reg
 	ptr->pc = (uint32_t)task;		//task function at pc

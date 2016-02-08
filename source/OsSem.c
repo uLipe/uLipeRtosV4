@@ -71,7 +71,7 @@ inline static void SemPostLoop(OsHandler_t h)
 	}
 #else
 	//Extract the highest task which wait a semaphore:
-	i = uLipeFindHighPrio(&s->tasksWaiting);
+	i = uLipeKernelFindHighPrio(&s->tasksWaiting);
 	if(i != 0)
 	{
 		uLipePrioClr(i, &s->tasksWaiting);
@@ -110,7 +110,7 @@ inline static void SemDeleteLoop(OsHandler_t h)
 	//Extract all tasks from list and signal its as ready tasks:
 	do
 	{
-		i = uLipeFindHighPrio(&s->tasksWaiting);
+		i = uLipeKernelFindHighPrio(&s->tasksWaiting);
 		if(i != 0)
 		{
 			uLipePrioClr(i, &s->tasksWaiting);
@@ -151,6 +151,7 @@ void uLipeSemInit(void)
 #else
 
 		memset(&semTbl[i].tasksWaiting, 0, sizeof(OsPrioList_t));
+		(void)j;
 
 #endif
 	}
@@ -198,7 +199,7 @@ OsStatus_t uLipeSemTake(OsHandler_t h, uint16_t timeout)
 	uint32_t sReg = 0;
 
 	//Check arguments:
-	if( h == NULL)
+	if( h == 0)
 	{
 		return(kInvalidParam);
 	}
@@ -252,7 +253,7 @@ OsStatus_t uLipeSemGive(OsHandler_t h, uint16_t count)
 	uint32_t total = 0;
 
 	//check arguments:
-	if(h == NULL)
+	if(h == 0)
 	{
 		return(kInvalidParam);
 	}
@@ -291,7 +292,7 @@ OsStatus_t uLipeSemDelete(OsHandler_t *h)
 	uint32_t sReg = 0;
 
 	//Check arguments:
-	if( h == NULL)
+	if( h == (OsHandler_t *)NULL)
 	{
 		return(kInvalidParam);
 	}
@@ -309,7 +310,7 @@ OsStatus_t uLipeSemDelete(OsHandler_t *h)
 
 	OS_CRITICAL_OUT();
 
-	*h = NULL;
+	h = (OsHandler_t *)NULL;
 	s = NULL;
 
 	//check for a context switch:

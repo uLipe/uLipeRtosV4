@@ -44,7 +44,7 @@ extern OsTCBPtr_t tcbPtrTbl[];
  *
  *  This is the idle task, which run at lhe least priority
  */
-void uLipeKernelIdleTask(void)
+void uLipeKernelIdleTask(void *args)
 {
 	uint32_t execCounter = 0;
 
@@ -248,6 +248,8 @@ void uLipeKernelRtosTick(void)
 		tcb =(OsTCBPtr_t)tcb->nextTCB;
 	}while(tcb != NULL);
 
+	(void)err;
+
 	//find the next task ready to run:
 	uLipeKernelIrqOut();
 }
@@ -387,11 +389,13 @@ OsStatus_t uLipeRtosInit(void)
 	uLipeSemInit();
 #endif
 
+	(void)err;
+
 	//init low level hardware
 	uLipeInitMachine();
 
 	//Install idle task:
-	err = uLipeTaskCreate(&uLipeKernelIdleTask,(OsStackPtr_t)&idleTaskStack, OS_IDLE_TASK_STACK_SIZE,
+	err = uLipeTaskCreate(&uLipeKernelIdleTask, &idleTaskStack[0], OS_IDLE_TASK_STACK_SIZE,
 						  OS_LEAST_PRIO, 0);
 	uLipeAssert(err == kStatusOk);
 
@@ -408,8 +412,6 @@ OsStatus_t uLipeRtosInit(void)
  */
 OsStatus_t uLipeRtosStart(void)
 {
-	uint32_t sReg = 0;
-
 	//check if os was pre configured:
 	if(osConfigured != TRUE) return(kKernelStartFail);
 
