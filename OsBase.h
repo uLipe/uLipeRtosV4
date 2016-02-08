@@ -65,7 +65,6 @@ typedef struct ecb_* EventPtr_t;
  */
 #define TRUE  		 1
 #define FALSE		 0
-#define NULL		 0
 
 /*
  * 	priorities custom definitions

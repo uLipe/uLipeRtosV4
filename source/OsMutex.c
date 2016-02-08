@@ -80,7 +80,7 @@ OsHandler_t uLipeMutexCreate(OsStatus_t *err)
 	//check if we have available mutex:
 	if(mtxFree == NULL)
 	{
-		err = kOutOfMutex;
+		*err = kOutOfMutex;
 		return((OsHandler_t)m);
 	}
 
@@ -110,7 +110,7 @@ OsStatus_t uLipeMutexTake(OsHandler_t h)
 	MutexPtr_t m = (MutexPtr_t)h;
 
 	//Check arguments:
-	if(h == NULL)
+	if(h == 0)
 	{
 		return(kInvalidParam);
 	}
@@ -171,7 +171,7 @@ OsStatus_t uLipeMutexGive(OsHandler_t h)
 	MutexPtr_t m = (MutexPtr_t)h;
 
 	//check arguments:
-	if( h == NULL)
+	if( h == 0)
 	{
 		return(kInvalidParam);
 	}
@@ -236,7 +236,7 @@ OsStatus_t uLipeMutexDelete(OsHandler_t *h)
 	MutexPtr_t m = (MutexPtr_t)*h;
 
 	//check arguments:
-	if(*h == NULL)
+	if(h == NULL)
 	{
 		return(kInvalidParam);
 	}
@@ -256,7 +256,7 @@ OsStatus_t uLipeMutexDelete(OsHandler_t *h)
 	mtxFree = m;
 
 	//Destroy reference for this control block:
-	*h = NULL;
+	h = NULL;
 	m = NULL;
 
 	//all gone well:
