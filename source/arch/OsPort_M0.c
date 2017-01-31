@@ -15,9 +15,9 @@
  */
 
 #include "uLipeRtos4.h"
-#include "OsArch_Defs_M3_M4_M7.h"
+#include "OsArch_Defs_M0.h"
 
-#if (OS_ARCH_CORTEX_M7 == 1) | (OS_ARCH_CORTEX_M4 == 1) | (OS_ARCH_CORTEX_M3 == 1)
+#if (OS_ARCH_CORTEX_M0 == 1)
 
 /*
  * Systick load value macro:
@@ -45,10 +45,8 @@ void uLipeInitMachine(void)
 	SCB->CCR = 0x200;
 
 	//Assign priority value to pendSv and systick exc:
-	SCB->SHP[10] = 0xFE;
-	SCB->SHP[11] = 0xFF;
-	SCB->SHP[7]  = 0xFF;
-
+	SCB->SHP[1] = 0xFF << 24;
+	SCB->SHP[2] = 0xFEFF << 16;
 
 	//Enable systick interrupts, ann use external clock source:
 	SysTick->CTRL |= 0x07;
@@ -60,10 +58,10 @@ void uLipeInitMachine(void)
  */
 OsStackPtr_t uLipeStackInit(OsStackPtr_t taskStk, void * task, void *taskArgs )
 {
-	ArmCm4RegListPtr_t ptr;
+	ArmCm0RegListPtr_t ptr;
 
 	//Initialize the stkpointer on first free top position
-	ptr = (ArmCm4RegListPtr_t)taskStk - 1;
+	ptr = (ArmCm0RegListPtr_t)taskStk - 1;
 
 	ptr->lr = 0xFFFFFFFD;			//Adds exec return on link reg
 	ptr->pc = (uint32_t)task;		//task function at pc

@@ -19,7 +19,7 @@
 
 #include "../../OsConfig.h"
 
-#if (OS_ARCH_CORTEX_M7 == 1) | (OS_ARCH_CORTEX_M4 == 1) | (OS_ARCH_CORTEX_M3 == 1)
+#if (OS_ARCH_CORTEX_M0 == 1)
 
 
  		.thumb
@@ -85,32 +85,25 @@ uLipeMemSet:
 
 
 @
-@	uint16_t uLipeKernelFindHighPrio(OsPrioListPtr_t prioList)
-@
-		.thumb_func
-uLipeKernelFindHighPrio:
-		ldr  r1, [r0], #4  		@load prio group
-		movs r2, #31	   		@
-		clz  r1, r1		   		@
-		subs r1,r2,r1	  		@
-		lsl  r1, #2		   		@calculates the correct prio displacement
-		ldr  r3, [r0, r1]  		@
-		clz  r3,r3		   		@
-		subs r3, r2,r3	   		@
-		add  r0, r3, r1, lsl #3 @calculates prio where: prio = r3 + (r1 << 5)
-		bx 	 lr				 	@
-
-@
 @	void uLipeFirstSwt(void)
 @
 		.thumb_func
+
 uLipeFirstSwt:
 
 		ldr r0, =osMainStk  	@carrega variavel que vai guardar o stack principal
-		tst	lr, #4
-		it  EQ
-		mrseq r1, msp			@carrega o main stack pointer
-		stmdb r1!,{r4 - r11}	@salva registros que o hardware nao guarda
+		movs r2, #4
+		mov  r1, lr
+		ands r1,r1,r2
+		bne ___already_msp
+		mrs r1, msp				@carrega o main stack pointer
+___already_msp:
+		stmea r1!, {r4 - r7}	@ save the software context
+	    mov  r4,r8
+	    mov  r5,r9
+	    mov  r6,r10
+	    mov  r7,r11
+	    stmea r1!, {r4 - r7}	@ save the software context
 		str	r1,[r0]
 
 		movs r0, #0x02			@
@@ -120,7 +113,12 @@ uLipeFirstSwt:
 		ldr r1, =currentTask	@
 		ldr r2, [r0]			@
 		ldr r2, [r2]			@ takes the first task stack:
-		ldmia r2!, {r4 - r11}	@ pops the first sw context
+		ldmia r2!, {r4 - r7}	@ pops the first sw context
+	    mov  r8,r4
+	    mov  r9,r5
+	    mov  r10,r6
+	    mov  r11,r7
+   	    ldmia r2!, {r4 - r7}
 		msr	  psp, r2			@ the remainning context is dealt by hardware
 
 		ldr r0, [r0]			@
@@ -129,8 +127,10 @@ uLipeFirstSwt:
 		ldr   r0, =osRunning		@
 		movs  r1, #1			@ os is running
 		strb  r1, [r0]			@
-		orr   lr,lr, #0x04		@ensures the correct EXC_RETURN
-
+		movs r2, #4
+		mov r1, lr
+		orrs r1,r1, r2          @
+		mov lr, r1
 		bx	lr					@
 
 @
@@ -143,20 +143,31 @@ uLipeCtxSwt:
 		ldr r1, =currentTask	@
 		ldr r2, [r1]			@ takes the current task stack:
 		mrs r3, psp				@ takes the current stack pointer
-		stmdb r3!, {r4 - r11}	@ save the software context
-		str   r3, [r2]			@
+		stmea r3!, {r4 - r7}	@ save the software context
+	    mov  r4,r8
+	    mov  r5,r9
+	    mov  r6,r10
+	    mov  r7,r11
+	    stmea r3!, {r4 - r7}	@ save the software context
+	    str   r3, [r2]			@
 
 		ldr r2,[r0]				@
 		ldr r2,[r2]				@ takes the high prio task stk pointer
-		ldmia r2!, {r4-r11}		@ pops  the new software saved context
+	    ldmia r2!, {r4 - r7}	@ pops the  sw context
+	    mov  r8,r4
+	    mov  r9,r5
+	    mov  r10,r6
+	    mov  r11,r7
+	    ldmia r2!, {r4 - r7}
 		msr psp, r2				@ the hardware deals with remaining context
 
 		ldr r2, [r0]			@
 		str r2, [r1]			@ the high prio task is the current task
-		orr lr,lr, #0x04        @
+		movs r2, #4
+		mov r1, lr
+		orrs r1,r1, r2           @
+		mov lr, r1
 		bx	lr					@ the return depennds of current task stack contents
-
-
 #endif
 
 .end

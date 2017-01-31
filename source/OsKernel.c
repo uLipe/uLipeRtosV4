@@ -66,33 +66,53 @@ void uLipeKernelIdleTask(void *args)
  * This internal function counts the number of leading zeros
  *
  */
-#ifndef OS_FAST_SCHED
-uint16_t uLipeKernelClz(uint32_t reg)
-{
-	uint32_t i = 0;
-	uint16_t ret = 0;
-	uint16_t clz = FALSE;
+#if (OS_FAST_SCHED == 0)
+static inline uint32_t uLipeKernelClz(uint32_t x) {
+    static uint8_t const clz_lkup[] = {
+        32, 31, 30, 30, 29, 29, 29, 29,
+        28, 28, 28, 28, 28, 28, 28, 28
+    };
+    uint32_t n;
 
-	//The alghoritm adopted is a balance between speed and
-	//derterminisc in order to ensure real time execution
-
-	for(i = 0x80000000; i != 0 ; i >>= 1 )
-	{
-		//check for the first one found:
-		if(i & reg)
-		{
-			//stops to count up ret
-			clz = TRUE;
-		}
-		else
-		{
-		   //while the first zero is not found, increment leading zeros
-		   if(clz != TRUE) ret++;
-		}
-
-	}
-	return(ret);
+    if (x >= (1 << 16)) {
+        if (x >= (1 << 24)) {
+            if (x >= (1 << 28)) {
+                n = 28;
+            }
+            else {
+                n = 24;
+            }
+        }
+        else {
+            if (x >= (1 << 20)) {
+                n = 20;
+            }
+            else {
+                n = 16;
+            }
+        }
+    }
+    else {
+        if (x >= (1 << 8)) {
+            if (x >= (1 << 12)) {
+                n = 12;
+            }
+            else {
+                n = 8;
+            }
+        }
+        else {
+            if (x >= (1 << 4)) {
+                n = 4;
+            }
+            else {
+                n = 0;
+            }
+        }
+    }
+    return (uint32_t)clz_lkup[x >> n] - n;
 }
+
 #endif
 /*
  * 	uLipeTaskEntry()
@@ -161,7 +181,7 @@ void uLipeKernelIrqOut(void)
  */
 
 
-#ifndef OS_FAST_SCHED
+#if (OS_FAST_SCHED == 0)
 uint16_t uLipeKernelFindHighPrio(OsPrioListPtr_t prioList)
 {
 	uint16_t x   = 0;
