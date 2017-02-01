@@ -74,7 +74,7 @@ extern void uLipeExitCritical(uint32_t sReg);
  *  \param
  *  \return
  */
-extern void uLipeFirstSwt(void);
+//extern void uLipeFirstSwt(void);
 
 /*!
  *  uLipeCtxSwt()
@@ -82,7 +82,7 @@ extern void uLipeFirstSwt(void);
  *  \param
  *  \return
  */
-extern void uLipeCtxSwt(void);
+//extern void uLipeCtxSwt(void);
 
 
 

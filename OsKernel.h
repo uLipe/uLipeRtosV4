@@ -101,7 +101,7 @@ void uLipeKernelTaskYield(void);
  *  \return
  *
  */
-void uLipeKernelRtosTick(void);
+//void uLipeKernelRtosTick(void);
 
 /*!
  * 	ulipeKernelObjCopy()

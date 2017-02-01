@@ -53,7 +53,7 @@
  * 	task kernel objects and generation code:
  */
 
-#define OS_NUMBER_OF_TASKS 			  	8 //MUST BE > 0
+#define OS_NUMBER_OF_TASKS 			  	3 //MUST BE > 0
 #define OS_TASK_MODULE_EN			    1 //Gererate code for task management
 
 /*
@@ -64,31 +64,32 @@
 /*
  * event flags kernel objects and code:
  */
-#define OS_FLAGS_MODULE_EN			 1
-#define OS_FLAGS_COUNT				   2
+#define OS_FLAGS_MODULE_EN			 0
+#define OS_FLAGS_COUNT				 0
 
 /*
  * semaphore kernel objects and code
  */
-#define OS_SEM_MODULE_EN			1
-#define OS_SEM_COUNT				  2
+#define OS_SEM_MODULE_EN			  1
+#define OS_SEM_COUNT				  4
 
 /*
  * Mutex kernel objects and code
  */
-#define OS_MTX_MODULE_EN			1
-#define OS_MTX_COUNT				  2
+#define OS_MTX_MODULE_EN			  0
+#define OS_MTX_COUNT				  0
 
 /*
  * Queue kernel objects and code
  */
-#define OS_QUEUE_MODULE_EN			1
-#define OS_QUEUE_COUNT				  2
+#define OS_QUEUE_MODULE_EN		      0
+#define OS_QUEUE_COUNT				  0
 
 /* no support to fast sched in cortex cm0 */
 #if (OS_ARCH_CORTEX_M0 == 1) && (OS_FAST_SCHED == 1)
   #error "uLipeKernel: this architecture does not provide hw optimized scheduler"
 #endif
+
 
 
 #endif
