@@ -32,6 +32,8 @@
 		.extern highPrioTask
 		.extern osMainStk
 		.extern osRunning
+		.extern uLipeKernelRtosTick
+
 
 @
 @	make the routines visible outside this module
@@ -40,8 +42,9 @@
 		.global uLipeEnterCritical
 		.global uLipeExitCritical
 		.global uLipeKernelFindHighPrio
-		.global uLipeFirstSwt
-		.global uLipeCtxSwt
+		.global SVC_Handler
+		.global PendSV_Handler
+		.global SysTick_Handler
 		.global uLipeMemCpy
 		.global uLipeMemSet
 
@@ -104,7 +107,7 @@ uLipeKernelFindHighPrio:
 @	void uLipeFirstSwt(void)
 @
 		.thumb_func
-uLipeFirstSwt:
+SVC_Handler:
 
 		ldr r0, =osMainStk  	@carrega variavel que vai guardar o stack principal
 		tst	lr, #4
@@ -138,7 +141,7 @@ uLipeFirstSwt:
 @
 
 		.thumb_func
-uLipeCtxSwt:
+PendSV_Handler:
 		ldr r0, =highPrioTask	@
 		ldr r1, =currentTask	@
 		ldr r2, [r1]			@ takes the current task stack:
@@ -156,6 +159,16 @@ uLipeCtxSwt:
 		orr lr,lr, #0x04        @
 		bx	lr					@ the return depennds of current task stack contents
 
+
+@
+@ the systick handler, invoke kernel tick routine
+@
+	.thumb_func
+SysTick_Handler:
+	push {lr}
+	ldr r3, =uLipeKernelRtosTick
+	blx r3
+	pop {pc}
 
 #endif
 

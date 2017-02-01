@@ -32,6 +32,7 @@
 		.extern highPrioTask
 		.extern osMainStk
 		.extern osRunning
+		.extern uLipeKernelRtosTick
 
 @
 @	make the routines visible outside this module
@@ -39,9 +40,9 @@
 
 		.global uLipeEnterCritical
 		.global uLipeExitCritical
-		.global uLipeKernelFindHighPrio
-		.global uLipeFirstSwt
-		.global uLipeCtxSwt
+		.global SVC_Handler
+		.global PendSV_Handler
+		.global SysTick_Handler
 		.global uLipeMemCpy
 		.global uLipeMemSet
 
@@ -89,8 +90,7 @@ uLipeMemSet:
 @
 		.thumb_func
 
-uLipeFirstSwt:
-
+SVC_Handler:
 		ldr r0, =osMainStk  	@carrega variavel que vai guardar o stack principal
 		movs r2, #4
 		mov  r1, lr
@@ -98,13 +98,14 @@ uLipeFirstSwt:
 		bne ___already_msp
 		mrs r1, msp				@carrega o main stack pointer
 ___already_msp:
-		stmea r1!, {r4 - r7}	@ save the software context
+		subs  r1, #32
+		str	r1,[r0]
+		stmia r1!, {r4 - r7}	@ save the software context
 	    mov  r4,r8
 	    mov  r5,r9
 	    mov  r6,r10
 	    mov  r7,r11
-	    stmea r1!, {r4 - r7}	@ save the software context
-		str	r1,[r0]
+	    stmia r1!, {r4 - r7}	@ save the software context
 
 		movs r0, #0x02			@
 		msr  control, r0		@ uses psp for now.
@@ -113,13 +114,14 @@ ___already_msp:
 		ldr r1, =currentTask	@
 		ldr r2, [r0]			@
 		ldr r2, [r2]			@ takes the first task stack:
+
 		ldmia r2!, {r4 - r7}	@ pops the first sw context
 	    mov  r8,r4
 	    mov  r9,r5
 	    mov  r10,r6
 	    mov  r11,r7
    	    ldmia r2!, {r4 - r7}
-		msr	  psp, r2			@ the remainning context is dealt by hardware
+		msr psp, r2				@ the hardware deals with remaining context
 
 		ldr r0, [r0]			@
 		str r0, [r1]			@ the current task is the high prio task
@@ -138,28 +140,31 @@ ___already_msp:
 @
 
 		.thumb_func
-uLipeCtxSwt:
+PendSV_Handler:
 		ldr r0, =highPrioTask	@
 		ldr r1, =currentTask	@
 		ldr r2, [r1]			@ takes the current task stack:
 		mrs r3, psp				@ takes the current stack pointer
-		stmea r3!, {r4 - r7}	@ save the software context
+		subs r3, #32			@
+	    str   r3, [r2]			@
+		stmia r3!, {r4 - r7}	@ save the software context
 	    mov  r4,r8
 	    mov  r5,r9
 	    mov  r6,r10
 	    mov  r7,r11
-	    stmea r3!, {r4 - r7}	@ save the software context
-	    str   r3, [r2]			@
+	    stmia r3!, {r4 - r7}	@ save the software context
 
 		ldr r2,[r0]				@
 		ldr r2,[r2]				@ takes the high prio task stk pointer
+	    adds r2, #16				@ takes first the high registers
 	    ldmia r2!, {r4 - r7}	@ pops the  sw context
 	    mov  r8,r4
 	    mov  r9,r5
 	    mov  r10,r6
 	    mov  r11,r7
-	    ldmia r2!, {r4 - r7}
 		msr psp, r2				@ the hardware deals with remaining context
+		subs r2, #32				@ go back and restore the low registers
+	    ldmia r2!, {r4 - r7}
 
 		ldr r2, [r0]			@
 		str r2, [r1]			@ the high prio task is the current task
@@ -168,6 +173,16 @@ uLipeCtxSwt:
 		orrs r1,r1, r2           @
 		mov lr, r1
 		bx	lr					@ the return depennds of current task stack contents
+
+@
+@ the systick handler, invoke kernel tick routine
+@
+	.thumb_func
+SysTick_Handler:
+	push {lr}
+	ldr r3, =uLipeKernelRtosTick
+	blx r3
+	pop {pc}
 #endif
 
 .end

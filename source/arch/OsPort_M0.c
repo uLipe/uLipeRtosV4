@@ -45,8 +45,8 @@ void uLipeInitMachine(void)
 	SCB->CCR = 0x200;
 
 	//Assign priority value to pendSv and systick exc:
-	SCB->SHP[1] = 0xFF << 24;
-	SCB->SHP[2] = 0xFEFF << 16;
+	SCB->SHP[0] = 0xFF << 24;
+	SCB->SHP[1] = 0xFEFF << 16;
 
 	//Enable systick interrupts, ann use external clock source:
 	SysTick->CTRL |= 0x07;
@@ -91,14 +91,8 @@ OsStackPtr_t uLipeStackInit(OsStackPtr_t taskStk, void * task, void *taskArgs )
  */
 void uLipePortChange(void)
 {
-	uint32_t sReg;
-
-	OS_CRITICAL_IN();
-
 	//Request a pendSv execption:
 	SCB->ICSR |= (1<<28);
-
-	OS_CRITICAL_OUT();
 }
 
 #endif
