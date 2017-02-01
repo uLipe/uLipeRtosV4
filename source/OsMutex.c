@@ -80,7 +80,7 @@ OsHandler_t uLipeMutexCreate(OsStatus_t *err)
 	//check if we have available mutex:
 	if(mtxFree == NULL)
 	{
-		*err = kOutOfMutex;
+	    if(err != NULL) *err = kOutOfMutex;
 		return((OsHandler_t)m);
 	}
 
@@ -95,7 +95,7 @@ OsHandler_t uLipeMutexCreate(OsStatus_t *err)
 
 	//Every mutex contro block starts fully initialized.
 
-	err = kStatusOk;
+	if(err != NULL) *err = kStatusOk;
 	return((OsHandler_t)m);
 
 }
