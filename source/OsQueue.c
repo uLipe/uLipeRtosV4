@@ -237,7 +237,7 @@ OsHandler_t uLipeQueueCreate(QueueData_t *data, uint32_t size, OsStatus_t *err)
 	//Check arguments:
 	if(data == NULL)
 	{
-		*err = kInvalidParam;
+	    if(err != NULL)*err = kInvalidParam;
 		return((OsHandler_t)NULL);
 	}
 
@@ -248,7 +248,7 @@ OsHandler_t uLipeQueueCreate(QueueData_t *data, uint32_t size, OsStatus_t *err)
 	if(queueFree == NULL)
 	{
 		OS_CRITICAL_OUT();
-		*err = kOutOfQueue;
+		if(err != NULL) *err = kOutOfQueue;
 		return((OsHandler_t)NULL);
 	}
 
@@ -266,7 +266,7 @@ OsHandler_t uLipeQueueCreate(QueueData_t *data, uint32_t size, OsStatus_t *err)
 	q->queueFront = 0;
 	q->usedSlots = 0;
 
-	err = kStatusOk;
+	if(err != NULL) *err = kStatusOk;
 
 	//Return in handler form:
 	return((OsHandler_t)q);

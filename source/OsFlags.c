@@ -184,7 +184,7 @@ OsHandler_t uLipeFlagsCreate(OsStatus_t *err)
 	if(flagsFree == NULL)
 	{
 		OS_CRITICAL_OUT();
-		*err = kOutOfFlags;
+		if(err != NULL) *err = kOutOfFlags;
 
 		//Return a null handler:
 		return((OsHandler_t)0);
@@ -198,7 +198,7 @@ OsHandler_t uLipeFlagsCreate(OsStatus_t *err)
 
 	OS_CRITICAL_OUT();
 
-	err = kStatusOk;
+	if(err != NULL)*err = kStatusOk;
 
 	//All gone well.
 	return(h);

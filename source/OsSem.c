@@ -168,7 +168,7 @@ OsHandler_t uLipeSemCreate(uint16_t initCount, uint16_t limitCount,OsStatus_t *e
 	//Check for semaphore available:
 	if(semFree == NULL)
 	{
-		*err = kOutOfSem;
+	    if(err != NULL) *err = kOutOfSem;
 		return((OsHandler_t)s);
 	}
 
@@ -186,7 +186,7 @@ OsHandler_t uLipeSemCreate(uint16_t initCount, uint16_t limitCount,OsStatus_t *e
 	s->semLimit = limitCount;
 
 	//All gone well:
-	*err = kStatusOk;
+	if(err != NULL) *err = kStatusOk;
 	return((OsHandler_t)s);
 }
 
