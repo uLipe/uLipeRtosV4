@@ -47,6 +47,7 @@ typedef enum						//Rtos status codes
 	kOutOfMutex,					//
 	kMutexOwned,					//
 	kOutOfSem,						//
+	kTimeout,                       //
 }OsStatus_t;						//
 
 /*
