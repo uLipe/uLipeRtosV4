@@ -213,6 +213,9 @@ void uLipeKernelTaskYield(void)
 	//should run only if kernel running:
 	if(osRunning != TRUE) return;
 
+	// interrupts to treat? abort!
+	if(irqCounter > 0) return;
+
 	//find the new highest prio ready to run:
 	prio = uLipeKernelFindHighPrio(&taskPrioList);
 
