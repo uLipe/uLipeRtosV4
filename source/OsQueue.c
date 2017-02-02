@@ -326,6 +326,18 @@ OsStatus_t uLipeQueueInsert(OsHandler_t h, void *data, uint8_t opt, uint16_t tim
 			}
 			break;
 
+			case OS_Q_NON_BLOCK:
+			{
+			    if(q->usedSlots < q->numSlots) break;
+			    else
+			    {
+	                OS_CRITICAL_OUT();
+	                return(kQueueFull);
+			    }
+
+			}
+			break;
+
 			default:
 			{
 
@@ -374,7 +386,7 @@ void *uLipeQueueRemove(OsHandler_t h, uint8_t opt, uint16_t timeout, OsStatus_t 
 	//check arguments:
 	if(h == 0)
 	{
-		*err = kInvalidParam ;
+        if(err != NULL )*err = kInvalidParam ;
 		return(NULL);
 	}
 
@@ -411,16 +423,28 @@ void *uLipeQueueRemove(OsHandler_t h, uint8_t opt, uint16_t timeout, OsStatus_t 
 				//So check for a context switch:
 				uLipeKernelTaskYield();
 
-				*err = kQueueEmpty;
+                if(err != NULL )*err = kQueueEmpty;
 
 				return(ptr);
 			}
 			break;
+            case OS_Q_NON_BLOCK:
+            {
+                if(q->usedSlots != 0) break;
+                else
+                {
+                    OS_CRITICAL_OUT();
 
+                    if(err != NULL )*err = kQueueEmpty;
+                    return(ptr);
+                }
+
+            }
+            break;
 			default:
 			{
 				//All other cases, only return:
-				*err = kQueueEmpty;
+                if(err != NULL )*err = kQueueEmpty;
 				return(ptr);
 			}
 			break;
@@ -448,7 +472,7 @@ void *uLipeQueueRemove(OsHandler_t h, uint8_t opt, uint16_t timeout, OsStatus_t 
 	//Check for context switching:
 	uLipeKernelTaskYield();
 
-	*err = kStatusOk;
+	if(err != NULL )*err = kStatusOk;
 
 	//All gone well:
 	return(ptr);

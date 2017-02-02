@@ -82,8 +82,8 @@
 /*
  * Queue kernel objects and code
  */
-#define OS_QUEUE_MODULE_EN		      0
-#define OS_QUEUE_COUNT				  0
+#define OS_QUEUE_MODULE_EN		      1
+#define OS_QUEUE_COUNT				  1
 
 /* no support to fast sched in cortex cm0 */
 #if (OS_ARCH_CORTEX_M0 == 1) && (OS_FAST_SCHED == 1)

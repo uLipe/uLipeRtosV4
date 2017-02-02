@@ -19,7 +19,7 @@
 /*
  * Queue custom types:
  */
-typedef void  QueueData_t;
+typedef void*  QueueData_t;
 
 /*
  * Custom macro to reserve an array of pointers to queue data:
@@ -32,6 +32,7 @@ typedef void  QueueData_t;
  */
 #define OS_Q_BLOCK_EMPTY	0x01 //suspend task on queue empty
 #define OS_Q_BLOCK_FULL		0x02 //suspend task to insert in a full queue
+#define OS_Q_NON_BLOCK      0x03
 
 
 
