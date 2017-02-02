@@ -53,7 +53,7 @@
  * 	task kernel objects and generation code:
  */
 
-#define OS_NUMBER_OF_TASKS 			  	3 //MUST BE > 0
+#define OS_NUMBER_OF_TASKS 			  	8 //MUST BE > 0
 #define OS_TASK_MODULE_EN			    1 //Gererate code for task management
 
 /*

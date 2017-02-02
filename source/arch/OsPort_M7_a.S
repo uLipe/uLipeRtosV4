@@ -95,10 +95,12 @@ uLipeKernelFindHighPrio:
 		ldr  r1, [r0], #4  		@load prio group
 		movs r2, #31	   		@
 		clz  r1, r1		   		@
+		ands r1, #31
 		subs r1,r2,r1	  		@
 		lsl  r1, #2		   		@calculates the correct prio displacement
 		ldr  r3, [r0, r1]  		@
 		clz  r3,r3		   		@
+		ands r3,#31
 		subs r3, r2,r3	   		@
 		add  r0, r3, r1, lsl #3 @calculates prio where: prio = r3 + (r1 << 5)
 		bx 	 lr				 	@

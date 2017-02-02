@@ -30,6 +30,11 @@ uint8_t  osRunning = FALSE;				  //Kernel executing flag
 uint16_t irqCounter;     		  //Irq nesting counter
 OsStack_t idleTaskStack[OS_IDLE_TASK_STACK_SIZE];
 OsStack_t osMainStk[48];		  //Initial stack pointer
+
+static uint8_t const clz_lkup[] = {
+    32, 31, 30, 30, 29, 29, 29, 29,
+    28, 28, 28, 28, 28, 28, 28, 28
+};
 /*
  *	Extenal  variables:
  */
@@ -68,10 +73,6 @@ void uLipeKernelIdleTask(void *args)
  */
 #if (OS_FAST_SCHED == 0)
 static inline uint32_t uLipeKernelClz(uint32_t x) {
-    static uint8_t const clz_lkup[] = {
-        32, 31, 30, 30, 29, 29, 29, 29,
-        28, 28, 28, 28, 28, 28, 28, 28
-    };
     uint32_t n;
 
     if (x >= (1 << 16)) {
@@ -193,10 +194,14 @@ uint16_t uLipeKernelFindHighPrio(OsPrioListPtr_t prioList)
 
 	//find the x and y priority:
 	x = OS_KERNEL_ENTRIES_FOR_GROUP - uLipeKernelClz(prioList->prioGrp);
+	if(x > 32) x = 31;
 	y = OS_KERNEL_ENTRIES_FOR_GROUP - uLipeKernelClz(prioList->prioTbl[x]);
+	if(y > 32) y = 31;
 
 	//forms the base priority value:
 	ret = (x << 5) | y;
+	/* wraps the ret with correct value */
+	ret = (ret > (OS_NUMBER_OF_TASKS-1)) ? 0 : ret;
 
 	return(ret);
 
