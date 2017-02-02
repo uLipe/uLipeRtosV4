@@ -231,7 +231,22 @@ OsStatus_t uLipeSemTake(OsHandler_t h, uint16_t timeout)
 		//Check for a context switch:
 		uLipeKernelTaskYield();
 
-		return(kStatusOk);
+		OS_CRITICAL_IN();
+		//check if count are available
+		if(s->semCount > 0)
+		{
+		    s->semCount--;
+	        OS_CRITICAL_OUT();
+
+		    return(kStatusOk);
+		}
+		else
+		{
+	        OS_CRITICAL_OUT();
+            return(kTimeout);
+		}
+
+
 	}
 
 
