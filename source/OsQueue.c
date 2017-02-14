@@ -38,7 +38,7 @@ Queue_t queueTbl[OS_QUEUE_COUNT];	//Table with the current block of queues
 extern OsTCBPtr_t currentTask;
 extern OsTCBPtr_t tcbPtrTbl[];
 extern OsPrioList_t taskPrioList;
-extern OsTCBPtr_t delayedTcbs;
+extern OsDualPrioList_t timerPendingList;
 /*
  * Implementation:
  */
@@ -267,13 +267,7 @@ OsStatus_t uLipeQueueInsert(OsHandler_t h, void *data, uint8_t opt, uint16_t tim
 				{
 				    currentTask->taskStatus |= (1 << kTaskPendDelay);
 	                currentTask->delayTime = timeout;
-	                if(delayedTcbs == NULL) {
-	                    delayedTcbs = currentTask;
-	                } else {
-	                    currentTask->next = delayedTcbs;
-	                    delayedTcbs->prev = currentTask;
-	                    delayedTcbs = currentTask;
-	                }
+	                uLipePrioSet(currentTask->taskPrio, &timerPendingList.list[timerPendingList.activeList]);
 				}
 				currentTask->queueBmp = &q->queueSlotWait;
 
@@ -376,13 +370,7 @@ void *uLipeQueueRemove(OsHandler_t h, uint8_t opt, uint16_t timeout, OsStatus_t 
                 {
                     currentTask->taskStatus |= (1 << kTaskPendDelay);
                     currentTask->delayTime = timeout;
-                    if(delayedTcbs == NULL) {
-                        delayedTcbs = currentTask;
-                    } else {
-                        currentTask->next = delayedTcbs;
-                        delayedTcbs->prev = currentTask;
-                        delayedTcbs = currentTask;
-                    }
+                    uLipePrioSet(currentTask->taskPrio, &timerPendingList.list[timerPendingList.activeList]);
                 }
 
 				//Adds task to wait list:

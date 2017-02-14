@@ -21,10 +21,12 @@
  * Module Variables:
  */
 
-OsPrioList_t taskPrioList; 		  //Main installed task priority list
-OsTCBPtr_t   currentTask;   	  //pointer to current tcb is being executed
-OsTCBPtr_t   highPrioTask;		  //pointer to high priority task ready to run
-OsTCBPtr_t  delayedTcbs = NULL;
+OsPrioList_t taskPrioList = {0}; 		     //Main installed task priority list
+OsDualPrioList_t timerPendingList = {0};    //timer pending delayed list
+OsTCBPtr_t   currentTask = NULL;   	        //pointer to current tcb is being executed
+OsTCBPtr_t   highPrioTask = NULL;		     //pointer to high priority task ready to run
+
+
 
 volatile uint32_t tickCounter;    //Incremented every os tick interrupt
 uint8_t  osConfigured = FALSE;
@@ -240,23 +242,26 @@ void uLipeKernelTaskYield(void)
  */
 void uLipeKernelRtosTick(void)
 {
-	OsTCBPtr_t tcb = NULL;
-	OsStatus_t err = kStatusOk;
+	uint16_t i = 0;
 
 	if(osRunning != TRUE)return;
 
 	uLipeKernelIrqIn();
 	//start always from the start of tasklist:
 
-	tickCounter++;
 
-	tcb = delayedTcbs;
-	if(tcb != NULL)
+	i = uLipeKernelFindHighPrio(&timerPendingList.list[timerPendingList.activeList]);
+
+	if(i != 0)
 	{
 	    //proccess tick delays for all installed tasks:
 	    do
 	    {
-	        OsTCBPtr_t tmp = NULL;
+	        OsTCBPtr_t tcb = tcbPtrTbl[i];
+	        uLipePrioClr(i, &timerPendingList.list[timerPendingList.activeList]);
+
+	        uLipeAssert(tcb->delayTime > 0);
+
             //goto to next task:
 	        if(tcb->delayTime != 0)
 	        {
@@ -283,66 +288,29 @@ void uLipeKernelRtosTick(void)
 
                     if(tcb->semBmp != NULL)
                         uLipePrioClr(tcb->taskPrio, tcb->semBmp);
-	                uLipePrioSet(tcb->taskPrio, &taskPrioList);
 
+	                uLipePrioSet(tcb->taskPrio, &taskPrioList);
 	                tcb->mtxBmp = NULL;
 	                tcb->flagsBmp = NULL;
 	                tcb->queueBmp = NULL;
 	                tcb->semBmp= NULL;
-
-	                if(tcb->prev == NULL) {
-	                    /* head of list */
-	                    tmp = tcb;
-
-	                    if(tcb->next != NULL) {
-	                        tcb->next->prev = NULL;
-	                        delayedTcbs = tcb->next;
-	                    } else {
-	                        delayedTcbs = NULL;
-	                    }
-	                } else {
-	                     tcb->prev->next = tcb->next;
-	                     if(tcb->next != NULL) {
-	                         tcb->next->prev = tcb->prev;
-	                     }
-	                     tmp = tcb;
-	                }
 	            }
-
 	            else if((tcb->taskStatus & (1 << kTaskPendDelay)) == 0)
 	            {
-                    if(tcb->prev == NULL) {
-                        /* head of list */
-                        tmp = tcb;
-
-                        if(tcb->next != NULL) {
-                            tcb->next->prev = NULL;
-                            delayedTcbs = tcb->next;
-                        } else {
-                            delayedTcbs = NULL;
-                        }
-                    } else {
-                         tcb->prev->next = tcb->next;
-                         if(tcb->next != NULL) {
-                             tcb->next->prev = tcb->prev;
-                         }
-                         tmp = tcb;
-                    }
-
+	                (void)0;
+	            }
+	            else
+	            {
+	                //task does not reached to it delay value, move its tcb to backup list
+	                uLipePrioSet(i, &timerPendingList.list[timerPendingList.activeList ^ 0x01]);
 	            }
 	        }
 
-	        tcb = tcb->next;
-	        if(tmp != NULL) {
-	            tmp->next = NULL;
-	            tmp->prev = NULL;
-	        }
-
-	    }while(tcb != NULL);
-
+	        i = uLipeKernelFindHighPrio(&timerPendingList.list[timerPendingList.activeList]);
+	    }while(i != 0);
+	    timerPendingList.activeList ^= 0x01;
 	}
 
-	(void)err;
 
 	//find the next task ready to run:
 	uLipeKernelIrqOut();
@@ -462,6 +430,7 @@ OsStatus_t uLipeRtosInit(void)
 	tickCounter = 0x0000;
 	osRunning = FALSE;
 	irqCounter = 0x0000;
+
 
 	//Init all kernel objects:
 	err = uLipeTaskInit();

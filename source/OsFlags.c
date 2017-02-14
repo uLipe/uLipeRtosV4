@@ -42,7 +42,7 @@ FlagsGrp_t flagsTbl[OS_FLAGS_COUNT];//Flags node linked list
 extern OsTCBPtr_t  tcbPtrTbl[OS_NUMBER_OF_TASKS];		//Array of tcb pointers to external access
 extern OsPrioList_t taskPrioList;					    //Ready task list.
 extern OsTCBPtr_t currentTask;
-extern OsTCBPtr_t delayedTcbs;
+extern OsDualPrioList_t timerPendingList;
 /*
  * Module implementation:
  *
@@ -328,14 +328,7 @@ OsStatus_t uLipeFlagsPend(OsHandler_t h, uint32_t flags, uint8_t opt, uint16_t t
 	{
 	    currentTask->delayTime  = timeout;
 	    currentTask->taskStatus |= (1 << kTaskPendDelay);
-        // prepend this task on pendable delay list
-        if(delayedTcbs == NULL) {
-            delayedTcbs = currentTask;
-        } else {
-            currentTask->next = delayedTcbs;
-            delayedTcbs->prev = currentTask;
-            delayedTcbs = currentTask;
-        }
+	    uLipePrioSet(currentTask->taskPrio, &timerPendingList.list[timerPendingList.activeList]);
 	}
 
 	OS_CRITICAL_OUT();
