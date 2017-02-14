@@ -31,7 +31,6 @@ struct sem_
 #else
 	OsPrioList_t tasksWaiting;
 #endif
-
 	struct sem_* nextNode;					   //next node in sem linked list
 };
 

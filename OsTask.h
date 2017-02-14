@@ -34,7 +34,9 @@ typedef enum					//
 	kTaskSuspend,				//
 	kTaskDeleted,				//
 	kTaskPendDelay,				//
-	kTaskPendFlag,				//
+	kTaskPendFlagAll,			//
+    kTaskPendFlagAny,           //
+    kTaskPenFlagConsume,
 	kTaskPendSem,				//
 	kTaskPendMtx,				//
 	kTaskPendQueue,				//
@@ -46,26 +48,19 @@ typedef enum					//
 struct OsTCB_
 {
 	OsStackPtr_t stackTop;		//Pointer that contain the current top of stack
-	OsStackPtr_t stackBot;		//Pointer to bottom of stack
-	uint32_t	 stackSize;		//The stack size in number of entries
 	void        (*task) (void*);//function pointer to task.
 	uint16_t	 taskPrio;		//Id of this tcb, corresponds to its priority
 	uint32_t	 flagsPending;	//flags to pend register
 	uint16_t     delayTime;
-	TaskState_t  taskStatus;	//The current status of the task
+	uint16_t     taskStatus;	//The current status of the task
 	uint8_t		 tcbTaken;		///.;
-								//
+	struct OsTCB_ *next;        // linkable
+    struct OsTCB_ *prev;
 
-	//Another kernel objects link to lists:
-	struct OsTCB *flagsList;
-	struct OsTCB *qList;
-	struct OsTCB *semList;
-	struct OsTCB *mboxList;
-
-
-	struct OsTCB_ *nextTCB;	//the next tcb in the installed task list
-	struct OsTCB_ *prevTCB;	//the previous tcb in installed tasks
-
+    OsPrioListPtr_t mtxBmp;
+    OsPrioListPtr_t flagsBmp;
+    OsPrioListPtr_t queueBmp;
+    OsPrioListPtr_t semBmp;
 };
 
 typedef struct OsTCB_ 	OsTCB_t;

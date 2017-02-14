@@ -91,22 +91,6 @@ uLipeMemSet:
 		.thumb_func
 
 SVC_Handler:
-		ldr r0, =osMainStk  	@carrega variavel que vai guardar o stack principal
-		movs r2, #4
-		mov  r1, lr
-		ands r1,r1,r2
-		bne ___already_msp
-		mrs r1, msp				@carrega o main stack pointer
-___already_msp:
-		subs  r1, #32
-		str	r1,[r0]
-		stmia r1!, {r4 - r7}	@ save the software context
-	    mov  r4,r8
-	    mov  r5,r9
-	    mov  r6,r10
-	    mov  r7,r11
-	    stmia r1!, {r4 - r7}	@ save the software context
-
 		movs r0, #0x02			@
 		msr  control, r0		@ uses psp for now.
 		isb						@ flushes the pipeline

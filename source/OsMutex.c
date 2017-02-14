@@ -126,7 +126,8 @@ OsStatus_t uLipeMutexTake(OsHandler_t h)
 
 		//Suspend current task execution:
 		uLipePrioClr(currentTask->taskPrio, &taskPrioList);
-		currentTask->taskStatus = (1 << kTaskPendMtx);
+		currentTask->taskStatus |= (1 << kTaskPendMtx);
+		currentTask->mtxBmp = &m->tasksPending;
 
 		OS_CRITICAL_OUT();
 
@@ -149,8 +150,11 @@ OsStatus_t uLipeMutexTake(OsHandler_t h)
 	mutexTCB->taskPrio = OS_MUTEX_PRIO;
 
 	//Make mutex prio ready to run:
-	uLipePrioSet(OS_MUTEX_PRIO, &taskPrioList);
-	mutexTCB->taskStatus = ( 1 << kTaskReady);
+    mutexTCB->taskStatus &= ~( 1 << kTaskPendMtx);
+    if(mutexTCB->taskStatus == 0)
+    {
+        uLipePrioSet(OS_MUTEX_PRIO, &taskPrioList);
+    }
 
 	OS_CRITICAL_OUT();
 
@@ -181,28 +185,33 @@ OsStatus_t uLipeMutexGive(OsHandler_t h)
 
 	//Suspend mutex task:
 	uLipePrioClr(mutexTCB->taskPrio, &taskPrioList);
-	mutexTCB->taskStatus = (1 << kTaskSuspend);
+	mutexTCB->taskStatus &= ~( 1 << kTaskPendMtx);
 
 	//swap priorities:
 	tcbPtrTbl[m->mutexOwner]->taskPrio = m->mutexOwner;
+
 	//remove the current owner of mutex pending list:
 	uLipePrioClr(m->mutexOwner, &m->tasksPending);
 
-	OS_CRITICAL_OUT();
 
 	//Check if have items on wait list:
 	if(m->tasksPending.prioGrp != 0)
 	{
-		//so, take the new owner of mutex:
+
+	    //so, take the new owner of mutex:
 		m->mutexOwner = uLipeKernelFindHighPrio(&m->tasksPending);
-		OS_CRITICAL_IN();
 
 		//change priority
+		mutexTCB = tcbPtrTbl[m->mutexOwner];
 		mutexTCB->taskPrio = OS_MUTEX_PRIO;
 
 		//Make mutex task ready:
-		uLipePrioSet(mutexTCB->taskPrio, &taskPrioList);
-		mutexTCB->taskStatus = (1 << kTaskReady);
+	    mutexTCB->taskStatus &= ~( 1 << kTaskPendMtx);
+	    if(mutexTCB->taskStatus == 0)
+	    {
+	        uLipePrioSet(OS_MUTEX_PRIO, &taskPrioList);
+	    }
+
 
 		OS_CRITICAL_OUT();
 
@@ -218,6 +227,9 @@ OsStatus_t uLipeMutexGive(OsHandler_t h)
 	//If no tasks pending, so release mutex:
 	m->mutexTaken = FALSE;
 	m->mutexOwner = OS_MUTEX_PRIO;
+
+    OS_CRITICAL_OUT();
+
 
 	//Check for a context switch:
 	uLipeKernelTaskYield();

@@ -32,9 +32,10 @@
 
 struct flag_
 {
-	uint32_t flagRegister;					 //flagGrpRegister
-	uint8_t  taskPending[OS_NUMBER_OF_TASKS];//tasks that pending this flag grp
-	struct flag_ *nextNode;
+	uint32_t        flagRegister;					 //flagGrpRegister
+	OsPrioList_t    waitTasks[2];
+    uint8_t         activeList;
+	struct flag_    *nextNode;
 };
 
 typedef struct flag_  FlagsGrp_t;

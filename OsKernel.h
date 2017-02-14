@@ -23,8 +23,10 @@
 /*
  *  kernel constants:
  */
+#include "OsConfig.h"
+
 #define OS_KERNEL_ENTRIES_FOR_GROUP  31
-#define OS_IDLE_TASK_STACK_SIZE      48
+#define OS_IDLE_TASK_STACK_SIZE      32
 
 /*
  * 	Priority list object:
@@ -32,7 +34,7 @@
 struct OsPrioList_
 {
 	uint32_t prioGrp;
-	uint32_t prioTbl[OS_KERNEL_ENTRIES_FOR_GROUP];
+	uint32_t prioTbl[(OS_NUMBER_OF_TASKS/32) + 1];
 };
 
 typedef struct OsPrioList_  OsPrioList_t;
