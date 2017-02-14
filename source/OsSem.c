@@ -39,7 +39,7 @@ Sem_t semTbl[OS_SEM_COUNT];		//semaphore objects list
 extern OsTCBPtr_t currentTask;
 extern OsTCBPtr_t tcbPtrTbl[];
 extern OsPrioList_t taskPrioList;
-extern OsTCBPtr_t delayedTcbs;
+extern OsDualPrioList_t timerPendingList;
 
 /*
  * Module implementation:
@@ -196,13 +196,7 @@ OsStatus_t uLipeSemTake(OsHandler_t h, uint16_t timeout)
         {
             currentTask->taskStatus |= (1 << kTaskPendDelay);
             currentTask->delayTime = timeout;
-            if(delayedTcbs == NULL) {
-                delayedTcbs = currentTask;
-            } else {
-                currentTask->next = delayedTcbs;
-                delayedTcbs->prev = currentTask;
-                delayedTcbs = currentTask;
-            }
+            uLipePrioSet(currentTask->taskPrio, &timerPendingList.list[timerPendingList.activeList]);
         }
 
 		OS_CRITICAL_OUT();

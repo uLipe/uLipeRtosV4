@@ -41,6 +41,20 @@ typedef struct OsPrioList_  OsPrioList_t;
 typedef struct OsPrioList_* OsPrioListPtr_t;
 
 /*
+ * Dual priolist
+ */
+struct dualpriolist_
+{
+    OsPrioList_t list[2];
+    uint8_t activeList;
+
+};
+
+typedef struct dualpriolist_  OsDualPrioList_t;
+typedef struct dualpriolist_* OsDualPrioListPtr_t;
+
+
+/*
  *  Kernel functions proto:
  */
 

@@ -35,8 +35,7 @@ uint16_t tasksCount;							//count of installed tasks.
  */
 extern OsPrioList_t taskPrioList;
 extern OsTCBPtr_t   currentTask;
-extern OsTCBPtr_t delayedTcbs;
-
+extern OsDualPrioList_t timerPendingList;
 
 /*
  * Module implementation:
@@ -228,14 +227,7 @@ OsStatus_t uLipeTaskDelay( uint16_t ticks)
 	    //Put the delay value:
 	    currentTask->delayTime = ticks;
 
-	    // prepend this task on pendable delay list
-	    if(delayedTcbs == NULL) {
-	        delayedTcbs = currentTask;
-	    } else {
-	        currentTask->next = delayedTcbs;
-	        delayedTcbs->prev = currentTask;
-	        delayedTcbs = currentTask;
-	    }
+        uLipePrioSet(currentTask->taskPrio, &timerPendingList.list[timerPendingList.activeList]);
 
 	    OS_CRITICAL_OUT();
 

@@ -54,9 +54,6 @@ struct OsTCB_
 	uint16_t     delayTime;
 	uint16_t     taskStatus;	//The current status of the task
 	uint8_t		 tcbTaken;		///.;
-	struct OsTCB_ *next;        // linkable
-    struct OsTCB_ *prev;
-
     OsPrioListPtr_t mtxBmp;
     OsPrioListPtr_t flagsBmp;
     OsPrioListPtr_t queueBmp;
