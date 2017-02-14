@@ -38,7 +38,7 @@ Queue_t queueTbl[OS_QUEUE_COUNT];	//Table with the current block of queues
 extern OsTCBPtr_t currentTask;
 extern OsTCBPtr_t tcbPtrTbl[];
 extern OsPrioList_t taskPrioList;
-
+extern OsTCBPtr_t delayedTcbs;
 /*
  * Implementation:
  */
@@ -55,22 +55,6 @@ inline static void QueueRemoveLoop(OsHandler_t h)
 	QueuePtr_t q = (QueuePtr_t)h;	
 	uint32_t i = 0;
 
-#if OS_USE_DEPRECATED == 1	
-	for(i = 0; i < OS_NUMBER_OF_TASKS; i++)
-	{
-		//check for tasks waiting for slot free:
-		if(q->tasksPending[i] == OS_Q_PEND_FULL)
-		{
-			//make this task ready:
-			tcbPtrTbl[i]->taskStatus = (1 << kTaskReady);
-			uLipePrioSet(i, &taskPrioList);
-
-			//remove this task from wait list:
-			q->tasksPending[i] = OS_Q_PEND_NOT;
-		}
-	}
-#else
-
 	//extract the highest priority task which waits for a slot:
 	i = (uint16_t)uLipeKernelFindHighPrio(&q->queueSlotWait);
 
@@ -82,13 +66,12 @@ inline static void QueueRemoveLoop(OsHandler_t h)
 
 
 		//make this task ready:
-		tcbPtrTbl[i]->taskStatus = (1 << kTaskReady);
-		uLipePrioSet(i, &taskPrioList);
-	}	
-	
-	
-#endif	
-	
+		tcbPtrTbl[i]->taskStatus &= ~((1 << kTaskPendQueue)|(1 << kTaskPendDelay));
+		if(tcbPtrTbl[i]->taskStatus == 0)
+		{
+	        uLipePrioSet(i, &taskPrioList);
+		}
+	}
 }
 
 /*
@@ -102,21 +85,6 @@ inline static void QueueInsertLoop(OsHandler_t h)
 	QueuePtr_t q = (QueuePtr_t)h;
 	uint32_t i = 0;
 
-#if OS_USE_DEPRECATED == 1		
-	for(i = 0; i < OS_NUMBER_OF_TASKS; i++)
-	{
-		//check for tasks waiting for slot free:
-		if(q->tasksPending[i] == OS_Q_PEND_EMPTY)
-		{
-			//make this task ready:
-			tcbPtrTbl[i]->taskStatus = (1 << kTaskReady);
-			uLipePrioSet(i, &taskPrioList);
-
-			//remove this task from wait list:
-			q->tasksPending[i] = OS_Q_PEND_NOT;
-		}
-	}
-#else
 	//extract the highest priority task which waits for a slot:
 	i = (uint16_t)uLipeKernelFindHighPrio(&q->queueInsertWait);
 
@@ -127,11 +95,13 @@ inline static void QueueInsertLoop(OsHandler_t h)
 		uLipePrioClr(i, &q->queueInsertWait);
 
 
-		//make this task ready:
-		tcbPtrTbl[i]->taskStatus = (1 << kTaskReady);		
-		uLipePrioSet(i, &taskPrioList);
+        //make this task ready:
+        tcbPtrTbl[i]->taskStatus &= ~((1 << kTaskPendQueue)|(1 << kTaskPendDelay));
+        if(tcbPtrTbl[i]->taskStatus == 0)
+        {
+            uLipePrioSet(i, &taskPrioList);
+        }
 	}	
-#endif	
 }
 
 /*
@@ -146,22 +116,6 @@ inline static void QueueDeleteLoop(OsHandler_t h)
 	QueuePtr_t q = (QueuePtr_t)h;
 	uint32_t i = 0, j = 0;
 
-#if OS_USE_DEPRECATED == 1	
-	for(i = 0; i < OS_NUMBER_OF_TASKS; i++)
-	{
-		//check for tasks waiting for slot free:
-		if(q->tasksPending[i] != OS_Q_PEND_NOT)
-		{
-			//make this task ready:
-			tcbPtrTbl[i]->taskStatus = (1 << kTaskReady);
-			uLipePrioSet(i, &taskPrioList);
-		}
-
-		//remove this task from wait list:
-		q->tasksPending[i] = OS_Q_PEND_NOT;
-
-	}
-#else
 		
 	//remove out all tasks of all wait lists:
 	while((q->queueSlotWait.prioGrp != 0)&&(q->queueInsertWait.prioGrp != 0))
@@ -175,13 +129,21 @@ inline static void QueueDeleteLoop(OsHandler_t h)
 
 
 		//Set these tasks as ready:
-		tcbPtrTbl[i]->taskStatus = (1 << kTaskReady);
-		uLipePrioSet(i, &taskPrioList);		
-		tcbPtrTbl[j]->taskStatus = (1 << kTaskReady);
-		uLipePrioSet(j, &taskPrioList);		
+        //make this task ready:
+        tcbPtrTbl[i]->taskStatus &= ~(1 << kTaskPendQueue);
+        if(tcbPtrTbl[i]->taskStatus == 0)
+        {
+            uLipePrioSet(i, &taskPrioList);
+        }
+
+        //make this task ready:
+        tcbPtrTbl[j]->taskStatus &= ~(1 << kTaskPendQueue);
+        if(tcbPtrTbl[j]->taskStatus == 0)
+        {
+            uLipePrioSet(j, &taskPrioList);
+        }
 		
 	}		
-#endif
 }
 /*
  * uLipeQueueInit()
@@ -205,12 +167,6 @@ void uLipeQueueInit(void)
 		queueTbl[i].queueBase = NULL;
 		queueTbl[i].usedSlots = 0;
 
-#if OS_USE_DEPRECATED == 1
-		for( j = 0 ; j < OS_NUMBER_OF_TASKS; j++)
-		{
-			queueTbl[i].tasksPending[j] = OS_Q_PEND_NOT;
-		}
-#else
 		/*
 		 * Clears all wait lists:
 		 */
@@ -218,7 +174,7 @@ void uLipeQueueInit(void)
 		memset(&queueTbl[i].queueSlotWait, 0, sizeof(OsPrioList_t));
 		(void)j;
 
-#endif
+
 
 	}
 
@@ -306,16 +262,23 @@ OsStatus_t uLipeQueueInsert(OsHandler_t h, void *data, uint8_t opt, uint16_t tim
 			{
 				//suspend current task:
 				uLipePrioClr(currentTask->taskPrio, &taskPrioList);
-				currentTask->taskStatus = (1 << kTaskPendQueue) | (1 << kTaskPendDelay);
-				currentTask->delayTime = timeout;
-#if OS_USE_DEPRECATED == 1
-				//Assert this task on queue wait list:
-				q->tasksPending[currentTask->taskPrio] = OS_Q_PEND_FULL;
-#else
+				currentTask->taskStatus |= (1 << kTaskPendQueue);
+				if(timeout != 0)
+				{
+				    currentTask->taskStatus |= (1 << kTaskPendDelay);
+	                currentTask->delayTime = timeout;
+	                if(delayedTcbs == NULL) {
+	                    delayedTcbs = currentTask;
+	                } else {
+	                    currentTask->next = delayedTcbs;
+	                    delayedTcbs->prev = currentTask;
+	                    delayedTcbs = currentTask;
+	                }
+				}
+				currentTask->queueBmp = &q->queueSlotWait;
+
 				//Adds task to wait list:
 				uLipePrioSet(currentTask->taskPrio, &q->queueSlotWait);
-#endif	
-
 
 				OS_CRITICAL_OUT();
 
@@ -406,18 +369,25 @@ void *uLipeQueueRemove(OsHandler_t h, uint8_t opt, uint16_t timeout, OsStatus_t 
 				//task will block so:
 				OS_CRITICAL_IN();
 
-				//suspend current task:
-				uLipePrioClr(currentTask->taskPrio, &taskPrioList);
-				currentTask->taskStatus = (1 << kTaskPendQueue) | (1 << kTaskPendDelay);
-				currentTask->delayTime = timeout;
+                uLipePrioClr(currentTask->taskPrio, &taskPrioList);
+				//prepare task to wait
+                currentTask->taskStatus |= (1 << kTaskPendQueue);
+                if(timeout != 0)
+                {
+                    currentTask->taskStatus |= (1 << kTaskPendDelay);
+                    currentTask->delayTime = timeout;
+                    if(delayedTcbs == NULL) {
+                        delayedTcbs = currentTask;
+                    } else {
+                        currentTask->next = delayedTcbs;
+                        delayedTcbs->prev = currentTask;
+                        delayedTcbs = currentTask;
+                    }
+                }
 
-#if OS_USE_DEPRECATED == 1				
-				//Assert this task on queue wait list:
-				q->tasksPending[currentTask->taskPrio] = OS_Q_PEND_EMPTY;
-#else
 				//Adds task to wait list:
+                currentTask->queueBmp = &q->queueInsertWait;
 				uLipePrioSet(currentTask->taskPrio, &q->queueInsertWait);
-#endif	
 				OS_CRITICAL_OUT();
 
 				//So check for a context switch:

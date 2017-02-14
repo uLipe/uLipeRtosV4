@@ -13,8 +13,8 @@
  */
 #include "uLipeRtos4.h"
 
-#ifndef __OS_ARCH_DEFS_M7_H
-#define __OS_ARCH_DEFS_M7_H
+#ifndef __OS_ARCH_DEFS_M0_H
+#define __OS_ARCH_DEFS_M0_H
 
 #if (OS_ARCH_CORTEX_M0 == 1)
 

@@ -28,6 +28,7 @@
 #include "OsFlags.h"
 #include "OsQueue.h"
 #include "OsMutex.h"
+#include "OsCpuMsg.h"
 #include "OsSem.h"
 
 #endif

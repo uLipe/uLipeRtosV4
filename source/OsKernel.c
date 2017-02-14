@@ -24,19 +24,20 @@
 OsPrioList_t taskPrioList; 		  //Main installed task priority list
 OsTCBPtr_t   currentTask;   	  //pointer to current tcb is being executed
 OsTCBPtr_t   highPrioTask;		  //pointer to high priority task ready to run
+OsTCBPtr_t  delayedTcbs = NULL;
+
 volatile uint32_t tickCounter;    //Incremented every os tick interrupt
 uint8_t  osConfigured = FALSE;
 uint8_t  osRunning = FALSE;				  //Kernel executing flag
 uint16_t irqCounter;     		  //Irq nesting counter
-OsStack_t idleTaskStack[OS_IDLE_TASK_STACK_SIZE];
-OsStack_t osMainStk[48];		  //Initial stack pointer
+OsStack_t idleTaskStack[OS_MINIMAL_STACK];
 
 static uint8_t const clz_lkup[] = {
     32, 31, 30, 30, 29, 29, 29, 29,
     28, 28, 28, 28, 28, 28, 28, 28
 };
 /*
- *	Extenal  variables:
+ *	External  variables:
  */
 extern OsTCBPtr_t tcbPtrTbl[];
 
@@ -51,7 +52,6 @@ extern OsTCBPtr_t tcbPtrTbl[];
  */
 void uLipeKernelIdleTask(void *args)
 {
-	uint32_t execCounter = 0;
 
 	for(;;)
 	{
@@ -59,9 +59,6 @@ void uLipeKernelIdleTask(void *args)
 		//Hook for a user defined callback:
 		IdleTaskHook();
 #endif
-		//Stays here:
-		execCounter++;
-		(void)execCounter;
 	}
 }
 
@@ -249,32 +246,101 @@ void uLipeKernelRtosTick(void)
 	if(osRunning != TRUE)return;
 
 	uLipeKernelIrqIn();
-
 	//start always from the start of tasklist:
-	tcb = tcbPtrTbl[OS_LEAST_PRIO];
 
 	tickCounter++;
 
-	//proccess tick delays for all installed tasks:
-	do
+	tcb = delayedTcbs;
+	if(tcb != NULL)
 	{
-		if(tcb->delayTime != 0)
-		{
-			tcb->delayTime--;
+	    //proccess tick delays for all installed tasks:
+	    do
+	    {
+	        OsTCBPtr_t tmp = NULL;
+            //goto to next task:
+	        if(tcb->delayTime != 0)
+	        {
+	            tcb->delayTime--;
 
-			//Delay time reached to 0:
-			if(tcb->delayTime == 0)
-			{
-				//make this task ready:
-				tcb->taskStatus = (1 << kTaskReady);
-				uLipePrioSet(tcb->taskPrio, &taskPrioList);
+	            //Delay time reached to 0:
+	            if(tcb->delayTime == 0)
+	            {
+	                //make this task ready and if pending another object
+	                //discard it
+	                tcb->taskStatus = 0;
+                    if(tcb->mtxBmp != NULL)
+                        uLipePrioClr(tcb->taskPrio, tcb->mtxBmp);
 
-			}
-		}
+                    /* flags has a special acess case */
+	                if(tcb->flagsBmp != NULL)
+	                {
+	                    uLipePrioClr(tcb->taskPrio, tcb->flagsBmp);
+                        uLipePrioClr(tcb->taskPrio, tcb->flagsBmp + sizeof(OsPrioList_t));
+	                }
 
-		//goto to next task:
-		tcb =(OsTCBPtr_t)tcb->nextTCB;
-	}while(tcb != NULL);
+	                if(tcb->queueBmp != NULL)
+                        uLipePrioClr(tcb->taskPrio, tcb->queueBmp);
+
+                    if(tcb->semBmp != NULL)
+                        uLipePrioClr(tcb->taskPrio, tcb->semBmp);
+	                uLipePrioSet(tcb->taskPrio, &taskPrioList);
+
+	                tcb->mtxBmp = NULL;
+	                tcb->flagsBmp = NULL;
+	                tcb->queueBmp = NULL;
+	                tcb->semBmp= NULL;
+
+	                if(tcb->prev == NULL) {
+	                    /* head of list */
+	                    tmp = tcb;
+
+	                    if(tcb->next != NULL) {
+	                        tcb->next->prev = NULL;
+	                        delayedTcbs = tcb->next;
+	                    } else {
+	                        delayedTcbs = NULL;
+	                    }
+	                } else {
+	                     tcb->prev->next = tcb->next;
+	                     if(tcb->next != NULL) {
+	                         tcb->next->prev = tcb->prev;
+	                     }
+	                     tmp = tcb;
+	                }
+	            }
+
+	            else if((tcb->taskStatus & (1 << kTaskPendDelay)) == 0)
+	            {
+                    if(tcb->prev == NULL) {
+                        /* head of list */
+                        tmp = tcb;
+
+                        if(tcb->next != NULL) {
+                            tcb->next->prev = NULL;
+                            delayedTcbs = tcb->next;
+                        } else {
+                            delayedTcbs = NULL;
+                        }
+                    } else {
+                         tcb->prev->next = tcb->next;
+                         if(tcb->next != NULL) {
+                             tcb->next->prev = tcb->prev;
+                         }
+                         tmp = tcb;
+                    }
+
+	            }
+	        }
+
+	        tcb = tcb->next;
+	        if(tmp != NULL) {
+	            tmp->next = NULL;
+	            tmp->prev = NULL;
+	        }
+
+	    }while(tcb != NULL);
+
+	}
 
 	(void)err;
 

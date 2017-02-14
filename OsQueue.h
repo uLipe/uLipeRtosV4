@@ -42,20 +42,18 @@ typedef void*  QueueData_t;
 struct queue_
 {
 	QueueData_t **queueBase;		//queue data base address
-	uint32_t queueFront;			//current queue remove point
-	uint32_t queueBack;			    //current queue insertion point
-	uint32_t numSlots;				//Number of entries of current queue
-	uint32_t usedSlots;				//Number of current used slots
+	uint16_t queueFront;			//current queue remove point
+	uint16_t queueBack;			    //current queue insertion point
+	uint16_t numSlots;				//Number of entries of current queue
+	uint16_t usedSlots;				//Number of current used slots
 
 #if OS_USE_DEPRECATED == 1	
 	uint8_t tasksPending[OS_NUMBER_OF_TASKS]; //Wait list for pending tasks
 #else	
-	struct queue_* nextNode;		//Pointer to next queue control block	
 	OsPrioList_t queueInsertWait;
 	OsPrioList_t queueSlotWait;
-
 #endif
-	
+    struct queue_* nextNode;        //Pointer to next queue control block
 };
 
 typedef struct queue_  Queue_t;

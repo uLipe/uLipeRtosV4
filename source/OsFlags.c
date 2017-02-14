@@ -42,6 +42,7 @@ FlagsGrp_t flagsTbl[OS_FLAGS_COUNT];//Flags node linked list
 extern OsTCBPtr_t  tcbPtrTbl[OS_NUMBER_OF_TASKS];		//Array of tcb pointers to external access
 extern OsPrioList_t taskPrioList;					    //Ready task list.
 extern OsTCBPtr_t currentTask;
+extern OsTCBPtr_t delayedTcbs;
 /*
  * Module implementation:
  *
@@ -60,30 +61,40 @@ inline static void FlagsPostLoop(OsHandler_t h)
 	uint16_t tmp = 0;
 
 	//Search for a match flags:
-	for(i = 0; i < OS_NUMBER_OF_TASKS; i++)
+	i = uLipeKernelFindHighPrio(&f->waitTasks[f->activeList]);
+
+	while(i != 0)
 	{
 		//check for pend type of this task:
-		switch(f->taskPending[i] & ~(OS_PEND_ANY_C | OS_PEND_ALL_C))
+		switch(tcbPtrTbl[i]->taskStatus & ((1 << kTaskPendFlagAll) | (1 << kTaskPendFlagAny)))
 		{
-			case OS_PEND_NOT:
-				 match = FALSE; //task waiting nothing
-			break;
-
-			case OS_PEND_ALL:
+			case (1 << kTaskPendFlagAll):
 			{
 				//Only match if all specific flags are set
 				mask = f->flagRegister & tcbPtrTbl[i]->flagsPending;
-				if(mask == tcbPtrTbl[i]->flagsPending) match = TRUE;
+				if(mask == tcbPtrTbl[i]->flagsPending)
+				{
+				    match = TRUE;
+				    tcbPtrTbl[i]->taskStatus &= ~((1 << kTaskPendFlagAll | (1 << kTaskPendDelay)) );
+				}
 			}
 			break;
 
-			case OS_PEND_ANY:
+			case (1 << kTaskPendFlagAny):
 			{
 				//Match if any of flags are set
-				mask = f->flagRegister & tcbPtrTbl[i]->flagsPending;
-				if(mask != 0) match = TRUE;
+				mask = f->flagRegister;
+				if(mask != 0)
+				{
+				    match = TRUE;
+                    tcbPtrTbl[i]->taskStatus &= ~((1 << kTaskPendFlagAny | (1 << kTaskPendDelay)) );
+				}
 			}
 			break;
+
+			default:
+                match = FALSE; //task waiting nothing
+            break;
 		}
 
 		//match ocurred?
@@ -93,26 +104,38 @@ inline static void FlagsPostLoop(OsHandler_t h)
 			//Assert a false for next loop
 			match = FALSE;
 
-			//Make this task as ready:
-			tcbPtrTbl[i]->taskStatus = (1 << kTaskReady);
-			uLipePrioSet(i, &taskPrioList);
 
 			//Check if this assert will consume flags:
-			if((f->taskPending[i] & OS_PEND_ANY_C) || (f->taskPending[i] & OS_PEND_ALL_C))
+			if(tcbPtrTbl[i]->taskStatus & (1 << kTaskPenFlagConsume))
 			{
 				//clear these flags
 				tmp |= mask;
+				tcbPtrTbl[i]->taskStatus &= ~(1 << kTaskPenFlagConsume) ;
+                //If we had a consume event, so clear these flags;
+                f->flagRegister &= ~(tmp);
+
 			}
-			//clear code of pending type
-			f->taskPending[i] = OS_PEND_NOT;
+
+            //Make this task as ready:
+            if(tcbPtrTbl[i]->taskStatus == 0) {
+                uLipePrioSet(i, &taskPrioList);
+            }
+
+		}
+		else
+		{
+		    /* ensure this flag is waiting for flags */
+		    if(tcbPtrTbl[i]->taskStatus & ((1 << kTaskPendFlagAll) | (1 << kTaskPendFlagAny))) {
+	            uLipePrioSet(i, &f->waitTasks[f->activeList ^ 0x01]);
+		    }
 		}
 
-
+	    i = uLipeKernelFindHighPrio(&f->waitTasks[f->activeList]);
+	    uLipePrioClr(i, &f->waitTasks[f->activeList]);
 	}
 
-	//If we had a consume event, so clear these flags;
-	f->flagRegister &= ~(tmp);
-
+	/* swap to new active list */
+	f->activeList ^= 0x01;
 }
 
 /*
@@ -127,25 +150,23 @@ inline static void FlagsDeleteLoop(OsHandler_t h)
 	FlagsGrpPtr_t f = (FlagsGrpPtr_t)h;
 	uint16_t i = 0;
 
-	for( i = 0; i < OS_NUMBER_OF_TASKS; i++)
+	i = uLipeKernelFindHighPrio(&f->waitTasks[f->activeList]);
+	while( i != 0)
 	{
-		//Check if the task is waiting a event first:
-		if(f->taskPending[i] != OS_PEND_NOT)
-		{
-			//make this task ready:
-			tcbPtrTbl[i]->taskStatus = (1 << kTaskReady);
-			uLipePrioSet(i, &taskPrioList);
-		}
-		f->taskPending[i]= OS_PEND_NOT;
-	}
+        //make this task ready:
+        tcbPtrTbl[i]->taskStatus &= ~((1 << kTaskPendFlagAll) | (1 << kTaskPendFlagAny) | (1 << kTaskPenFlagConsume));
+        if(tcbPtrTbl[i]->taskStatus == 0) uLipePrioSet(i, &taskPrioList);
+        i = uLipeKernelFindHighPrio(&f->waitTasks[f->activeList]);
+        uLipePrioClr(i, &f->waitTasks[f->activeList]);
 
+	}
 }
 /*
  *  uLipeFlagsInit()
  */
 void uLipeFlagsInit(void)
 {
-	uint16_t i = 0, j = 0;
+	uint16_t i = 0;
 
 	//Init all kernel objects:
 	flagsFree = &flagsTbl[0];
@@ -155,14 +176,8 @@ void uLipeFlagsInit(void)
 		//Link the next element of LL
 		flagsTbl[i].nextNode = &flagsTbl[i + 1];
 		flagsTbl[i].flagRegister = 0;
-
-		for(j = 0; j < OS_NUMBER_OF_TASKS; j++)
-		{
-			//Put tasks pending in initial conditions
-			flagsTbl[i].taskPending[j] = OS_PEND_NOT;
-		}
-
-
+        flagsTbl[i].activeList = 0;
+		memset(&flagsTbl[i].waitTasks, 0, sizeof(flagsTbl[i].waitTasks));
 	}
 
 	//The last element of LL is null to mark its end.
@@ -221,8 +236,6 @@ OsStatus_t uLipeFlagsPend(OsHandler_t h, uint32_t flags, uint8_t opt, uint16_t t
 		return(kInvalidParam);
 	}
 
-
-
 	OS_CRITICAL_IN();
 
 	//Check if this task already asserted:
@@ -236,19 +249,23 @@ OsStatus_t uLipeFlagsPend(OsHandler_t h, uint32_t flags, uint8_t opt, uint16_t t
 		{
 			if(mask != flags)
 			{
-
-				//Put the flag code to pend:
-				f->taskPending[currentTask->taskPrio] = OS_PEND_ALL;
-
+			    currentTask->taskStatus |= (1 << kTaskPendFlagAll);
 				//check if wants to consume:
 				if(opt & OS_FLAGS_CONSUME)
 				{
-					f->taskPending[currentTask->taskPrio] |= OS_PEND_ALL_C;
+	                currentTask->taskStatus |= (1 << kTaskPenFlagConsume);
 				}
 
 			}
 			else
 			{
+
+                if(opt & OS_FLAGS_CONSUME)
+                {
+                    f->flagRegister &= ~currentTask->flagsPending;
+                }
+
+
 				//The flags of this task is already asserted
 				match = TRUE;
 			}
@@ -257,20 +274,22 @@ OsStatus_t uLipeFlagsPend(OsHandler_t h, uint32_t flags, uint8_t opt, uint16_t t
 
 		case OS_FLAGS_PEND_ANY:
 		{
-			if(mask == 0x0000000)
+			if(f->flagRegister == 0x0000000)
 			{
-
-				//Put the flag code to pend:
-				f->taskPending[currentTask->taskPrio] = OS_PEND_ANY;
-
-				//check if wants to consume:
-				if(opt & OS_FLAGS_CONSUME)
-				{
-					f->taskPending[currentTask->taskPrio] |= OS_PEND_ANY_C;
-				}
+                currentTask->taskStatus |= (1 << kTaskPendFlagAny);
+                //check if wants to consume:
+                if(opt & OS_FLAGS_CONSUME)
+                {
+                    currentTask->taskStatus |= (1 << kTaskPenFlagConsume);
+                }
 			}
 			else
 			{
+                if(opt & OS_FLAGS_CONSUME)
+                {
+                    f->flagRegister = 0;
+                }
+
 				//Any flags of this task was already assert
 				match = TRUE;
 			}
@@ -289,6 +308,7 @@ OsStatus_t uLipeFlagsPend(OsHandler_t h, uint32_t flags, uint8_t opt, uint16_t t
 	//check for match:
 	if(match != FALSE)
 	{
+
 		//Only return, without suspend task:
 		OS_CRITICAL_OUT();
 
@@ -300,18 +320,28 @@ OsStatus_t uLipeFlagsPend(OsHandler_t h, uint32_t flags, uint8_t opt, uint16_t t
 
 	//if not, then suspend task:
 	uLipePrioClr(currentTask->taskPrio, &taskPrioList);
-	currentTask->taskStatus &= ~(1 << kTaskReady);
+	uLipePrioSet(currentTask->taskPrio, &f->waitTasks[f->activeList]);
+	currentTask->flagsBmp = &f->waitTasks[0];
 
-	//Assert the pend type.
-	currentTask->delayTime = timeout;
-	currentTask->taskStatus = (1 << kTaskPendDelay) | (1 << kTaskPendFlag);
-
+	//adds the timeout
+	if(timeout != 0)
+	{
+	    currentTask->delayTime  = timeout;
+	    currentTask->taskStatus |= (1 << kTaskPendDelay);
+        // prepend this task on pendable delay list
+        if(delayedTcbs == NULL) {
+            delayedTcbs = currentTask;
+        } else {
+            currentTask->next = delayedTcbs;
+            delayedTcbs->prev = currentTask;
+            delayedTcbs = currentTask;
+        }
+	}
 
 	OS_CRITICAL_OUT();
 
 	//Check for a context switch:
 	uLipeKernelTaskYield();
-
 
 	//all gone well:
 	return(kStatusOk);
@@ -342,7 +372,6 @@ OsStatus_t uLipeFlagsPost(OsHandler_t h, uint32_t flags)
 	FlagsPostLoop(h);
 
 	OS_CRITICAL_OUT();
-
 
 	//Check for a context switch:
 	uLipeKernelTaskYield();
@@ -381,7 +410,6 @@ OsStatus_t uLipeFlagsDelete(OsHandler_t *h)
 	//Destroy this handler:
 	*h = 0 ;
 	 f = NULL;
-
 
 	uLipeKernelTaskYield();
 

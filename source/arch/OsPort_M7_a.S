@@ -111,13 +111,6 @@ uLipeKernelFindHighPrio:
 		.thumb_func
 SVC_Handler:
 
-		ldr r0, =osMainStk  	@carrega variavel que vai guardar o stack principal
-		tst	lr, #4
-		it  EQ
-		mrseq r1, msp			@carrega o main stack pointer
-		stmdb r1!,{r4 - r11}	@salva registros que o hardware nao guarda
-		str	r1,[r0]
-
 		movs r0, #0x02			@
 		msr  control, r0		@ uses psp for now.
 		isb						@ flushes the pipeline

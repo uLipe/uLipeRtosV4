@@ -21,6 +21,7 @@
 #include "OsConfig.h"
 #include <stdint.h>
 #include <string.h>
+#include <stddef.h>
 
 
 /*
@@ -99,6 +100,63 @@ static __inline void _uLipeAssert(uint32_t x)
 
 	}
 }
+
+/* default ulipe configuration */
+
+#ifndef OS_CPU_RATE
+#define OS_CPU_RATE             48000000 //in Hz
+#endif
+
+#ifndef OS_TICK_RATE
+#define OS_TICK_RATE            1000    //in Hz
+#endif
+
+#ifndef OS_ARCH_MULTICORE
+#define OS_ARCH_MULTICORE       0
+#endif
+
+#ifndef OS_IDLE_TASK_HOOK_EN
+#define OS_IDLE_TASK_HOOK_EN    0
+#endif
+
+#ifndef OS_FAST_SCHED
+#define OS_FAST_SCHED           0
+#endif
+
+#ifndef OS_MINIMAL_STACK
+#define OS_MINIMAL_STACK        32
+#endif
+
+
+#ifndef OS_DELAY_TIME_BASE
+#define OS_DELAY_TIME_BASE      (10000/(OS_TICKS_PER_SECOND)) //In steps of 0.1ms
+#endif
+
+
+#if defined(OS_TASK_MODULE_EN) && (OS_NUMBER_OF_TASKS == 0)
+#define OS_NUMBER_OF_TASKS      1
+#endif
+
+
+#if defined(OS_FLAGS_MODULE_EN) && (OS_FLAGS_COUNT == 0)
+#define OS_FLAGS_COUNT           1
+#endif
+
+#if defined(OS_SEM_MODULE_EN) && (OS_SEM_COUNT == 0)
+#define OS_SEM_COUNT           1
+#endif
+
+#if defined(OS_MTX_MODULE_EN) && (OS_MTX_COUNT == 0)
+#define OS_MTX_COUNT           1
+#endif
+
+#if defined(OS_QUEUE_MODULE_EN) && (OS_QUEUE_COUNT == 0)
+#define OS_QUEUE_COUNT           1
+#endif
+
+#if OS_ARCH_MULTICORE == 0
+#define OS_CPU_MSG               0
+#endif
 
 /*
  *  Assert macro is particular useful for debbuging purposes, so in
