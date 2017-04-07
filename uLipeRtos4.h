@@ -30,5 +30,6 @@
 #include "OsMutex.h"
 #include "OsCpuMsg.h"
 #include "OsSem.h"
+#include "OsMem.h"
 
 #endif

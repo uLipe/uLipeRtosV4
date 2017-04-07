@@ -53,7 +53,6 @@ struct queue_
 	OsPrioList_t queueInsertWait;
 	OsPrioList_t queueSlotWait;
 #endif
-    struct queue_* nextNode;        //Pointer to next queue control block
 };
 
 typedef struct queue_  Queue_t;
@@ -64,13 +63,6 @@ typedef struct queue_* QueuePtr_t;
 /*
  * Function prototypes
  */
-
-/*!
- * uLipeQueueInit()
- * \brief Init queue kernel objects
- */
-void uLipeQueueInit(void);
-
 /*!
  * uLipeQueueCreate()
  * \brief Creates a queue to be managed

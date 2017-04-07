@@ -47,6 +47,8 @@
 		.global SysTick_Handler
 		.global uLipeMemCpy
 		.global uLipeMemSet
+		.global uLipePortBitLSScan
+		.global uLipePortBitFSScan
 
 @
 @	place this code on text section:
@@ -78,6 +80,21 @@ uLipeMemCpy:
 
 		bx lr
 
+
+@
+@   uint32_t uLipePortBitLSScan(uint32_t arg)
+@
+uLipePortBitLSScan:
+		rbit r0,r0
+		clz  r0,r0
+		bx lr
+
+@
+@   uint32_t uLipePortBitFSScan(uint32_t arg)
+@
+uLipePortBitFSScan:
+		clz r0,r0
+		bx lr
 
 @
 @   void uLipeMemCpy(void *dest, void *src, size_t size)

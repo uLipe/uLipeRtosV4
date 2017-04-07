@@ -41,7 +41,7 @@
 //
 // More arch definitions
 //
-#define OS_ARCH_MULTICORE     1
+#define OS_ARCH_MULTICORE     0
 
 //
 // Other archs TBD
@@ -61,6 +61,12 @@
 #define OS_NUMBER_OF_TASKS 			  	8 //MUST BE > 0
 #define OS_TASK_MODULE_EN			    1 //Gererate code for task management
 
+
+/*
+ * specifies system heap size bytes
+ */
+#define OS_HEAP_SIZE                    1024
+
 /*
  *  timers and delays:
  */
@@ -70,31 +76,22 @@
  * event flags kernel objects and code:
  */
 #define OS_FLAGS_MODULE_EN			 1
-#define OS_FLAGS_COUNT				 1
 
 /*
  * semaphore kernel objects and code
  */
 #define OS_SEM_MODULE_EN			  1
-#define OS_SEM_COUNT				  1
 
 /*
  * Mutex kernel objects and code
  */
 #define OS_MTX_MODULE_EN			  1
-#define OS_MTX_COUNT				  1
 
 /*
  * Queue kernel objects and code
  */
 #define OS_QUEUE_MODULE_EN		      1
-#define OS_QUEUE_COUNT				  1
 
-
-/*
- * Messaging inter cpu enabled
- */
-#define OS_CPU_MSG                   0
 
 /* no support to fast sched in cortex cm0 */
 #if (OS_ARCH_CORTEX_M0 == 1) && (OS_FAST_SCHED == 1)

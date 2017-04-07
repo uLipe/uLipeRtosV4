@@ -31,7 +31,6 @@ struct sem_
 #else
 	OsPrioList_t tasksWaiting;
 #endif
-	struct sem_* nextNode;					   //next node in sem linked list
 };
 
 typedef struct sem_  Sem_t;
@@ -43,12 +42,6 @@ typedef struct sem_* SemPtr_t;
 /*
  * Counting semaphore function prorotypes:
  */
-
-/*!
- * uLipeSemInit()
- * \brief Init the semaphore kernel objects
- */
-void uLipeSemInit(void);
 
 /*!
  * uLipeSemCreate()

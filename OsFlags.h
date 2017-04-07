@@ -35,7 +35,6 @@ struct flag_
 	uint32_t        flagRegister;					 //flagGrpRegister
 	OsPrioList_t    waitTasks[2];
     uint8_t         activeList;
-	struct flag_    *nextNode;
 };
 
 typedef struct flag_  FlagsGrp_t;
@@ -46,12 +45,6 @@ typedef struct flag_* FlagsGrpPtr_t;
 /*
  * Function prototypes:
  */
-
-/*!
- *  uLipeFlagsInit()
- *  \brief Inits all flags kernel objects
- */
-void uLipeFlagsInit(void);
 
 /*!
  * 	uLipeFlagsCreate()

@@ -119,27 +119,6 @@ void uLipeKernelTaskYield(void);
  */
 //void uLipeKernelRtosTick(void);
 
-/*!
- * 	ulipeKernelObjCopy()
- *
- *  \brief copies an object from a source location to a dest location
- *  \param
- *
- *  \return
- *
- */
-OsStatus_t uLipeKernelObjCopy(uint8_t * dest, const uint8_t * src, uint16_t objSize );
-
-/*!
- * 	ulipeKernelObjSet()
- *
- *  \brief Set a specific value in all bytes of an kernel object
- *  \param
- *
- *  \return
- *
- */
-OsStatus_t uLipeKernelObjSet(uint8_t * dest, const uint8_t value, uint16_t objSize );
 
 /*!
  * 	ulipeRtosInit()
@@ -214,6 +193,7 @@ static __inline void uLipePrioClr(uint16_t prio, OsPrioListPtr_t prioList)
 		prioList->prioGrp &= ~( 1 << x);
 	}
 }
+
 
 #endif
 

@@ -33,8 +33,6 @@ struct mutex_
 	uint16_t mutexOwner;		//prio value of mutex owner
 	uint16_t mutexTaken;		//flag to mutex taken
 	OsPrioList_t tasksPending;  //tasks that pending the mutex
-
-	struct mutex_* nextNode;	//Link to attach a mutex control block on likned list
 };
 
 typedef struct mutex_  Mutex_t;
@@ -45,13 +43,6 @@ typedef struct mutex_* MutexPtr_t;
 /*
  * Function prototypes:
  */
-
-/*!
- * uLipeMutexInit()
- * \brief Initializes mutex kernel objects
- */
-
-void uLipeMutexInit(void);
 
 /*!
  * uLipeMutexCreate

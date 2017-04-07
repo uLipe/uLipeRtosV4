@@ -33,9 +33,6 @@
  * Module internal variables:
  */
 
-static FlagsGrpPtr_t flagsFree;				//pointer to next free block
-FlagsGrp_t flagsTbl[OS_FLAGS_COUNT];//Flags node linked list
-
 /*
  *  Module external variables
  */
@@ -161,29 +158,7 @@ inline static void FlagsDeleteLoop(OsHandler_t h)
 
 	}
 }
-/*
- *  uLipeFlagsInit()
- */
-void uLipeFlagsInit(void)
-{
-	uint16_t i = 0;
 
-	//Init all kernel objects:
-	flagsFree = &flagsTbl[0];
-
-	for( i = 0; i < OS_FLAGS_COUNT; i++)
-	{
-		//Link the next element of LL
-		flagsTbl[i].nextNode = &flagsTbl[i + 1];
-		flagsTbl[i].flagRegister = 0;
-        flagsTbl[i].activeList = 0;
-		memset(&flagsTbl[i].waitTasks, 0, sizeof(flagsTbl[i].waitTasks));
-	}
-
-	//The last element of LL is null to mark its end.
-	flagsTbl[OS_FLAGS_COUNT - 1].nextNode = NULL;
-
-}
 
 /*
  * 	uLipeFlagsCreate()
@@ -191,32 +166,31 @@ void uLipeFlagsInit(void)
 OsHandler_t uLipeFlagsCreate(OsStatus_t *err)
 {
 	uint32_t sReg = 0;
-	OsHandler_t h;
+	FlagsGrpPtr_t f = uLipeMemAlloc(sizeof(FlagsGrp_t));
 
 	//Check if we have freeFlags:
 	OS_CRITICAL_IN();
 
-	if(flagsFree == NULL)
+	if(f == NULL)
 	{
 		OS_CRITICAL_OUT();
 		if(err != NULL) *err = kOutOfFlags;
 
 		//Return a null handler:
-		return((OsHandler_t)0);
+		return((OsHandler_t)f);
 	}
 
-	//Give this flag:
-	h = (OsHandler_t)flagsFree;
-
-	//Points to next flag free:
-	flagsFree = flagsFree->nextNode;
+	f->activeList = 0;
+	f->flagRegister = 0;
+	f->waitTasks[0].prioGrp = 0;
+	f->waitTasks[1].prioGrp = 0;
 
 	OS_CRITICAL_OUT();
 
 	if(err != NULL)*err = kStatusOk;
 
 	//All gone well.
-	return(h);
+    return((OsHandler_t)f);
 }
 
 /*
@@ -393,10 +367,7 @@ OsStatus_t uLipeFlagsDelete(OsHandler_t *h)
 
 	//Assert all flag events before to destroy it:
 	FlagsDeleteLoop(*h);
-
-	//link this handler on flagsFrees:
-	f->nextNode = flagsFree;
-	flagsFree = f;
+	uLipeMemFree(f);
 
 	OS_CRITICAL_OUT();
 

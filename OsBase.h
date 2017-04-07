@@ -22,6 +22,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stddef.h>
+#include <sys/types.h>
 
 
 /*
@@ -31,7 +32,7 @@
 typedef uint32_t 	OsStack_t;		//Stack pointer type normalization
 typedef uint32_t *  OsStackPtr_t;	//
 
-typedef uint32_t	OsHandler_t;	//custom handler for kernel objects.
+typedef void *	    OsHandler_t;	//custom handler for kernel objects.
 
 
 typedef enum						//Rtos status codes
@@ -77,6 +78,7 @@ typedef struct ecb_* EventPtr_t;
 #define OS_LEAST_PRIO	(0)
 #define OS_HIGHEST_PRIO  (OS_NUMBER_OF_TASKS - 1)
 #define OS_INVALID_PRIO (0xFFFF)
+
 
 #if IDLE_TASK_HOOK_EN > 0
 /*
@@ -132,30 +134,18 @@ static __inline void _uLipeAssert(uint32_t x)
 #define OS_DELAY_TIME_BASE      (10000/(OS_TICKS_PER_SECOND)) //In steps of 0.1ms
 #endif
 
+#ifndef OS_HEAP_SIZE
+#define OS_HEAP_SIZE            128
+#endif
 
 #if defined(OS_TASK_MODULE_EN) && (OS_NUMBER_OF_TASKS == 0)
 #define OS_NUMBER_OF_TASKS      1
 #endif
 
-
-#if defined(OS_FLAGS_MODULE_EN) && (OS_FLAGS_COUNT == 0)
-#define OS_FLAGS_COUNT           1
-#endif
-
-#if defined(OS_SEM_MODULE_EN) && (OS_SEM_COUNT == 0)
-#define OS_SEM_COUNT           1
-#endif
-
-#if defined(OS_MTX_MODULE_EN) && (OS_MTX_COUNT == 0)
-#define OS_MTX_COUNT           1
-#endif
-
-#if defined(OS_QUEUE_MODULE_EN) && (OS_QUEUE_COUNT == 0)
-#define OS_QUEUE_COUNT           1
-#endif
-
 #if OS_ARCH_MULTICORE == 0
 #define OS_CPU_MSG               0
+#else
+#define OS_CPU_MSG               1
 #endif
 
 /*
@@ -168,5 +158,8 @@ static __inline void _uLipeAssert(uint32_t x)
 #else
 #define   uLipeAssert(x)
 #endif
+
+#define OS_1K                       1024
+#define OS_MAX_SIZED_HEAP_BLOCK     (OS_1K * 16)
 
 #endif

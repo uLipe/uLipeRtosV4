@@ -26,9 +26,8 @@
  * Module variables:
  */
 
-OsTCB_t 	taskTbl[OS_NUMBER_OF_TASKS];  		//Reserve space for user tcbs
-OsTCBPtr_t  tcbPtrTbl[OS_NUMBER_OF_TASKS];		//Array of tcb pointers to external access
-uint16_t tasksCount;							//count of installed tasks.
+OsTCBPtr_t  tcbPtrTbl[OS_NUMBER_OF_TASKS]= {0};		//Array of tcb pointers to external access
+uint16_t tasksCount={0};							//count of installed tasks.
 
 /*
  * External variables
@@ -41,30 +40,6 @@ extern OsDualPrioList_t timerPendingList;
  * Module implementation:
  */
 
-/*
- * 	ulipeTaskInit()
- */
-OsStatus_t uLipeTaskInit(void)
-{
-	uint8_t i;
-	uint8_t err = kStatusOk;
-
-	//clears all task kernel obj:
-	for( i = 0; i < OS_NUMBER_OF_TASKS; i++)
-	{
-		err = uLipeKernelObjSet((uint8_t*)&taskTbl[i], 0, sizeof(OsTCB_t));
-		uLipeAssert(err == kStatusOk);
-
-		err = uLipeKernelObjSet((uint8_t*)&tcbPtrTbl[i], 0 , sizeof(OsTCBPtr_t));
-		uLipeAssert(err == kStatusOk);
-
-		//Free all blocks too:
-		taskTbl[i].tcbTaken = FALSE;
-
-	}
-
-	return((OsStatus_t)err);
-}
 
 /*
  * 	ulipeTaskCreate()
@@ -75,6 +50,7 @@ OsStatus_t uLipeTaskCreate(void (*task) (void * args), OsStackPtr_t taskStack, u
 
 	extern void uLipeTaskEntry(void *);
 	uint32_t sReg = 0;
+	OsTCBPtr_t tcb = uLipeMemAlloc(sizeof(OsTCB_t));
 
 	//Check arguments:
 	if(task == NULL) return(kInvalidParam);
@@ -83,6 +59,11 @@ OsStatus_t uLipeTaskCreate(void (*task) (void * args), OsStackPtr_t taskStack, u
 
 	//check for freeblocks:
 	OS_CRITICAL_IN();
+	if(tcb == NULL)
+	{
+        OS_CRITICAL_OUT();
+        return(kOutOfTasks);
+	}
 
 	if(tasksCount >= OS_NUMBER_OF_TASKS)
 	{
@@ -91,27 +72,27 @@ OsStatus_t uLipeTaskCreate(void (*task) (void * args), OsStackPtr_t taskStack, u
 	}
 
 	//Check if prio was used:
-	if(taskTbl[taskPrio].tcbTaken != FALSE)
+	if(tcbPtrTbl[taskPrio] != NULL)
 	{
 		OS_CRITICAL_OUT();
 		return(kInvalidParam);
 	}
+
 
 	//add a new task as used:
 	tasksCount++;
 
 
 	//Take this tcb
-	taskTbl[taskPrio].tcbTaken = TRUE;
-	taskTbl[taskPrio].taskPrio  = taskPrio;
-
+	tcb->taskPrio  = taskPrio;
 	//Initialize the stack frame:
-	taskTbl[taskPrio].stackTop = uLipeStackInit(taskStack + stkSize, &uLipeTaskEntry, taskArgs);
-	taskTbl[taskPrio].task = task;
-	taskTbl[taskPrio].taskStatus = 0;
+	tcb->stackTop = uLipeStackInit(taskStack + stkSize, &uLipeTaskEntry, taskArgs);
+	tcb->task = task;
+	tcb->taskStatus = 0;
+
 
 	//Attach the tcb in linked list:
-	tcbPtrTbl[taskPrio] = &taskTbl[taskPrio];
+	tcbPtrTbl[taskPrio] = tcb;
 
 	//all ready, lets make this task ready to run:
 	uLipePrioSet(taskPrio, &taskPrioList);
@@ -130,22 +111,18 @@ OsStatus_t uLipeTaskCreate(void (*task) (void * args), OsStackPtr_t taskStack, u
 OsStatus_t uLipeTaskDelete( uint16_t taskPrio)
 {
 	uint32_t sReg = 0;
+	OsTCBPtr_t tcb;
 
 	//check arguments:
-	if(taskTbl[taskPrio].tcbTaken == FALSE) return(kInvalidParam); //Task already deleted
+	if(tcbPtrTbl[taskPrio] == NULL) return(kInvalidParam); //Task already deleted
 
 	OS_CRITICAL_IN();
-
+	tcb = tcbPtrTbl[taskPrio];
+	tcbPtrTbl[taskPrio] = NULL;
 	//Remove task from ready list first:
 	uLipePrioClr(taskPrio, &taskPrioList);
-	taskTbl[taskPrio].taskStatus |= (1 << kTaskDeleted);
+	uLipeMemFree(tcb);
 
-	//Fill out the tcb:
-	tcbPtrTbl[taskPrio] = NULL;
-	taskTbl[taskPrio].stackTop =  NULL;
-
-	//Free this tcb:
-	taskTbl[taskPrio].tcbTaken = FALSE;
 	OS_CRITICAL_OUT();
 
     //check for a context switching:
@@ -162,8 +139,8 @@ OsStatus_t uLipeTaskSuspend( uint16_t taskPrio)
 	uint32_t sReg = 0;
 
 	//Check arguments:
-	if(taskTbl[taskPrio].tcbTaken == FALSE) return(kInvalidParam);					//Task is deleted cant suspend
-	if(!(taskTbl[taskPrio].taskStatus & (1 << kTaskReady)))return(kCantSuspend);	//Only ready tasks can suspended
+	if(tcbPtrTbl[taskPrio] == NULL) return(kInvalidParam);					//Task is deleted cant suspend
+	if(tcbPtrTbl[taskPrio]->taskStatus == 0 )return(kCantSuspend);	//Only ready tasks can suspended
 
 	OS_CRITICAL_IN();
 
@@ -188,7 +165,7 @@ OsStatus_t uLipeTaskResume( uint16_t taskPrio)
 	uint32_t sReg = 0;
 
 	//Check arguments:
-	if(taskTbl[taskPrio].tcbTaken == FALSE) return(kInvalidParam);					//Task is deleted cant suspend
+	if(tcbPtrTbl[taskPrio] == NULL) return(kInvalidParam);					//Task is deleted cant suspend
 
 	OS_CRITICAL_IN();
 
@@ -198,8 +175,6 @@ OsStatus_t uLipeTaskResume( uint16_t taskPrio)
     {
         uLipePrioSet(taskPrio, &taskPrioList);
     }
-
-	uLipePrioSet(taskPrio, &taskPrioList);
 
 	//Task resumed, check the ready list:
 	OS_CRITICAL_OUT();
@@ -226,7 +201,6 @@ OsStatus_t uLipeTaskDelay( uint16_t ticks)
 
 	    //Put the delay value:
 	    currentTask->delayTime = ticks;
-
         uLipePrioSet(currentTask->taskPrio, &timerPendingList.list[timerPendingList.activeList]);
 
 	    OS_CRITICAL_OUT();

@@ -18,16 +18,55 @@
 #define __OSCPUMSG_H
 
 
+#if OS_CPU_MSG > 0
+/**
+ * \brief Inits the inter processor messaging mechanism
+ *
+ * \param
+ * \return
+ */
 OsStatus_t uLipeIPMInit(void);
-OsStatus_t uLipeIPMSendBlocking(void *m, size_t s, uint16_t timeout);
-OsStatus_t uLipeIPMSendNonBlocking(void *m, size_t s);
-size_t uLipeIPMGetChannelSize(void);
-OsStatus_t uLipeIPMRecv(void *m, size_t *s, uint16_t timeout);
-OsStatus_t uLipeIPMPeek(void *m, size_t *s);
+
+/**
+ * \brief Send inter processor message and waits until is succesfull sent
+ *
+ * \param
+ * \return
+ */
+OsStatus_t uLipeIPMSendBlocking(void *m, ssize_t s, uint16_t timeout);
+
+/**
+ * \brief Sends iner processor message and return immediately if fails
+ *
+ * \param
+ * \return
+ */
+OsStatus_t uLipeIPMSendNonBlocking(void *m, ssize_t s);
+
+/**
+ * \brief Gets the current channel memory size
+ *
+ * \param
+ * \return
+ */
+ssize_t uLipeIPMGetChannelSize(void);
+
+/**
+ * \brief Wait for a message from interprocessor channel, when arrive, consume it
+ *
+ * \param
+ * \return
+ */
+OsStatus_t uLipeIPMRecv(void *m, ssize_t *s, uint16_t timeout);
 
 
-
-
-
+/**
+ * \brief check the presnce of message if positive, reads but not consume it
+ *
+ * \param
+ * \return
+ */
+OsStatus_t uLipeIPMPeek(void *m, ssize_t *s);
+#endif
 
 #endif /* OSCPUMSG_H_ */
