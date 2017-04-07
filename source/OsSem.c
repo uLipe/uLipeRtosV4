@@ -24,14 +24,6 @@
 
 
 #if OS_SEM_MODULE_EN > 0
-
-/*
- * Module variables
- */
-
-static SemPtr_t semFree;		//points to currente free sem object
-Sem_t semTbl[OS_SEM_COUNT];		//semaphore objects list
-
 /*
  * External modules variables:
  */
@@ -101,55 +93,19 @@ inline static void SemDeleteLoop(OsHandler_t h)
 	}while( i != 0);
 
 }
-
-/*
- * uLipeSemInit()
- */
-void uLipeSemInit(void)
-{
-	uint32_t i,j;
-
-	//Init the semFree pointer
-	semFree = &semTbl[0];
-
-	for( i = 0; i < OS_SEM_COUNT; i++)
-	{
-		//Link all semaphores in linked list:
-		semTbl[i].nextNode = &semTbl[i+1];
-
-		//Put the sem object in a inital known state:
-		semTbl[i].semCount = 0;
-		semTbl[i].semLimit = 0;
-		memset(&semTbl[i].tasksWaiting, 0, sizeof(OsPrioList_t));
-		(void)j;
-
-
-	}
-}
-
 /*
  * uLipeSemCreate()
  */
 OsHandler_t uLipeSemCreate(uint16_t initCount, uint16_t limitCount,OsStatus_t *err)
 {
-	SemPtr_t s = NULL;
-	uint32_t sReg = 0;
+	SemPtr_t s = uLipeMemAlloc(sizeof(Sem_t));
 
 	//Check for semaphore available:
-	if(semFree == NULL)
+	if(s == NULL)
 	{
 	    if(err != NULL) *err = kOutOfSem;
 		return((OsHandler_t)s);
 	}
-
-
-	//So, we have semFree items, take one:
-	OS_CRITICAL_IN();
-	s = semFree;
-
-	//update new free item:
-	semFree = semFree->nextNode;
-	OS_CRITICAL_OUT();
 
 	//Initalize this block:
 	s->semCount = initCount;
@@ -291,15 +247,11 @@ OsStatus_t uLipeSemDelete(OsHandler_t *h)
 
 	//Signal tasks which this sem will be deleted:
 	SemDeleteLoop(*h);
-
-	//Add this sem object to semFree:
-	s->nextNode = semFree;
-	semFree = s;
+	uLipeMemFree(s);
 
 	OS_CRITICAL_OUT();
 
 	h = (OsHandler_t *)NULL;
-	s = NULL;
 
 	//check for a context switch:
 	uLipeKernelTaskYield();

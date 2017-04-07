@@ -25,12 +25,6 @@
 
 #if OS_QUEUE_MODULE_EN > 0
 
-/*
- * Module internal variables
- */
-
-static QueuePtr_t queueFree;			//Pointer to next freeblock of queue
-Queue_t queueTbl[OS_QUEUE_COUNT];	//Table with the current block of queues
 
 /*
  * External used variables
@@ -145,42 +139,6 @@ inline static void QueueDeleteLoop(OsHandler_t h)
 		
 	}		
 }
-/*
- * uLipeQueueInit()
- */
-void uLipeQueueInit(void)
-{
-	uint32_t i = 0, j = 0;
-
-	//Inits the free list
-	queueFree = &queueTbl[0];
-
-	for(i = 0; i < OS_QUEUE_COUNT; i++)
-	{
-		//Link all queue control blocks:
-		queueTbl[i].nextNode = &queueTbl[i + 1];
-
-		//Put the queue control block in known initial state
-		queueTbl[i].numSlots  = 0;
-		queueTbl[i].queueBack = 0;
-		queueTbl[i].queueFront= 0;
-		queueTbl[i].queueBase = NULL;
-		queueTbl[i].usedSlots = 0;
-
-		/*
-		 * Clears all wait lists:
-		 */
-		memset(&queueTbl[i].queueInsertWait, 0, sizeof(OsPrioList_t));
-		memset(&queueTbl[i].queueSlotWait, 0, sizeof(OsPrioList_t));
-		(void)j;
-
-
-
-	}
-
-	//mark the end of linked list:
-	queueTbl[OS_QUEUE_COUNT - 1].nextNode = NULL;
-}
 
 /*
  * uLipeQueueCreate()
@@ -188,7 +146,7 @@ void uLipeQueueInit(void)
 OsHandler_t uLipeQueueCreate(QueueData_t *data, uint32_t size, OsStatus_t *err)
 {
 	uint32_t sReg = 0;
-	QueuePtr_t q;
+	QueuePtr_t q = uLipeMemAlloc(sizeof(Queue_t));
 
 	//Check arguments:
 	if(data == NULL)
@@ -201,19 +159,13 @@ OsHandler_t uLipeQueueCreate(QueueData_t *data, uint32_t size, OsStatus_t *err)
 	OS_CRITICAL_IN();
 
 	//Check for free blocks:
-	if(queueFree == NULL)
+	if(q == NULL)
 	{
 		OS_CRITICAL_OUT();
 		if(err != NULL) *err = kOutOfQueue;
 		return((OsHandler_t)NULL);
 	}
 
-	q = queueFree;
-
-	//updates next queueFree:
-	queueFree = queueFree->nextNode;
-
-	OS_CRITICAL_OUT();
 
 	//fill the control block:
 	q->queueBase = data;
@@ -221,6 +173,8 @@ OsHandler_t uLipeQueueCreate(QueueData_t *data, uint32_t size, OsStatus_t *err)
 	q->queueBack = 0;
 	q->queueFront = 0;
 	q->usedSlots = 0;
+
+    OS_CRITICAL_OUT();
 
 	if(err != NULL) *err = kStatusOk;
 
@@ -233,15 +187,15 @@ OsHandler_t uLipeQueueCreate(QueueData_t *data, uint32_t size, OsStatus_t *err)
  */
 OsStatus_t uLipeQueueInsert(OsHandler_t h, void *data, uint8_t opt, uint16_t timeout)
 {
+    QueuePtr_t q = (QueuePtr_t)h;
 	uint32_t sReg = 0;
-	QueuePtr_t q = (QueuePtr_t)h;
 
 	//check arguments:
 	if(data == NULL)
 	{
 		return(kInvalidParam);
 	}
-	if(h == 0)
+	if(q == 0)
 	{
 		return(kInvalidParam);
 	}
@@ -336,12 +290,12 @@ OsStatus_t uLipeQueueInsert(OsHandler_t h, void *data, uint8_t opt, uint16_t tim
  */
 void *uLipeQueueRemove(OsHandler_t h, uint8_t opt, uint16_t timeout, OsStatus_t *err)
 {
+    QueuePtr_t q = (QueuePtr_t)h;
 	uint32_t sReg = 0;
-	QueuePtr_t q = (QueuePtr_t)h;
 	void *ptr = NULL;
 
 	//check arguments:
-	if(h == 0)
+	if(q == 0)
 	{
         if(err != NULL )*err = kInvalidParam ;
 		return(NULL);
@@ -491,11 +445,7 @@ OsStatus_t uLipeQueueDelete(OsHandler_t *h)
 
 	//Assert all tasks pending the queue will be destroyed:
 	QueueDeleteLoop(*h);
-
-	//free this block:
-	q->queueBase = NULL;
-	q->nextNode = queueFree;
-	queueFree = q;
+	uLipeMemFree(q);
 
 	//Destroy the reference:
 	 h = (OsHandler_t *)NULL;

@@ -19,12 +19,6 @@
 
 #if OS_MTX_MODULE_EN > 0
 
-/*
- * Module internal variables
- */
-static MutexPtr_t mtxFree;			//Pointer to next free mutex block
-Mutex_t mutexTbl[OS_MTX_COUNT];		//table of mutex control block
-
 #define mutexTCB tcbPtrTbl[OS_MUTEX_PRIO]
 
 /*
@@ -42,62 +36,27 @@ extern OsPrioList_t taskPrioList;
  * uLipeMutexInit()
  */
 
-void uLipeMutexInit(void)
-{
-	uint32_t i = 0, j = 0;
-
-	//Initializes mtxFree
-	mtxFree = &mutexTbl[0];
-
-
-	for( i = 0; i < OS_MTX_COUNT; i++)
-	{
-		//Link the mtx control blocks:
-		mutexTbl[i].nextNode = &mutexTbl[i + 1];
-
-		//Put mutex control block in inital known state:
-		mutexTbl[i].mutexOwner = OS_MUTEX_PRIO;
-		mutexTbl[i].mutexTaken = FALSE;
-		mutexTbl[i].tasksPending.prioGrp = 0;
-		for(j = 0; j < OS_KERNEL_ENTRIES_FOR_GROUP; j++)
-		{
-			mutexTbl[i].tasksPending.prioTbl[j] = 0;
-		}
-	}
-
-	//So, mark the end of mutex linked list:
-	mutexTbl[OS_MTX_COUNT - 1].nextNode = NULL;
-}
-
 /*
  * uLipeMutexCreate()
  */
 OsHandler_t uLipeMutexCreate(OsStatus_t *err)
 {
-	uint32_t sReg = 0;
-	MutexPtr_t m = NULL;
+	MutexPtr_t m = uLipeMemAlloc(sizeof(Mutex_t));
 
 	//check if we have available mutex:
-	if(mtxFree == NULL)
+	if(m == NULL)
 	{
 	    if(err != NULL) *err = kOutOfMutex;
 		return((OsHandler_t)m);
 	}
+	m->mutexOwner = 0;
+	m->mutexTaken = FALSE;
+	m->tasksPending.prioGrp = 0;
 
-	//If so, take a mutex control block:
-	OS_CRITICAL_IN();
-	m = mtxFree;
-
-	//update current mtxFree:
-	mtxFree = mtxFree->nextNode;
-
-	OS_CRITICAL_OUT();
 
 	//Every mutex contro block starts fully initialized.
-
 	if(err != NULL) *err = kStatusOk;
 	return((OsHandler_t)m);
-
 }
 
 
@@ -263,13 +222,11 @@ OsStatus_t uLipeMutexDelete(OsHandler_t *h)
 		return(kMutexOwned);
 	}
 
-	//so insert this mutex on mtxFree:
-	m->nextNode = mtxFree;
-	mtxFree = m;
-
+	uLipeMemFree(m);
 	//Destroy reference for this control block:
 	h = NULL;
-	m = NULL;
+    OS_CRITICAL_OUT();
+
 
 	//all gone well:
 	return(kStatusOk);

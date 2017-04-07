@@ -34,10 +34,7 @@ uint8_t  osRunning = FALSE;				  //Kernel executing flag
 uint16_t irqCounter;     		  //Irq nesting counter
 OsStack_t idleTaskStack[OS_MINIMAL_STACK];
 
-static uint8_t const clz_lkup[] = {
-    32, 31, 30, 30, 29, 29, 29, 29,
-    28, 28, 28, 28, 28, 28, 28, 28
-};
+
 /*
  *	External  variables:
  */
@@ -64,56 +61,7 @@ void uLipeKernelIdleTask(void *args)
 	}
 }
 
-/*
- * uLipeKernelClz()
- *
- * This internal function counts the number of leading zeros
- *
- */
-#if (OS_FAST_SCHED == 0)
-static inline uint32_t uLipeKernelClz(uint32_t x) {
-    uint32_t n;
 
-    if (x >= (1 << 16)) {
-        if (x >= (1 << 24)) {
-            if (x >= (1 << 28)) {
-                n = 28;
-            }
-            else {
-                n = 24;
-            }
-        }
-        else {
-            if (x >= (1 << 20)) {
-                n = 20;
-            }
-            else {
-                n = 16;
-            }
-        }
-    }
-    else {
-        if (x >= (1 << 8)) {
-            if (x >= (1 << 12)) {
-                n = 12;
-            }
-            else {
-                n = 8;
-            }
-        }
-        else {
-            if (x >= (1 << 4)) {
-                n = 4;
-            }
-            else {
-                n = 0;
-            }
-        }
-    }
-    return (uint32_t)clz_lkup[x >> n] - n;
-}
-
-#endif
 /*
  * 	uLipeTaskEntry()
  *
@@ -192,9 +140,9 @@ uint16_t uLipeKernelFindHighPrio(OsPrioListPtr_t prioList)
 	if(NULL == prioList) return(OS_INVALID_PRIO);
 
 	//find the x and y priority:
-	x = OS_KERNEL_ENTRIES_FOR_GROUP - uLipeKernelClz(prioList->prioGrp);
+	x = OS_KERNEL_ENTRIES_FOR_GROUP - uLipePortBitFSScan(prioList->prioGrp);
 	if(x > 32) x = 31;
-	y = OS_KERNEL_ENTRIES_FOR_GROUP - uLipeKernelClz(prioList->prioTbl[x]);
+	y = OS_KERNEL_ENTRIES_FOR_GROUP - uLipePortBitFSScan(prioList->prioTbl[x]);
 	if(y > 32) y = 31;
 
 	//forms the base priority value:
@@ -317,45 +265,6 @@ void uLipeKernelRtosTick(void)
 }
 
 /*
- * 	ulipeKernelObjCopy()
- */
-OsStatus_t uLipeKernelObjCopy(uint8_t * dest, const uint8_t * src, uint16_t objSize )
-{
-	//check arguments:
-	if(dest == NULL) return(kInvalidParam);
-	if(src  == NULL) return(kInvalidParam);
-	if(objSize == 0) return(kInvalidParam);
-
-	//copy:
-	while(objSize)
-	{
-		*dest++ = *src++;
-		objSize--;
-	}
-
-	return(kStatusOk);
-}
-
-/*
- * 	ulipeKernelObjSet()
- */
-OsStatus_t uLipeKernelObjSet(uint8_t * dest, const uint8_t value, uint16_t objSize )
-{
-	//check arguments:
-	if(dest == NULL)return(kInvalidParam);
-	if(objSize == 0)return(kInvalidParam);
-
-	//set the value in all positions:
-	while(objSize)
-	{
-		*dest++ = value;
-		objSize--;
-	}
-
-	return(kStatusOk);
-}
-
-/*
  *
  *
  * 			DEPRECATED:
@@ -432,27 +341,8 @@ OsStatus_t uLipeRtosInit(void)
 	irqCounter = 0x0000;
 
 
-	//Init all kernel objects:
-	err = uLipeTaskInit();
-	uLipeAssert(err == kStatusOk);
-
-#if OS_FLAGS_MODULE_EN > 0
-	uLipeFlagsInit();
-#endif
-
-#if OS_QUEUE_MODULE_EN > 0
-	uLipeQueueInit();
-#endif
-
-#if OS_MTX_MODULE_EN > 0
-	uLipeMutexInit();
-#endif
-
-#if OS_SEM_MODULE_EN > 0
-	uLipeSemInit();
-#endif
-
-	(void)err;
+	err = uLipeMemInit();
+    uLipeAssert(err == kStatusOk);
 
 	//init low level hardware
 	uLipeInitMachine();
@@ -463,6 +353,8 @@ OsStatus_t uLipeRtosInit(void)
 	uLipeAssert(err == kStatusOk);
 
 	osConfigured = TRUE;
+	(void)err;
+
 
 	return(kStatusOk);
 

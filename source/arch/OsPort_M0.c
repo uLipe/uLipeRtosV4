@@ -25,6 +25,11 @@
 #define OS_TIMER_LOAD_VAL (uint32_t)(OS_CPU_RATE/OS_TICK_RATE)
 
 
+static uint8_t const clz_lkup[] = {
+    32, 31, 30, 30, 29, 29, 29, 29,
+    28, 28, 28, 28, 28, 28, 28, 28
+};
+
 
 /*
  * Functions implementation:
@@ -93,6 +98,62 @@ void uLipePortChange(void)
 {
 	//Request a pendSv execption:
 	SCB->ICSR |= (1<<28);
+}
+
+uint32_t uLipePortBitLSScan(uint32_t arg)
+{
+    uint32_t mask = ~(arg - 1);
+    arg = mask & arg;
+    return(uLipePortBitFSScan(arg));
+}
+
+
+uint32_t uLipePortBitFSScan(uint32_t x)
+{
+    uint32_t n;
+
+    /*
+     * Scan if bit is in top word
+     */
+    if (x >= (1 << 16)) {
+        if (x >= (1 << 24)) {
+            if (x >= (1 << 28)) {
+                n = 28;
+            }
+            else {
+                n = 24;
+            }
+        }
+        else {
+            if (x >= (1 << 20)) {
+                n = 20;
+            }
+            else {
+                n = 16;
+            }
+        }
+    }
+    else {
+        /* now scan if the bit is on rightmost byte */
+        if (x >= (1 << 8)) {
+            if (x >= (1 << 12)) {
+                n = 12;
+            }
+            else {
+                n = 8;
+            }
+        }
+        else {
+            if (x >= (1 << 4)) {
+                n = 4;
+            }
+            else {
+                n = 0;
+            }
+        }
+    }
+    return (uint32_t)clz_lkup[x >> n] - n;
+
 }
 
 #endif

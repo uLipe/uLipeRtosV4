@@ -53,7 +53,6 @@ struct OsTCB_
 	uint32_t	 flagsPending;	//flags to pend register
 	uint16_t     delayTime;
 	uint16_t     taskStatus;	//The current status of the task
-	uint8_t		 tcbTaken;		///.;
     OsPrioListPtr_t mtxBmp;
     OsPrioListPtr_t flagsBmp;
     OsPrioListPtr_t queueBmp;
