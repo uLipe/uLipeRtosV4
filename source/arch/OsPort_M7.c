@@ -103,15 +103,5 @@ void uLipePortChange(void)
 	OS_CRITICAL_OUT();
 }
 
-uint32_t uLipePortBitLSScan(uint32_t arg)
-{
-
-}
-
-
-uint32_t uLipePortBitFSScan(uint32_t arg)
-{
-
-}
 
 #endif
