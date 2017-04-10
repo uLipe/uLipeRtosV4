@@ -32,31 +32,25 @@ The kernel uses a fully preemptive schedule policy, and supports up to 1024 prio
 - Add the folders to the include paths: uLipeRtosV4 and uLipeRtosV4/arch;
 - Add the folders as sources: uLipeRtosV4/source and uLipeRtosV4/source/arch;
 - Go to OsConfig.h and edit the following lines:
-	- Select the one of current supported architecture:
 ```
 
-		#define OS_ARCH_CORTEX_M0     1
-		#define OS_ARCH_CORTEX_M3     0
-		#define OS_ARCH_CORTEX_M4     0
-		#define OS_ARCH_CORTEX_M7     0
+//Set the ticker frequency based on your target system clock
+#define OS_CPU_RATE  			48000000 //in Hz
+#define OS_TICK_RATE			1000	//in Hz
 
-```
-	- Define the number of tasks (each task must have a unique priority):
-```
 
-		#define OS_NUMBER_OF_TASKS  8
+//Select the one of current supported architecture:
+#define OS_ARCH_CORTEX_M0     1
+#define OS_ARCH_CORTEX_M3     0
+#define OS_ARCH_CORTEX_M4     0
+#define OS_ARCH_CORTEX_M7     0
+
+//Define the number of tasks (each task must have a unique priority):
+#define OS_NUMBER_OF_TASKS  8
  
-```
-	- Define how much heap(in bytes)to be used rtos memory allocation (use the suggested value):
-```
+//Define how much heap(in bytes)to be used rtos memory allocation (use the suggested value):
+#define OS_HEAP_SIZE       4096
 
-		#define OS_HEAP_SIZE       4096
-```
-	- Set the ticker frequency based on your target system clock
-
-```
-		#define OS_CPU_RATE  			48000000 //in Hz
-		#define OS_TICK_RATE			1000	//in Hz
 ```
 
 - Play witth the following demo:
@@ -94,6 +88,7 @@ void test_task2(void *args)
         uLipeSemGive(r_sem, 1);
     }
 }
+
 int main(void)
 {
 
@@ -110,6 +105,5 @@ int main(void)
     return 0;
 }
 ```
-
 
 - Build using your preferred IDE;
