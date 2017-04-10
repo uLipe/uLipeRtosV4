@@ -389,15 +389,9 @@ OsStatus_t uLipeRtosStart(void)
 	//check for problems:
 	uLipeAssert(highPrioTask != NULL);
 
-	//os is running:
-	//osRunning = TRUE;
 
 	//perform the first ctx switch:
-	asm("		movs r0, #0x00 \n\r"
-		"		msr  primask, r0 \n\r"
-		"		svc	 #0x00     \n\r");
-
-	//The os is running.
+	uLipePortStartKernel();
 
 	//this function should not return:
 	return(kKernelStartFail);

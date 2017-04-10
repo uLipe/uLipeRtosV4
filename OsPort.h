@@ -52,6 +52,15 @@ OsStackPtr_t uLipeStackInit(OsStackPtr_t taskStk, void * task, void *taskArgs );
  *  \return
  */
 void uLipePortChange(void);
+
+/*!
+ *  uLipePortStartKernel()
+ *  \brief request the kernel to start its execution
+ *  \param
+ *  \return
+ */
+extern void uLipePortStartKernel(void);
+
 /*!
  *  uLipeEnterCritical()
  *  \brief Shut down interrupts and save status registers

@@ -15,14 +15,13 @@ The kernel uses a fully preemptive schedule policy, and supports up to 1024 prio
 - Fast context switching time, below to 100ns @ 50MHz processor clock;
 - O(1) Dynamic memory allocator based on powerful TLSF alghoritm
 - Supports up to 1024 priority levels;
-- Event flag groups, up to 32bits events;
+- Event flag groups, up to 32bits events, support signaling with broadcast;
 - Counting semaphores;
 - Binary semaphores;
-- Queueing by reference support;
-- Port file formed by two simple files in C and Assembly, simple to port;
+- Zero copy, type agnostic mailboxes / message queues;
 - Unlimited kernel objects (limited by processor memory);
 - Run time creation objects;
-- Except port file, implementend in fully ANSI-C.
+- Port file formed by two simple files in C and Assembly, simple to port;
 - Single header kernel, put on you application and enjoy.
 
 # Basic Usage
@@ -78,7 +77,7 @@ void test_task1(void *args)
 }
 
 void test_task2(void *args)
-{    
+{
     uint32_t cntr = 0;
 
     for(;;) {
@@ -88,6 +87,7 @@ void test_task2(void *args)
     }
 }
 
+
 int main(void)
 {
 
@@ -96,7 +96,7 @@ int main(void)
 
     /* create two test tasks */
     uLipeTaskCreate(&test_task1,128,2,NULL);
-    uLipeTaskCreate(&test_task1,128,1,NULL);
+    uLipeTaskCreate(&test_task2,128,1,NULL);
 
     /* give to the kernel the control of processor */
     uLipeRtosStart();

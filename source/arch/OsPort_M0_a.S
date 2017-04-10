@@ -45,6 +45,7 @@
 		.global SysTick_Handler
 		.global uLipeMemCpy
 		.global uLipeMemSet
+		.global uLipePortStartKernel
 
 @
 @	place this code on text section:
@@ -84,6 +85,17 @@ uLipeMemSet:
 
 		bx lr
 
+
+@
+@ void uLipePortStartKernel (void)
+@
+		.thumb_func
+uLipePortStartKernel:
+		movs r0, #0
+		msr  primask, r0
+		svc	 #0
+		nop
+		bx lr
 
 @
 @	void uLipeFirstSwt(void)
