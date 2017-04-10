@@ -65,7 +65,7 @@
 /*
  * specifies system heap size bytes
  */
-#define OS_HEAP_SIZE                    1024
+#define OS_HEAP_SIZE                    8192
 
 /*
  *  timers and delays:

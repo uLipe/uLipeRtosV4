@@ -15,7 +15,6 @@ The kernel uses a fully preemptive schedule policy, and supports up to 1024 prio
 - Real time, preemptive kernel;
 - Fast context switching time, below to 100ns @ 50MHz processor clock;
 - Fully configurable thru a config header file;
-- Constant time dynamic memory allocator support (based o M. Masmano TLSF strategy)
 - Supports up to 1024 priority levels;
 - Event flag groups, up to 32bits events;
 - Counting semaphores;

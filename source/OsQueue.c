@@ -143,17 +143,14 @@ inline static void QueueDeleteLoop(OsHandler_t h)
 /*
  * uLipeQueueCreate()
  */
-OsHandler_t uLipeQueueCreate(QueueData_t *data, uint32_t size, OsStatus_t *err)
+OsHandler_t uLipeQueueCreate(uint32_t slots, OsStatus_t *err)
 {
 	uint32_t sReg = 0;
 	QueuePtr_t q = uLipeMemAlloc(sizeof(Queue_t));
+	QueueData_t data_array = uLipeMemAlloc(sizeof(QueueData_t) * slots);
 
-	//Check arguments:
-	if(data == NULL)
-	{
-	    if(err != NULL)*err = kInvalidParam;
-		return((OsHandler_t)NULL);
-	}
+
+
 
 	//Valid arguments, then proceed:
 	OS_CRITICAL_IN();
@@ -166,10 +163,20 @@ OsHandler_t uLipeQueueCreate(QueueData_t *data, uint32_t size, OsStatus_t *err)
 		return((OsHandler_t)NULL);
 	}
 
+    if(data_array == NULL)
+    {
+        OS_CRITICAL_OUT();
+        uLipeMemFree(q);
+        if(err != NULL)*err = kInvalidParam;
+        return((OsHandler_t)NULL);
+
+    }
+
+
 
 	//fill the control block:
-	q->queueBase = data;
-	q->numSlots  = size;
+	q->queueBase = data_array;
+	q->numSlots  = slots;
 	q->queueBack = 0;
 	q->queueFront = 0;
 	q->usedSlots = 0;
@@ -445,6 +452,7 @@ OsStatus_t uLipeQueueDelete(OsHandler_t *h)
 
 	//Assert all tasks pending the queue will be destroyed:
 	QueueDeleteLoop(*h);
+	uLipeMemFree(q->queueBase);
 	uLipeMemFree(q);
 
 	//Destroy the reference:

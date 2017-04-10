@@ -121,6 +121,17 @@ void uLipeKernelTaskYield(void);
 
 
 /*!
+ *  ulipeKernelIsRunning()
+ *
+ *  \brief Perform kernel initialization
+ *  \param
+ *
+ *  \return
+ *
+ */
+bool uLipeKernelIsRunning(void);
+
+/*!
  * 	ulipeRtosInit()
  *
  *  \brief Perform kernel initialization

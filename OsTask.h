@@ -86,7 +86,7 @@ OsStatus_t uLipeTaskInit(void);
  *  \return
  *
  */
-OsStatus_t uLipeTaskCreate(void (*task) (void * args), OsStackPtr_t taskStack, uint32_t stackSize,
+OsStatus_t uLipeTaskCreate(void (*task) (void * args), uint32_t stackSize,
 						   uint16_t taskPrio, void *taskArgs);
 
 /*!

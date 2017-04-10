@@ -22,6 +22,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stddef.h>
+#include <stdbool.h>
 #include <sys/types.h>
 
 
@@ -50,6 +51,7 @@ typedef enum						//Rtos status codes
 	kMutexOwned,					//
 	kOutOfSem,						//
 	kTimeout,                       //
+	kOutOfMem,                      //
 }OsStatus_t;						//
 
 /*

@@ -16,20 +16,13 @@
 #ifndef __OS_QUEUE_H
 #define __OS_QUEUE_H
 
-/*
- * Queue custom types:
- */
-typedef void*  QueueData_t;
-
-/*
- * Custom macro to reserve an array of pointers to queue data:
- */
-
-#define OS_QUEUE_RESERVE(dataName, numEntries) QueueData_t dataName[numEntries]
 
 /*
  * Queue custom codes
  */
+typedef void*  QueueData_t;
+
+
 #define OS_Q_BLOCK_EMPTY	0x01 //suspend task on queue empty
 #define OS_Q_BLOCK_FULL		0x02 //suspend task to insert in a full queue
 #define OS_Q_NON_BLOCK      0x03
@@ -69,7 +62,7 @@ typedef struct queue_* QueuePtr_t;
  * \param
  * \return
  */
-OsHandler_t uLipeQueueCreate(QueueData_t *data, uint32_t size, OsStatus_t *err);
+OsHandler_t uLipeQueueCreate(uint32_t slots, OsStatus_t *err);
 
 /*!
  * uLipeQueueInsert()

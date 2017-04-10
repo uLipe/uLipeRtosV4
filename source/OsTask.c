@@ -44,17 +44,17 @@ extern OsDualPrioList_t timerPendingList;
 /*
  * 	ulipeTaskCreate()
  */
-OsStatus_t uLipeTaskCreate(void (*task) (void * args), OsStackPtr_t taskStack, uint32_t stkSize,
-						   uint16_t taskPrio, void *taskArgs)
+OsStatus_t uLipeTaskCreate(void (*task) (void * args), uint32_t stackSize,
+                           uint16_t taskPrio, void *taskArgs)
 {
 
 	extern void uLipeTaskEntry(void *);
 	uint32_t sReg = 0;
 	OsTCBPtr_t tcb = uLipeMemAlloc(sizeof(OsTCB_t));
+	OsStackPtr_t sp = uLipeMemAlloc(sizeof(uint32_t) * stackSize);
 
 	//Check arguments:
 	if(task == NULL) return(kInvalidParam);
-	if(taskStack == NULL)return(kInvalidParam);
 	if(taskPrio > (OS_NUMBER_OF_TASKS - 1)) return(kInvalidParam);
 
 	//check for freeblocks:
@@ -63,6 +63,13 @@ OsStatus_t uLipeTaskCreate(void (*task) (void * args), OsStackPtr_t taskStack, u
 	{
         OS_CRITICAL_OUT();
         return(kOutOfTasks);
+	}
+
+	if(sp == NULL)
+	{
+        OS_CRITICAL_OUT();
+        uLipeMemFree(tcb);
+        return(kOutOfMem);
 	}
 
 	if(tasksCount >= OS_NUMBER_OF_TASKS)
@@ -75,6 +82,8 @@ OsStatus_t uLipeTaskCreate(void (*task) (void * args), OsStackPtr_t taskStack, u
 	if(tcbPtrTbl[taskPrio] != NULL)
 	{
 		OS_CRITICAL_OUT();
+        uLipeMemFree(tcb);
+        uLipeMemFree(sp);
 		return(kInvalidParam);
 	}
 
@@ -86,7 +95,7 @@ OsStatus_t uLipeTaskCreate(void (*task) (void * args), OsStackPtr_t taskStack, u
 	//Take this tcb
 	tcb->taskPrio  = taskPrio;
 	//Initialize the stack frame:
-	tcb->stackTop = uLipeStackInit(taskStack + stkSize, &uLipeTaskEntry, taskArgs);
+	tcb->stackTop = uLipeStackInit(sp + stackSize, &uLipeTaskEntry, taskArgs);
 	tcb->task = task;
 	tcb->taskStatus = 0;
 
@@ -121,6 +130,7 @@ OsStatus_t uLipeTaskDelete( uint16_t taskPrio)
 	tcbPtrTbl[taskPrio] = NULL;
 	//Remove task from ready list first:
 	uLipePrioClr(taskPrio, &taskPrioList);
+    uLipeMemFree(tcb->stackTop);
 	uLipeMemFree(tcb);
 
 	OS_CRITICAL_OUT();
