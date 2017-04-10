@@ -1,7 +1,6 @@
 # uLipeRtosV4
 Simple preemptive, realtime, multitask kernel made just for fun.
-
-uLipeRTOS Version 4 is a simple, but powerful real time kernel, currently implemented for arm cortex M3 and M4 processors.
+uLipeRTOS Version 4 is a simple, but powerful real time kernel, currently implemented for arm cortex M0,M3,M4 and M7 architectures.
 The kernel uses a fully preemptive schedule policy, and supports up to 1024 priority levels.
 
 # Low memory footprint:
