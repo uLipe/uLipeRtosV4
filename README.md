@@ -26,7 +26,7 @@ The kernel uses a fully preemptive schedule policy, and supports up to 1024 prio
 - Except port file, implementend in fully ANSI-C.
 - Single header kernel, put on you application and enjoy.
 
-#Basic Usage
+# Basic Usage
 
 - uLipeRtos was built to be simple in its essence;
 - Add the folders to the include paths: uLipeRtosV4 and uLipeRtosV4/arch;
@@ -52,7 +52,6 @@ The kernel uses a fully preemptive schedule policy, and supports up to 1024 prio
 - Play witth the following demo:
 
 ...
-
 #include "uLipeRtos4.h"
 
 OsHandler_t r_sem;
@@ -101,7 +100,6 @@ int main(void)
 
     return 0;
 }
-
 ...
 
 
