@@ -32,8 +32,6 @@ volatile uint32_t tickCounter;    //Incremented every os tick interrupt
 uint8_t  osConfigured = FALSE;
 uint8_t  osRunning = FALSE;				  //Kernel executing flag
 uint16_t irqCounter;     		  //Irq nesting counter
-OsStack_t idleTaskStack[OS_MINIMAL_STACK];
-
 
 /*
  *	External  variables:
@@ -173,9 +171,12 @@ void uLipeKernelTaskYield(void)
 
 	//the priority should not be invalid
 	uLipeAssert(prio != OS_INVALID_PRIO);
+	uLipeAssert(tcbPtrTbl[prio] != NULL);
 
 	//access the desired tcb:
 	highPrioTask = tcbPtrTbl[prio];
+
+
 
 	//check if a context switch is nedded:
 	if(highPrioTask != currentTask)
@@ -222,26 +223,34 @@ void uLipeKernelRtosTick(void)
 	                //discard it
 	                tcb->taskStatus = 0;
                     if(tcb->mtxBmp != NULL)
+                    {
                         uLipePrioClr(tcb->taskPrio, tcb->mtxBmp);
+                        tcb->mtxBmp = NULL;
+
+                    }
 
                     /* flags has a special acess case */
 	                if(tcb->flagsBmp != NULL)
 	                {
 	                    uLipePrioClr(tcb->taskPrio, tcb->flagsBmp);
                         uLipePrioClr(tcb->taskPrio, tcb->flagsBmp + sizeof(OsPrioList_t));
+                        tcb->flagsBmp = NULL;
 	                }
 
 	                if(tcb->queueBmp != NULL)
+	                {
                         uLipePrioClr(tcb->taskPrio, tcb->queueBmp);
+                        tcb->queueBmp = NULL;
+	                }
 
                     if(tcb->semBmp != NULL)
+                    {
                         uLipePrioClr(tcb->taskPrio, tcb->semBmp);
+                        tcb->semBmp= NULL;
+
+                    }
 
 	                uLipePrioSet(tcb->taskPrio, &taskPrioList);
-	                tcb->mtxBmp = NULL;
-	                tcb->flagsBmp = NULL;
-	                tcb->queueBmp = NULL;
-	                tcb->semBmp= NULL;
 	            }
 	            else if((tcb->taskStatus & (1 << kTaskPendDelay)) == 0)
 	            {
@@ -325,7 +334,11 @@ OsStatus_t uLipePrioClr(uint16_t prio, OsPrioListPtr_t prioList)
 */
 
 
-
+bool uLipeKernelIsRunning(void)
+{
+    bool ret = (osRunning == TRUE)? true : false;
+    return(ret);
+}
 /*
  * 	ulipeRtosInit()
  */
@@ -348,7 +361,7 @@ OsStatus_t uLipeRtosInit(void)
 	uLipeInitMachine();
 
 	//Install idle task:
-	err = uLipeTaskCreate(&uLipeKernelIdleTask, &idleTaskStack[0], OS_IDLE_TASK_STACK_SIZE,
+	err = uLipeTaskCreate(&uLipeKernelIdleTask, OS_IDLE_TASK_STACK_SIZE,
 						  OS_LEAST_PRIO, 0);
 	uLipeAssert(err == kStatusOk);
 

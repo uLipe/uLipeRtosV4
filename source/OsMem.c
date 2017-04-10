@@ -158,6 +158,7 @@ typedef struct TLSF_struct {
 /** private variables */
 static uint8_t OsCoreMemory[OS_HEAP_SIZE + sizeof(tlsf_t)] = { 0 };
 static uint8_t *mp = NULL;
+OsHandler_t memSingleTonMutex;
 
 /** private functions */
 static __inline void set_bit(int32_t nr, uint32_t * addr);
@@ -448,6 +449,9 @@ OsStatus_t uLipeMemInit(void)
     size_t s = OS_HEAP_SIZE + sizeof(tlsf_t);
 
     s = init_memory_pool(s, OsCoreMemory);
+    memSingleTonMutex = (OsHandler_t) malloc_ex(sizeof(Mutex_t), OsCoreMemory);
+
+    uLipeAssert(memSingleTonMutex != NULL);
     uLipeAssert(s != 0);
 
     return ret;
@@ -458,13 +462,23 @@ void *uLipeMemAlloc(size_t size)
     void *ret = NULL;
     uint32_t sReg = 0;
 
-    OS_CRITICAL_IN();
     /* wraps the requested block to highest value supported by system */
     if (size > OS_MAX_SIZED_HEAP_BLOCK) size = OS_MAX_SIZED_HEAP_BLOCK;
 
+    if(uLipeKernelIsRunning())
+        uLipeMutexTake(memSingleTonMutex);
+    else
+        OS_CRITICAL_IN();
+
     /* request memory from the allocator block. */
     ret = malloc_ex(size, OsCoreMemory);
-    OS_CRITICAL_OUT();
+
+    if(uLipeKernelIsRunning())
+        uLipeMutexGive(memSingleTonMutex);
+    else
+        OS_CRITICAL_OUT();
+
+
 
     return ret;
 }
@@ -476,9 +490,19 @@ void uLipeMemFree(void *mem)
 
     if (mem != NULL)
     {
-        OS_CRITICAL_IN();
+        if(uLipeKernelIsRunning())
+            uLipeMutexTake(memSingleTonMutex);
+        else
+            OS_CRITICAL_IN();
+
         free_ex(mem, OsCoreMemory);
-        OS_CRITICAL_OUT();
+
+
+        if(uLipeKernelIsRunning())
+            uLipeMutexGive(memSingleTonMutex);
+        else
+            OS_CRITICAL_OUT();
+
     }
 }
 
