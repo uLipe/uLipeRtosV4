@@ -16,7 +16,7 @@
 #ifndef __OS_ARCH_DEFS_M7_H
 #define __OS_ARCH_DEFS_M7_H
 
-#if (OS_ARCH_CORTEX_M7 == 1) | (OS_ARCH_CORTEX_M4 == 1) | (OS_ARCH_CORTEX_M3 == 1)
+#if (OS_ARCH_CORTEX_M7 == 1) || (OS_ARCH_CORTEX_M4 == 1) || (OS_ARCH_CORTEX_M3 == 1)
 
 
 /*

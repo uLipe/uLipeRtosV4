@@ -19,7 +19,7 @@
 
 #include "../../OsConfig.h"
 
-#if (OS_ARCH_CORTEX_M7 == 1) | (OS_ARCH_CORTEX_M4 == 1) | (OS_ARCH_CORTEX_M3 == 1)
+#if (OS_ARCH_CORTEX_M7 == 1) || (OS_ARCH_CORTEX_M4 == 1) || (OS_ARCH_CORTEX_M3 == 1)
 
 
  		.thumb
@@ -49,6 +49,7 @@
 		.global uLipeMemSet
 		.global uLipePortBitLSScan
 		.global uLipePortBitFSScan
+		.global uLipePortStartKernel
 
 @
 @	place this code on text section:
@@ -78,6 +79,17 @@ uLipeExitCritical:
 @
 uLipeMemCpy:
 
+		bx lr
+
+@
+@ void uLipePortStartKernel (void)
+@
+		.thumb_func
+uLipePortStartKernel:
+		movs r0, #0
+		msr  primask, r0
+		svc	 #0
+		nop
 		bx lr
 
 
