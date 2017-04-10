@@ -51,7 +51,8 @@ The kernel uses a fully preemptive schedule policy, and supports up to 1024 prio
 
 - Play witth the following demo:
 
-...
+```
+
 #include "uLipeRtos4.h"
 
 OsHandler_t r_sem;
@@ -98,7 +99,7 @@ int main(void)
 
     return 0;
 }
-...
+```
 
 
 - Build using your preferred IDE;
