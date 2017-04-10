@@ -74,7 +74,7 @@ void test_task1(void *args)
 }
 
 void test_task2(void *args)
-{
+{    
     uint32_t cntr = 0;
 
     for(;;) {
@@ -83,8 +83,6 @@ void test_task2(void *args)
         uLipeSemGive(r_sem, 1);
     }
 }
-
-
 int main(void)
 {
 
