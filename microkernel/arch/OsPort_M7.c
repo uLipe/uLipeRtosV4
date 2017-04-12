@@ -15,7 +15,7 @@
  */
 
 #include "uLipeRtos4.h"
-#include "OsArch_Defs_M3_M4_M7.h"
+#include "include/arch/OsArch_Defs_M3_M4_M7.h"
 
 #if (OS_ARCH_CORTEX_M7 == 1) || (OS_ARCH_CORTEX_M4 == 1) || (OS_ARCH_CORTEX_M3 == 1)
 

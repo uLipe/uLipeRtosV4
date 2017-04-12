@@ -365,6 +365,8 @@ OsStatus_t uLipeRtosInit(void)
 						  OS_LEAST_PRIO, 0);
 	uLipeAssert(err == kStatusOk);
 
+	uLipeDeviceTblInit();
+
 	osConfigured = TRUE;
 	(void)err;
 

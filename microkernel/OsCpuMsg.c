@@ -36,15 +36,7 @@ extern OsDualPrioList_t timerPendingList;
 
 OsStatus_t uLipeIPMInit(void)
 {
-    uint32_t sReg;
 
-    OS_CRITICAL_IN();
-    // inits and gets the channel size
-    channelSize = uLipeArchGetIPMChannelSize();
-
-
-
-    OS_CRITICAL_OUT();
 }
 OsStatus_t uLipeIPMSendBlocking(void *m, ssize_t s, uint16_t timeout)
 {
