@@ -49,7 +49,6 @@ OsStatus_t uLipeTaskCreate(void (*task) (void * args), uint32_t stackSize,
 {
 
 	extern void uLipeTaskEntry(void *);
-	uint32_t sReg = 0;
 	OsTCBPtr_t tcb = uLipeMemAlloc(sizeof(OsTCB_t));
 	OsStackPtr_t sp = uLipeMemAlloc(sizeof(uint32_t) * stackSize);
 
@@ -119,7 +118,6 @@ OsStatus_t uLipeTaskCreate(void (*task) (void * args), uint32_t stackSize,
  */
 OsStatus_t uLipeTaskDelete( uint16_t taskPrio)
 {
-	uint32_t sReg = 0;
 	OsTCBPtr_t tcb;
 
 	//check arguments:
@@ -146,8 +144,6 @@ OsStatus_t uLipeTaskDelete( uint16_t taskPrio)
  */
 OsStatus_t uLipeTaskSuspend( uint16_t taskPrio)
 {
-	uint32_t sReg = 0;
-
 	//Check arguments:
 	if(tcbPtrTbl[taskPrio] == NULL) return(kInvalidParam);					//Task is deleted cant suspend
 	if(tcbPtrTbl[taskPrio]->taskStatus == 0 )return(kCantSuspend);	//Only ready tasks can suspended
@@ -172,8 +168,6 @@ OsStatus_t uLipeTaskSuspend( uint16_t taskPrio)
  */
 OsStatus_t uLipeTaskResume( uint16_t taskPrio)
 {
-	uint32_t sReg = 0;
-
 	//Check arguments:
 	if(tcbPtrTbl[taskPrio] == NULL) return(kInvalidParam);					//Task is deleted cant suspend
 
@@ -199,8 +193,6 @@ OsStatus_t uLipeTaskResume( uint16_t taskPrio)
  */
 OsStatus_t uLipeTaskDelay( uint16_t ticks)
 {
-	uint32_t sReg = 0;
-
 	if(ticks != 0)
 	{
 	    OS_CRITICAL_IN();
