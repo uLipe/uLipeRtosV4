@@ -460,7 +460,6 @@ OsStatus_t uLipeMemInit(void)
 void *uLipeMemAlloc(size_t size)
 {
     void *ret = NULL;
-    uint32_t sReg = 0;
 
     /* wraps the requested block to highest value supported by system */
     if (size > OS_MAX_SIZED_HEAP_BLOCK) size = OS_MAX_SIZED_HEAP_BLOCK;
@@ -485,9 +484,6 @@ void *uLipeMemAlloc(size_t size)
 
 void uLipeMemFree(void *mem)
 {
-
-    uint32_t sReg = 0;
-
     if (mem != NULL)
     {
         if(uLipeKernelIsRunning())
