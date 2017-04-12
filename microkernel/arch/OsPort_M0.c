@@ -15,7 +15,7 @@
  */
 
 #include "uLipeRtos4.h"
-#include "OsArch_Defs_M0.h"
+#include "include/arch/OsArch_Defs_M0.h"
 
 #if (OS_ARCH_CORTEX_M0 == 1)
 

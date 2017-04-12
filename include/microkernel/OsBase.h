@@ -52,6 +52,7 @@ typedef enum						//Rtos status codes
 	kOutOfSem,						//
 	kTimeout,                       //
 	kOutOfMem,                      //
+	kDeviceNotFound,                //
 }OsStatus_t;						//
 
 /*

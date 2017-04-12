@@ -21,15 +21,16 @@
   *  all the include files here:
   */
 
-#include "OsBase.h"
-#include "OsPort.h"
-#include "OsKernel.h"
-#include "OsTask.h"
-#include "OsFlags.h"
-#include "OsQueue.h"
-#include "OsMutex.h"
-#include "OsCpuMsg.h"
-#include "OsSem.h"
-#include "OsMem.h"
+#include "include/microkernel/OsBase.h"
+#include "include/microkernel/OsPort.h"
+#include "include/microkernel/OsKernel.h"
+#include "include/microkernel/OsTask.h"
+#include "include/microkernel/OsFlags.h"
+#include "include/microkernel/OsQueue.h"
+#include "include/microkernel/OsMutex.h"
+#include "include/microkernel/OsCpuMsg.h"
+#include "include/microkernel/OsSem.h"
+#include "include/microkernel/OsMem.h"
+#include "include/microkernel/OsDeviceDriver.h"
 
 #endif

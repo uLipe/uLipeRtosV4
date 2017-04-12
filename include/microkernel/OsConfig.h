@@ -93,6 +93,29 @@
 #define OS_QUEUE_MODULE_EN		      1
 
 
+/*
+ * Device drivers:
+ */
+#define OS_USE_DEVICE_DRIVERS           1
+#define OS_DEVICE_SECTION_NAME      ".device_driver"
+
+/*
+ *
+ *  To use device model place the following snippet on your linker script
+ *
+ *                   .dd :
+ *                   {
+ *                      . = ALIGN(4);
+ *                      __OsDeviceTblStart = .;
+ *                      *(.device_driver)
+ *                      __OsDeviceTblEnd  = .;
+ *                      . = ALIGN(4);
+ *                   } >RAM
+ *
+ */
+
+
+
 /* no support to fast sched in cortex cm0 */
 #if (OS_ARCH_CORTEX_M0 == 1) && (OS_FAST_SCHED == 1)
   #error "uLipeKernel: this architecture does not provide hw optimized scheduler"

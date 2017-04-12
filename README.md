@@ -11,7 +11,7 @@ The kernel uses a fully preemptive schedule policy, and supports up to 1024 prio
   
 # Main Features
 
-- Real time, preemptive kernel;
+- Real time, preemptive microkernel;
 - Fast context switching time, below to 100ns @ 50MHz processor clock;
 - O(1) Dynamic memory allocator based on powerful TLSF alghoritm
 - Supports up to 1024 priority levels;
@@ -19,6 +19,7 @@ The kernel uses a fully preemptive schedule policy, and supports up to 1024 prio
 - Counting semaphores;
 - Binary semaphores;
 - Zero copy, type agnostic mailboxes / message queues;
+- Device driver model;
 - Unlimited kernel objects (limited by processor memory);
 - Run time creation objects;
 - Port file formed by two simple files in C and Assembly, simple to port;
@@ -28,8 +29,8 @@ The kernel uses a fully preemptive schedule policy, and supports up to 1024 prio
 
 - uLipeRtos was built to be simple in its essence;
 - Add the folders to the include paths: uLipeRtosV4 and uLipeRtosV4/arch;
-- Add the folders as sources: uLipeRtosV4/source and uLipeRtosV4/source/arch;
-- Go to OsConfig.h and edit the following lines:
+- Add the folders as sources: uLipeRtosV4/microkernel and uLipeRtosV4/microkernel/arch;
+- Go to include/microkernel/OsConfig.h and edit the following lines:
 ```
 
 //Set the ticker frequency based on your target system clock

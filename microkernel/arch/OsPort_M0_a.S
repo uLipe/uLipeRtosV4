@@ -17,7 +17,7 @@
 @	execute this code in thumb mode:
 @
 
-#include "../../OsConfig.h"
+#include "../../include/microkernel/OsConfig.h"
 
 #if (OS_ARCH_CORTEX_M0 == 1)
 
