@@ -25,6 +25,15 @@ The kernel uses a fully preemptive schedule policy, and supports up to 1024 prio
 - Port file formed by two simple files in C and Assembly, simple to port;
 - Single header kernel, put on you application and enjoy.
 
+# Recommended processor resources
+
+- 4KB of Code targeted memory(ROM);
+- 5KB of Data memory (RAM)¹²  
+
+¹ considering 1KB of heap usage
+² 3KB is overhead used by the dynamic memory allocator.
+
+
 # Basic Usage
 
 - uLipeRtos was built to be simple in its essence;
