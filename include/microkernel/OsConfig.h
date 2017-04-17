@@ -39,11 +39,6 @@
 
 
 //
-// More arch definitions
-//
-#define OS_ARCH_MULTICORE     0
-
-//
 // Other archs TBD
 //
 
@@ -100,11 +95,6 @@
 #define OS_DEVICE_SECTION_NAME      ".device_driver"
 
 /*
- * External support selection:
- */
-#define OS_USE_MCUEXPRESSO_FOR_KL25Z	0
-
-/*
  *
  *  To use device model place the following snippet on your linker script
  *
@@ -118,6 +108,45 @@
  *                   } >RAM
  *
  */
+
+
+/*
+ * External support selection:
+ */
+#define OS_USE_MCUEXPRESSO_FOR_KL25Z	0
+
+
+
+/*
+ * Enable use of uart drivers
+ */
+#define OS_USE_UART_DRIVERS				0
+
+/*
+ * Enable use of SPI drivers
+ */
+#define OS_USE_SPI_DRIVERS				0
+
+/*
+ * Enable use of I2C drivers
+ */
+#define OS_USE_I2C_DRIVERS				0
+
+/*
+ * Enable use of AIO drivers
+ */
+#define OS_USE_AIO_DRIVERS				0
+
+/*
+ * Enable use of ENET drivers
+ */
+#define OS_USE_ENET_DRIVERS				0
+
+/*
+ * Enable use of multicore drivers
+ */
+#define OS_USE_ASSI_MULTICORE_DRIVERS	0
+
 
 
 

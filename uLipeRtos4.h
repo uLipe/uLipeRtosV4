@@ -28,9 +28,15 @@
 #include "include/microkernel/OsFlags.h"
 #include "include/microkernel/OsQueue.h"
 #include "include/microkernel/OsMutex.h"
-#include "include/microkernel/OsCpuMsg.h"
 #include "include/microkernel/OsSem.h"
 #include "include/microkernel/OsMem.h"
 #include "include/microkernel/OsDeviceDriver.h"
+
+/*
+ *  all device drivers
+ */
+#include "include/drivers/OsDriverUart.h"
+
+
 
 #endif
