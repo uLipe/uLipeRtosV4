@@ -87,9 +87,21 @@
 
 #define BLOCK_ALIGN                         (sizeof(void *) * 2)
 
-#define MAX_FLI                             (30)
-#define MAX_LOG2_SLI                        (5)
-#define MAX_SLI                             (1 << MAX_LOG2_SLI)
+
+#if (OS_HEAP_SIZE <= 32768)
+	#define MAX_FLI                             (15)
+	#define MAX_LOG2_SLI                        (4)
+	#define MAX_SLI                             (1 << MAX_LOG2_SLI)
+#elif (OS_HEAP_SIZE > 32768) &&(OS_HEAP_SIZE < 65536)
+	#define MAX_FLI                             (16)
+	#define MAX_LOG2_SLI                        (4)
+	#define MAX_SLI                             (1 << MAX_LOG2_SLI)
+#else
+	#define MAX_FLI                             (24)
+	#define MAX_LOG2_SLI                        (5)
+	#define MAX_SLI                             (1 << MAX_LOG2_SLI)
+#endif
+
 
 #define FLI_OFFSET                          (6)
 #define SMALL_BLOCK                         (128)

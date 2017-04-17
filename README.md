@@ -13,14 +13,14 @@ The kernel uses a fully preemptive schedule policy, and supports up to 1024 prio
 
 - Real time, preemptive microkernel;
 - Fast context switching time, below to 100ns @ 50MHz processor clock;
-- O(1) Dynamic memory allocator based on powerful TLSF alghoritm
-- Supports up to 1024 priority levels;
+- O(1) Dynamic memory allocator based on powerful TLSF alghoritm optimized to low size pools as 64KB or 128KB;
+- Supports up to 1024 priority levels ( highest prio is reserved for mutex and lowest to idle task);
 - Event flag groups, up to 32bits events, support signaling with broadcast;
 - Counting semaphores;
 - Binary semaphores;
 - Zero copy, type agnostic mailboxes / message queues;
-- Device driver model;
-- Unlimited kernel objects (limited by processor memory);
+- Device driver model (in development);
+- Unlimited kernel objects / heap size (limited by processor memory);
 - Run time creation objects;
 - Port file formed by two simple files in C and Assembly, simple to port;
 - Single header kernel, put on you application and enjoy.
@@ -28,10 +28,10 @@ The kernel uses a fully preemptive schedule policy, and supports up to 1024 prio
 # Recommended processor resources
 
 - 4KB of Code targeted memory(ROM);
-- 5KB of Data memory (RAM)¹²  
+- 1.6KB of Data memory (RAM)¹²  
 
 ¹ considering 1KB of heap usage
-² 3KB is overhead used by the dynamic memory allocator.
+² 650 Bytes is overhead used by the dynamic memory allocator.
 
 
 # Basic Usage
@@ -57,7 +57,7 @@ The kernel uses a fully preemptive schedule policy, and supports up to 1024 prio
 #define OS_NUMBER_OF_TASKS  8
  
 //Define how much heap(in bytes)to be used rtos memory allocation (use the suggested value):
-#define OS_HEAP_SIZE       4096
+#define OS_HEAP_SIZE       2048
 
 ```
 

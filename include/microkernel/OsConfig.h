@@ -65,7 +65,7 @@
 /*
  * specifies system heap size bytes
  */
-#define OS_HEAP_SIZE                    8192
+#define OS_HEAP_SIZE                    2048
 
 /*
  *  timers and delays:
@@ -98,6 +98,11 @@
  */
 #define OS_USE_DEVICE_DRIVERS           0
 #define OS_DEVICE_SECTION_NAME      ".device_driver"
+
+/*
+ * External support selection:
+ */
+#define OS_USE_MCUEXPRESSO_FOR_KL25Z	0
 
 /*
  *
