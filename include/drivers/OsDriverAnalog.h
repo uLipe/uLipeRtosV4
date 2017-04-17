@@ -5,8 +5,8 @@
  *      Author: vntfene
  */
 
-#ifndef INCLUDE_DRIVERS_OSDRIVERANALOG_H_
-#define INCLUDE_DRIVERS_OSDRIVERANALOG_H_
+#ifndef __OS_DRIVERANALOG_H_
+#define __OS_DRIVERANALOG_H_
 
 
 
