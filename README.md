@@ -18,6 +18,7 @@ The kernel uses a fully preemptive schedule policy, and supports up to 1024 prio
 - Event flag groups, up to 32bits events, support signaling with broadcast;
 - Counting semaphores;
 - Binary semaphores;
+- Mutual exclusion semaphore with priority inversion protection;
 - Zero copy, type agnostic mailboxes / message queues;
 - Device driver model (in development);
 - Unlimited kernel objects / heap size (limited by processor memory);
