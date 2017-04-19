@@ -1,13 +1,23 @@
-/*
- * OsDriverEnet.h
+/*!
  *
- *  Created on: Apr 13, 2017
- *      Author: vntfene
+ *                          ULIPE RTOS VERSION 4
+ *
+ *
+ *  \file OsDriverUart.h
+ *
+ *  \brief generic UART device driver
+ *
+ *  In this file the is contained all the definitions about inter cpu messaging
+ *
+ *  Author: FSN
+ *
  */
 
-#ifndef INCLUDE_DRIVERS_OSDRIVERENET_H_
-#define INCLUDE_DRIVERS_OSDRIVERENET_H_
+#ifndef __OS_DRIVER_ENET_H_
+#define __OS_DRIVER_ENET_H_
 
 
+/************** COMING SOON! *************************/
 
-#endif /* INCLUDE_DRIVERS_OSDRIVERENET_H_ */
+
+#endif

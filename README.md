@@ -20,7 +20,7 @@ The kernel uses a fully preemptive schedule policy, and supports up to 1024 prio
 - Binary semaphores;
 - Mutual exclusion semaphore with priority inversion protection;
 - Zero copy, type agnostic mailboxes / message queues;
-- Device driver model (in development);
+- Device driver model (in development, generic templates available);
 - Unlimited kernel objects / heap size (limited by processor memory);
 - Run time creation objects;
 - Port file formed by two simple files in C and Assembly, simple to port;

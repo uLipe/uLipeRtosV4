@@ -116,6 +116,15 @@
 #define OS_USE_MCUEXPRESSO_FOR_KL25Z	0
 
 
+/*
+ * Enable use of pin mux drivers
+ */
+#define OS_USE_PINMUX_DRIVERS			0
+
+/*
+ * Enable use of GPIO Drivers
+ */
+#define OS_USE_GPIO_DRIVERS				0
 
 /*
  * Enable use of uart drivers

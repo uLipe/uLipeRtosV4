@@ -18,7 +18,7 @@
 #define __ULIPE_RTOS_4_H
 
  /*
-  *  all the include files here:
+  *  all the microkernel include files here:
   */
 
 #include "include/microkernel/OsBase.h"
@@ -36,7 +36,10 @@
  *  all device drivers
  */
 #include "include/drivers/OsDriverUart.h"
-
-
+#include "include/drivers/OsDriverPinMux.h"
+#include "include/drivers/OsDriverGpio.h"
+#include "include/drivers/OsDriverAnalog.h"
+#include "include/drivers/OsDriverSPI.h"
+#include "include/drivers/OsDriverI2C.h"
 
 #endif

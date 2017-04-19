@@ -7,7 +7,6 @@
  *
  *  \brief generic UART device driver
  *
- *  In this file the is contained all the definitions about inter cpu messaging
  *
  *  Author: FSN
  *
@@ -22,9 +21,9 @@
 /* uart generic driver structure  */
 typedef struct {
 	OsStatus_t (*uLipeUartConfig)(Device_t *this, uint32_t baud, uint32_t configMask);
-	OsStatus_t (*uLipeUartSendByte)(Device_t *this, char c, uint16_t timeout );
+	OsStatus_t (*uLipeUartSendByte)(Device_t *this, uint8_t c, uint16_t timeout );
 	OsStatus_t (*uLipeUartSendStream)(Device_t *this, void *data, uint32_t size, uint16_t timeout);
-	OsStatus_t (*uLipeUartReadByte) (Device_t *this, char *c, uint16_t timeout);
+	OsStatus_t (*uLipeUartReadByte) (Device_t *this, uint8_t *c, uint16_t timeout);
 	OsStatus_t (*uLipeUartReadStream)(Device_t *this, void *data, uint32_t expected_size, uint32_t *actual_size, uint16_t timeout);
 	OsStatus_t (*uLipeUartEnable)(Device_t *this);
 	OsStatus_t (*uLipeUartDisable)(Device_t *this);
@@ -72,7 +71,7 @@ static inline OsStatus_t uLipeDriverUartInit(Device_t * dev, uint32_t baud_rate,
  *
  * 	\brief Sends a single byte through device uart
  */
-static inline OsStatus_t uLipeDriverUartSendByte(Device_t * dev, char c, uint16_t timeout)
+static inline OsStatus_t uLipeDriverUartSendByte(Device_t * dev, uint8_t c, uint16_t timeout)
 {
 	UartDeviceApi_t *api = (UartDeviceApi_t *)dev->deviceApi;
 	OsStatus_t ret;
@@ -110,7 +109,7 @@ static inline OsStatus_t uLipeDriverUartSendStream(Device_t *dev, void *data, ui
  *
  * 	\brief Reads a byte that comes from uart device
  */
-static inline OsStatus_t uLipeDriverUartReadByte(Device_t *dev, char *c, uint16_t timeout)
+static inline OsStatus_t uLipeDriverUartReadByte(Device_t *dev, uint8_t *c, uint16_t timeout)
 {
 	UartDeviceApi_t *api = (UartDeviceApi_t *)dev->deviceApi;
 	OsStatus_t ret;
