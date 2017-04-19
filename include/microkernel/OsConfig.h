@@ -159,11 +159,5 @@
 
 
 
-/* no support to fast sched in cortex cm0 */
-#if (OS_ARCH_CORTEX_M0 == 1) && (OS_FAST_SCHED == 1)
-  #error "uLipeKernel: this architecture does not provide hw optimized scheduler"
-#endif
-
-
 
 #endif

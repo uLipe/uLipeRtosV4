@@ -41,5 +41,6 @@
 #include "include/drivers/OsDriverAnalog.h"
 #include "include/drivers/OsDriverSPI.h"
 #include "include/drivers/OsDriverI2C.h"
+#include "include/drivers/OsDriverEnet.h"
 
 #endif

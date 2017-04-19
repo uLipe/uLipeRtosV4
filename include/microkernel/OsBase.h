@@ -95,17 +95,19 @@ extern void IdleTaskHook(void);
 /*
  *  assert definition:
  */
-static __inline void _uLipeAssert(uint32_t x)
+static inline void _uLipeAssert(uint32_t x)
 {
 	if(x == FALSE)
 	{
-		asm("   bkpt  #0 \n\r");
+		/**FIXME: add a printk here */
 
-		//Trava aqui:
+		/* traps the execution */
 		while(TRUE);
-
 	}
 }
+
+
+
 
 /* default ulipe configuration */
 
@@ -146,10 +148,9 @@ static __inline void _uLipeAssert(uint32_t x)
 #define OS_NUMBER_OF_TASKS      1
 #endif
 
-#if OS_ARCH_MULTICORE == 0
-#define OS_CPU_MSG               0
-#else
-#define OS_CPU_MSG               1
+/* no support to fast sched in cortex cm0 */
+#if (OS_ARCH_CORTEX_M0 == 1) && (OS_FAST_SCHED == 1)
+  #error "uLipeKernel: this architecture does not provide hw optimized scheduler"
 #endif
 
 /*
