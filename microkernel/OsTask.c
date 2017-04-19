@@ -150,7 +150,7 @@ OsStatus_t uLipeTaskSuspend( uint16_t taskPrio)
 
 	//Check arguments:
 	if(tcbPtrTbl[taskPrio] == NULL) return(kInvalidParam);					//Task is deleted cant suspend
-	if(tcbPtrTbl[taskPrio]->taskStatus == 0 )return(kCantSuspend);	//Only ready tasks can suspended
+	if((tcbPtrTbl[taskPrio]->taskStatus != 0) )return(kCantSuspend);	//Only ready tasks can suspended
 
 	OS_CRITICAL_IN();
 
