@@ -91,7 +91,7 @@
 /*
  * Device drivers:
  */
-#define OS_USE_DEVICE_DRIVERS           1
+#define OS_USE_DEVICE_DRIVERS           0
 #define OS_DEVICE_SECTION_NAME      ".device_driver"
 
 /*
@@ -110,13 +110,13 @@
 /*
  * External support selection:
  */
-#define OS_USE_MCUEXPRESSO_FOR_KL25Z	1
+#define OS_USE_MCUEXPRESSO_FOR_KL25Z	0
 
 
 /*
  * Enable use of pin mux drivers
  */
-#define OS_USE_PINMUX_DRIVERS			1
+#define OS_USE_PINMUX_DRIVERS			0
 
 #if OS_USE_PINMUX_DRIVERS > 0
 
