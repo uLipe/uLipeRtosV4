@@ -50,7 +50,7 @@ typedef struct {
  *
  * 	\brief Inits the uart device driver with baud and user config bitmask
  */
-static inline OsStatus_t uLipeDriverUartInit(Device_t * dev, uint32_t baud_rate, uint32_t configMask)
+static __inline OsStatus_t uLipeDriverUartInit(Device_t * dev, uint32_t baud_rate, uint32_t configMask)
 {
 	UartDeviceApi_t *api = (UartDeviceApi_t *)dev->deviceApi;
 	OsStatus_t ret;
@@ -71,7 +71,7 @@ static inline OsStatus_t uLipeDriverUartInit(Device_t * dev, uint32_t baud_rate,
  *
  * 	\brief Sends a single byte through device uart
  */
-static inline OsStatus_t uLipeDriverUartSendByte(Device_t * dev, uint8_t c, uint16_t timeout)
+static __inline OsStatus_t uLipeDriverUartSendByte(Device_t * dev, uint8_t c, uint16_t timeout)
 {
 	UartDeviceApi_t *api = (UartDeviceApi_t *)dev->deviceApi;
 	OsStatus_t ret;
@@ -90,7 +90,7 @@ static inline OsStatus_t uLipeDriverUartSendByte(Device_t * dev, uint8_t c, uint
  *
  * 	\brief Sends a stream of bytes through uart device
  */
-static inline OsStatus_t uLipeDriverUartSendStream(Device_t *dev, void *data, uint32_t size, uint16_t timeout)
+static __inline OsStatus_t uLipeDriverUartSendStream(Device_t *dev, void *data, uint32_t size, uint16_t timeout)
 {
 	UartDeviceApi_t *api = (UartDeviceApi_t *)dev->deviceApi;
 	OsStatus_t ret;
@@ -109,7 +109,7 @@ static inline OsStatus_t uLipeDriverUartSendStream(Device_t *dev, void *data, ui
  *
  * 	\brief Reads a byte that comes from uart device
  */
-static inline OsStatus_t uLipeDriverUartReadByte(Device_t *dev, uint8_t *c, uint16_t timeout)
+static __inline OsStatus_t uLipeDriverUartReadByte(Device_t *dev, uint8_t *c, uint16_t timeout)
 {
 	UartDeviceApi_t *api = (UartDeviceApi_t *)dev->deviceApi;
 	OsStatus_t ret;
@@ -128,7 +128,7 @@ static inline OsStatus_t uLipeDriverUartReadByte(Device_t *dev, uint8_t *c, uint
  *
  * 	\brief Reads a byte stream which comes from uart device
  */
-static inline OsStatus_t uLipeDriverUartReadStream(Device_t *dev, void *data, uint32_t expected_size, uint32_t *actual_size, uint16_t timeout)
+static __inline OsStatus_t uLipeDriverUartReadStream(Device_t *dev, void *data, uint32_t expected_size, uint32_t *actual_size, uint16_t timeout)
 {
 	UartDeviceApi_t *api = (UartDeviceApi_t *)dev->deviceApi;
 	OsStatus_t ret;
@@ -147,7 +147,7 @@ static inline OsStatus_t uLipeDriverUartReadStream(Device_t *dev, void *data, ui
  *
  * 	\briefs enable a previous configured uart
  */
-static inline OsStatus_t uLipeDriverUartEnable(Device_t *dev)
+static __inline OsStatus_t uLipeDriverUartEnable(Device_t *dev)
 {
 	UartDeviceApi_t *api = (UartDeviceApi_t *)dev->deviceApi;
 	OsStatus_t ret;
@@ -167,7 +167,7 @@ static inline OsStatus_t uLipeDriverUartEnable(Device_t *dev)
  *
  * 	\briefs powers off a uart device keep its configuration
  */
-static inline OsStatus_t uLipeDriverUartDisable(Device_t *dev)
+static __inline OsStatus_t uLipeDriverUartDisable(Device_t *dev)
 {
 	UartDeviceApi_t *api = (UartDeviceApi_t *)dev->deviceApi;
 	OsStatus_t ret;

@@ -56,7 +56,7 @@ typedef struct {
  *
  *	\brief Configure the analog to ditial converter device
  */
-static inline OsStatus_t uLipeDriverAnalogInConfig(Device_t *dev, uint32_t expectedSampleRate, uint32_t *actualSampleRate,
+static __inline OsStatus_t uLipeDriverAnalogInConfig(Device_t *dev, uint32_t expectedSampleRate, uint32_t *actualSampleRate,
 			uint32_t configMask)
 {
 	OsStatus_t ret;
@@ -77,7 +77,7 @@ static inline OsStatus_t uLipeDriverAnalogInConfig(Device_t *dev, uint32_t expec
  *
  *	\brief Enable the analog to ditial converter device
  */
-static inline OsStatus_t uLipeDriverAnalogInEnable(Device_t *dev)
+static __inline OsStatus_t uLipeDriverAnalogInEnable(Device_t *dev)
 {
 	OsStatus_t ret;
 	AnalogDriverApi_t *api = (AnalogDriverApi_t *)dev->deviceApi;
@@ -96,7 +96,7 @@ static inline OsStatus_t uLipeDriverAnalogInEnable(Device_t *dev)
  *
  *	\brief Disables the analog to ditial converter device
  */
-static inline OsStatus_t uLipeDriverAnalogInDisable(Device_t *dev)
+static __inline OsStatus_t uLipeDriverAnalogInDisable(Device_t *dev)
 {
 	OsStatus_t ret;
 	AnalogDriverApi_t *api = (AnalogDriverApi_t *)dev->deviceApi;
@@ -115,7 +115,7 @@ static inline OsStatus_t uLipeDriverAnalogInDisable(Device_t *dev)
  *
  *	\brief starts a single conversion on the analog to ditial converter device
  */
-static inline OsStatus_t uLipeDriverAnalogInSingleConv(Device_t *dev, uint16_t *result, uint8_t channel)
+static __inline OsStatus_t uLipeDriverAnalogInSingleConv(Device_t *dev, uint16_t *result, uint8_t channel)
 {
 	OsStatus_t ret;
 	AnalogDriverApi_t *api = (AnalogDriverApi_t *)dev->deviceApi;
@@ -135,7 +135,7 @@ static inline OsStatus_t uLipeDriverAnalogInSingleConv(Device_t *dev, uint16_t *
  *
  *	\brief starts a sequence ruled conversion on the analog to ditial converter
  */
-static inline OsStatus_t uLipeDriverAnalogInStreamConv(Device_t *dev, AdcSequencer_t *seq)
+static __inline OsStatus_t uLipeDriverAnalogInStreamConv(Device_t *dev, AdcSequencer_t *seq)
 {
 	OsStatus_t ret;
 	AnalogDriverApi_t *api = (AnalogDriverApi_t *)dev->deviceApi;

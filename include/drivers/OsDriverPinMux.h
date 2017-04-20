@@ -35,7 +35,7 @@ typedef struct {
  * Alternate function enumeration
  */
 typedef enum {
-	kAltFun0 ,
+	kAltFun0 = 0 ,
 	kAltFun1 ,
 	kAltFun2 ,
 	kAltFun3 ,
@@ -61,7 +61,7 @@ typedef enum {
  * 	\brief sets a specified gpio bit to analog if supported
  *
  */
-static inline OsStatus_t uLipeDriverPinMuxSetToAnalog(Device_t * dev, uint8_t bitPos)
+static __inline OsStatus_t uLipeDriverPinMuxSetToAnalog(Device_t * dev, uint8_t bitPos)
 {
 	OsStatus_t ret;
 	PinMuxDriverApi_t * api = (PinMuxDriverApi_t *)dev->deviceApi;
@@ -81,7 +81,7 @@ static inline OsStatus_t uLipeDriverPinMuxSetToAnalog(Device_t * dev, uint8_t bi
  * 	\brief sets a specified gpio bit to digital I/O if supported
  *
  */
-static inline OsStatus_t uLipeDriverPinMuxSetToGpio(Device_t * dev, uint8_t bitPos)
+static __inline OsStatus_t uLipeDriverPinMuxSetToGpio(Device_t * dev, uint8_t bitPos)
 {
 	OsStatus_t ret;
 	PinMuxDriverApi_t * api = (PinMuxDriverApi_t *)dev->deviceApi;
@@ -100,7 +100,7 @@ static inline OsStatus_t uLipeDriverPinMuxSetToGpio(Device_t * dev, uint8_t bitP
  * 	\brief sets a specified gpio bit to one of supported alternate functions
  *
  */
-static inline OsStatus_t uLipeDriverPinMuxSetToAlt(Device_t *dev, uint8_t bitPos, Alternate_t alternateFun)
+static __inline OsStatus_t uLipeDriverPinMuxSetToAlt(Device_t *dev, uint8_t bitPos, Alternate_t alternateFun)
 {
 	OsStatus_t ret;
 	PinMuxDriverApi_t * api = (PinMuxDriverApi_t *)dev->deviceApi;
@@ -119,7 +119,7 @@ static inline OsStatus_t uLipeDriverPinMuxSetToAlt(Device_t *dev, uint8_t bitPos
  * 	\brief sets a specified gpio bit row to analog function
  *
  */
-static inline OsStatus_t uLipeDriverPinMuxSetRowToAnalog(Device_t * dev, uint8_t bitOffset, uint8_t len, uint32_t acceptMask)
+static __inline OsStatus_t uLipeDriverPinMuxSetRowToAnalog(Device_t * dev, uint8_t bitOffset, uint8_t len, uint32_t acceptMask)
 {
 	OsStatus_t ret;
 	PinMuxDriverApi_t * api = (PinMuxDriverApi_t *)dev->deviceApi;
@@ -138,7 +138,7 @@ static inline OsStatus_t uLipeDriverPinMuxSetRowToAnalog(Device_t * dev, uint8_t
  * 	\brief sets a specified gpio bit row to Digital I/O function
  *
  */
-static inline OsStatus_t uLipeDriverPinMuxSetRowToGpio(Device_t * dev, uint8_t bitOffset, uint8_t len, uint32_t acceptMask)
+static __inline OsStatus_t uLipeDriverPinMuxSetRowToGpio(Device_t * dev, uint8_t bitOffset, uint8_t len, uint32_t acceptMask)
 {
 	OsStatus_t ret;
 	PinMuxDriverApi_t * api = (PinMuxDriverApi_t *)dev->deviceApi;
@@ -158,7 +158,7 @@ static inline OsStatus_t uLipeDriverPinMuxSetRowToGpio(Device_t * dev, uint8_t b
  * 	\brief sets a specified gpio bit row to alternate function
  *
  */
-static inline OsStatus_t uLipeDriverPinMuxSetRowToAlt(Device_t * dev, uint8_t bitOffset, uint8_t len,
+static __inline OsStatus_t uLipeDriverPinMuxSetRowToAlt(Device_t * dev, uint8_t bitOffset, uint8_t len,
 			uint32_t acceptMask, Alternate_t alternateFun)
 {
 	OsStatus_t ret;

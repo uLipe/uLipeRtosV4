@@ -28,7 +28,7 @@ typedef struct {
 /*
  * device driver generic data structure
  */
-typedef struct __Device{
+typedef struct {
     DeviceConfig_t *config;
     void *deviceApi;
     void *deviceData;
@@ -76,13 +76,14 @@ OsStatus_t uLipeDeviceFinishSync(Device_t *dev);
 #endif
 
 /*
- * Macro to put define a device
+ * Macro to define a device
  */
-#define ULIPE_DEVICE_DECLARE(DevName, DevConfig, DriverData, DriverApi)                                 \
-   static Device_t __attribute__ ((section(OS_DEVICE_SECTION_NAME)))DevName = {                         \
-            .config = &DevConfig,                                                                       \
-            .deviceApi = &DriverApi,                                                                    \
-            .deviceData = &DriverData                                                                   \
-     };                                                                                                 \
+#define ULIPE_DEVICE_DECLARE(DevName, DevConfig, DriverData, DriverApi)                              \
+   Device_t __attribute__ ((section(OS_DEVICE_SECTION_NAME),__used__)) DevName   = { 		 		 \
+            .config = DevConfig,	                                                                 \
+            .deviceApi = DriverApi,                                                                  \
+            .deviceData = DriverData,																 \
+			.deviceSync = NULL																		 \
+     }                                                                                               \
 
 #endif

@@ -28,7 +28,7 @@ void uLipeDeviceTblInit(void)
     /* searche for a device entry on device table */
     for( devices = __OsDeviceTblStart; devices != __OsDeviceTblEnd; devices++) {
         if(devices->config->earlyInitFcn != NULL) {
-            devices->config->earlyInitFcn(devices->deviceData);
+            devices->config->earlyInitFcn(devices);
         }
     }
 }

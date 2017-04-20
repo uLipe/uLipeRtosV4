@@ -167,8 +167,9 @@ typedef struct TLSF_struct {
     bhdr_t *matrix[REAL_FLI][MAX_SLI];
 } tlsf_t;
 
+
 /** private variables */
-static uint8_t OsCoreMemory[OS_HEAP_SIZE + sizeof(tlsf_t)] = { 0 };
+static uint8_t OsCoreMemory[OS_HEAP_SIZE+sizeof(tlsf_t)] = { 0 };
 static uint8_t *mp = NULL;
 OsHandler_t memSingleTonMutex;
 

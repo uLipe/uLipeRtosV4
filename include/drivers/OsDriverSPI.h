@@ -50,7 +50,7 @@ typedef struct {
  *
  *  \brief configures the spi device driver
  */
-static inline OsStatus_t uLipeDriverSpiConfig(Device_t *dev, uint32_t expectedSpeed, uint32_t *actualSpeed, uint32_t configMask)
+static __inline OsStatus_t uLipeDriverSpiConfig(Device_t *dev, uint32_t expectedSpeed, uint32_t *actualSpeed, uint32_t configMask)
 {
 	OsStatus_t ret;
 	SpiDriverApi_t *api = (SpiDriverApi_t *)dev->deviceApi;
@@ -69,7 +69,7 @@ static inline OsStatus_t uLipeDriverSpiConfig(Device_t *dev, uint32_t expectedSp
  *
  *  \brief Enables  the spi device driver
  */
-static inline OsStatus_t uLipeDriverSpiEnable(Device_t *dev)
+static __inline OsStatus_t uLipeDriverSpiEnable(Device_t *dev)
 {
 	OsStatus_t ret;
 	SpiDriverApi_t *api = (SpiDriverApi_t *)dev->deviceApi;
@@ -89,7 +89,7 @@ static inline OsStatus_t uLipeDriverSpiEnable(Device_t *dev)
  *
  *  \brief Disables the spi device driver
  */
-static inline OsStatus_t uLipeDriverSpiDisable(Device_t *dev)
+static __inline OsStatus_t uLipeDriverSpiDisable(Device_t *dev)
 {
 	OsStatus_t ret;
 	SpiDriverApi_t *api = (SpiDriverApi_t *)dev->deviceApi;
@@ -108,7 +108,7 @@ static inline OsStatus_t uLipeDriverSpiDisable(Device_t *dev)
  *
  *  \brief writes a byte on data register of the spi device driver
  */
-static inline OsStatus_t uLipeDriverSpiWriteByte(Device_t *dev, uint8_t c, uint16_t timeout)
+static __inline OsStatus_t uLipeDriverSpiWriteByte(Device_t *dev, uint8_t c, uint16_t timeout)
 {
 	OsStatus_t ret;
 	SpiDriverApi_t *api = (SpiDriverApi_t *)dev->deviceApi;
@@ -128,7 +128,7 @@ static inline OsStatus_t uLipeDriverSpiWriteByte(Device_t *dev, uint8_t c, uint1
  *
  *  \brief writes a stream of bytes on data register of the spi device driver
  */
-static inline OsStatus_t uLipeDriverSpiWriteStream(Device_t *dev, void *data, uint32_t len, uint16_t timeout)
+static __inline OsStatus_t uLipeDriverSpiWriteStream(Device_t *dev, void *data, uint32_t len, uint16_t timeout)
 {
 	OsStatus_t ret;
 	SpiDriverApi_t *api = (SpiDriverApi_t *)dev->deviceApi;
@@ -147,7 +147,7 @@ static inline OsStatus_t uLipeDriverSpiWriteStream(Device_t *dev, void *data, ui
  *
  *  \brief reads a single byte from data register of the spi device driver
  */
-static inline OsStatus_t uLipeDriverSpiReadByte(Device_t *dev, uint8_t *c, uint16_t timeout)
+static __inline OsStatus_t uLipeDriverSpiReadByte(Device_t *dev, uint8_t *c, uint16_t timeout)
 {
 	OsStatus_t ret;
 	SpiDriverApi_t *api = (SpiDriverApi_t *)dev->deviceApi;
@@ -167,7 +167,7 @@ static inline OsStatus_t uLipeDriverSpiReadByte(Device_t *dev, uint8_t *c, uint1
  *
  *  \brief reads a stream of bytes from data register of the spi device driver
  */
-static inline OsStatus_t uLipeDriverSpiReadStream(Device_t *dev, void *data, uint32_t expectedLen, uint32_t *actualLen, uint16_t timeout)
+static __inline OsStatus_t uLipeDriverSpiReadStream(Device_t *dev, void *data, uint32_t expectedLen, uint32_t *actualLen, uint16_t timeout)
 {
 	OsStatus_t ret;
 	SpiDriverApi_t *api = (SpiDriverApi_t *)dev->deviceApi;

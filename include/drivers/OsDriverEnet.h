@@ -41,7 +41,7 @@ typedef struct {
  * 	\brief Inits the ethernet device
  *
  */
-static inline OsStatus_t uLipeDriverEnetInit(Device_t *dev)
+static __inline OsStatus_t uLipeDriverEnetInit(Device_t *dev)
 {
 	OsStatus_t ret;
 	EnetDriverApi_t *api = (EnetDriverApi_t *)dev->deviceApi;
@@ -60,7 +60,7 @@ static inline OsStatus_t uLipeDriverEnetInit(Device_t *dev)
  * 	\brief Enable the ethernet device
  *
  */
-static inline OsStatus_t uLipeDriverEnetEnable(Device_t *dev)
+static __inline OsStatus_t uLipeDriverEnetEnable(Device_t *dev)
 {
 	OsStatus_t ret;
 	EnetDriverApi_t *api = (EnetDriverApi_t *)dev->deviceApi;
@@ -80,7 +80,7 @@ static inline OsStatus_t uLipeDriverEnetEnable(Device_t *dev)
  * 	\brief sets the mac adress of the ethernet device
  *
  */
-static inline OsStatus_t uLipeDriverEnetSetMac(Device_t *dev, EnetMacAddress_t *mac)
+static __inline OsStatus_t uLipeDriverEnetSetMac(Device_t *dev, EnetMacAddress_t *mac)
 {
 	OsStatus_t ret;
 	EnetDriverApi_t *api = (EnetDriverApi_t *)dev->deviceApi;
@@ -99,7 +99,7 @@ static inline OsStatus_t uLipeDriverEnetSetMac(Device_t *dev, EnetMacAddress_t *
  * 	\brief Sends a packet using the ethernet device
  *
  */
-static inline OsStatus_t uLipeDriverEnetTxPacket(Device_t *dev, uint8_t *data, uint32_t len)
+static __inline OsStatus_t uLipeDriverEnetTxPacket(Device_t *dev, uint8_t *data, uint32_t len)
 {
 	OsStatus_t ret;
 	EnetDriverApi_t *api = (EnetDriverApi_t *)dev->deviceApi;
@@ -119,7 +119,7 @@ static inline OsStatus_t uLipeDriverEnetTxPacket(Device_t *dev, uint8_t *data, u
  * 	\brief Receives a packet using the ethernet device
  *
  */
-static inline OsStatus_t uLipeDriverEnetRxPacket(Device_t *dev, uint8_t *data, uint32_t *actualLen)
+static __inline OsStatus_t uLipeDriverEnetRxPacket(Device_t *dev, uint8_t *data, uint32_t *actualLen)
 {
 	OsStatus_t ret;
 	EnetDriverApi_t *api = (EnetDriverApi_t *)dev->deviceApi;

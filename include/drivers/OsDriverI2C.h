@@ -46,7 +46,7 @@ typedef struct {
  *
  *  \brief configures the I2c device driver
  */
-static inline OsStatus_t uLipeDriverI2cConfig(Device_t *dev, uint32_t expectedSpeed, uint32_t *actualSpeed, uint32_t configMask)
+static __inline OsStatus_t uLipeDriverI2cConfig(Device_t *dev, uint32_t expectedSpeed, uint32_t *actualSpeed, uint32_t configMask)
 {
 	OsStatus_t ret;
 	I2cDriverApi_t *api = (I2cDriverApi_t *)dev->deviceApi;
@@ -65,7 +65,7 @@ static inline OsStatus_t uLipeDriverI2cConfig(Device_t *dev, uint32_t expectedSp
  *
  *  \brief Enables  the I2c device driver
  */
-static inline OsStatus_t uLipeDriverI2cEnable(Device_t *dev)
+static __inline OsStatus_t uLipeDriverI2cEnable(Device_t *dev)
 {
 	OsStatus_t ret;
 	I2cDriverApi_t *api = (I2cDriverApi_t *)dev->deviceApi;
@@ -86,7 +86,7 @@ static inline OsStatus_t uLipeDriverI2cEnable(Device_t *dev)
  *
  *  \brief Disables the I2c device driver
  */
-static inline OsStatus_t uLipeDriverI2cDisable(Device_t *dev)
+static __inline OsStatus_t uLipeDriverI2cDisable(Device_t *dev)
 {
 	OsStatus_t ret;
 	I2cDriverApi_t *api = (I2cDriverApi_t *)dev->deviceApi;
@@ -105,7 +105,7 @@ static inline OsStatus_t uLipeDriverI2cDisable(Device_t *dev)
  *
  *  \brief Set the slave address of the I2c device driver
  */
-static inline OsStatus_t uLipeDriverI2cSetSlaveAddr(Device_t *dev, uint16_t slaveAddr)
+static __inline OsStatus_t uLipeDriverI2cSetSlaveAddr(Device_t *dev, uint16_t slaveAddr)
 {
 	OsStatus_t ret;
 	I2cDriverApi_t *api = (I2cDriverApi_t *)dev->deviceApi;
@@ -125,7 +125,7 @@ static inline OsStatus_t uLipeDriverI2cSetSlaveAddr(Device_t *dev, uint16_t slav
  *
  *  \brief writes a byte on data register of the I2c device driver
  */
-static inline OsStatus_t uLipeDriverI2cWriteByte(Device_t *dev, uint16_t slaveAddr, uint16_t addr,
+static __inline OsStatus_t uLipeDriverI2cWriteByte(Device_t *dev, uint16_t slaveAddr, uint16_t addr,
 			uint8_t c, uint16_t timeout)
 {
 	OsStatus_t ret;
@@ -146,7 +146,7 @@ static inline OsStatus_t uLipeDriverI2cWriteByte(Device_t *dev, uint16_t slaveAd
  *
  *  \brief writes a stream of bytes on data register of the I2c device driver
  */
-static inline OsStatus_t uLipeDriverI2cWriteStream(Device_t *dev,uint16_t slaveAddr, uint16_t base_addr,
+static __inline OsStatus_t uLipeDriverI2cWriteStream(Device_t *dev,uint16_t slaveAddr, uint16_t base_addr,
 			void *data, uint32_t len, uint16_t timeout)
 {
 	OsStatus_t ret;
@@ -166,7 +166,7 @@ static inline OsStatus_t uLipeDriverI2cWriteStream(Device_t *dev,uint16_t slaveA
  *
  *  \brief reads a single byte from data register of the I2c device driver
  */
-static inline OsStatus_t uLipeDriverI2cReadByte(Device_t *dev, uint16_t slaveAddr, uint16_t addr,
+static __inline OsStatus_t uLipeDriverI2cReadByte(Device_t *dev, uint16_t slaveAddr, uint16_t addr,
 			uint8_t *c, uint16_t timeout)
 {
 	OsStatus_t ret;
@@ -187,7 +187,7 @@ static inline OsStatus_t uLipeDriverI2cReadByte(Device_t *dev, uint16_t slaveAdd
  *
  *  \brief reads a stream of bytes from data register of the I2c device driver
  */
-static inline OsStatus_t uLipeDriverI2cReadStream(Device_t *dev,uint16_t slaveAddr, uint16_t base_addr, void *data,
+static __inline OsStatus_t uLipeDriverI2cReadStream(Device_t *dev,uint16_t slaveAddr, uint16_t base_addr, void *data,
 			uint32_t expectedLen, uint32_t *actualLen, uint16_t timeout)
 {
 	OsStatus_t ret;

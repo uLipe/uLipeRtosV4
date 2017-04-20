@@ -60,7 +60,7 @@
 /*
  * specifies system heap size bytes
  */
-#define OS_HEAP_SIZE                    2048
+#define OS_HEAP_SIZE                    4096
 
 /*
  *  timers and delays:
@@ -91,21 +91,18 @@
 /*
  * Device drivers:
  */
-#define OS_USE_DEVICE_DRIVERS           0
+#define OS_USE_DEVICE_DRIVERS           1
 #define OS_DEVICE_SECTION_NAME      ".device_driver"
 
 /*
  *
- *  To use device model place the following snippet on your linker script
- *
- *                   .dd :
- *                   {
- *                      . = ALIGN(4);
- *                      __OsDeviceTblStart = .;
- *                      *(.device_driver)
- *                      __OsDeviceTblEnd  = .;
- *                      . = ALIGN(4);
- *                   } >RAM
+ *  To use device model place the following snippet on your linker script on .data section
+
+					__OsDeviceTblStart = .;
+					KEEP(*(.device_driver))
+					__OsDeviceTblEnd  = .;
+
+
  *
  */
 
@@ -113,13 +110,41 @@
 /*
  * External support selection:
  */
-#define OS_USE_MCUEXPRESSO_FOR_KL25Z	0
+#define OS_USE_MCUEXPRESSO_FOR_KL25Z	1
 
 
 /*
  * Enable use of pin mux drivers
  */
-#define OS_USE_PINMUX_DRIVERS			0
+#define OS_USE_PINMUX_DRIVERS			1
+
+#if OS_USE_PINMUX_DRIVERS > 0
+
+	#define OS_USE_PORTB_PIN_MUX			1
+	#define OS_USE_PORTC_PIN_MUX			1
+	#define OS_USE_PORTD_PIN_MUX			1
+	#define OS_USE_PORTE_PIN_MUX			1
+
+	#define PORTA_PIN_MUX_DEVICE_NAME		"pmux0"
+
+	#if(OS_USE_PORTB_PIN_MUX > 0)
+	#define PORTB_PIN_MUX_DEVICE_NAME		"pmux1"
+	#endif
+
+	#if(OS_USE_PORTC_PIN_MUX > 0)
+	#define PORTC_PIN_MUX_DEVICE_NAME		"pmux2"
+	#endif
+
+	#if(OS_USE_PORTD_PIN_MUX > 0)
+	#define PORTD_PIN_MUX_DEVICE_NAME		"pmux3"
+	#endif
+
+	#if(OS_USE_PORTE_PIN_MUX > 0)
+	#define PORTE_PIN_MUX_DEVICE_NAME		"pmux4"
+	#endif
+
+#endif
+
 
 /*
  * Enable use of GPIO Drivers

@@ -57,7 +57,7 @@ typedef struct {
  *  \brief configure the row of gpio with the configuration passed in config mask
  *
  */
-static inline OsStatus_t uLipeDriverGpioConfigRow(Device_t *dev, uint8_t bitOffset ,uint8_t len,
+static __inline OsStatus_t uLipeDriverGpioConfigRow(Device_t *dev, uint8_t bitOffset ,uint8_t len,
 				uint32_t acceptMask,uint32_t configMask )
 {
 	GpioDeviceApi_t *api = (GpioDeviceApi_t *)dev->deviceApi;
@@ -77,7 +77,7 @@ static inline OsStatus_t uLipeDriverGpioConfigRow(Device_t *dev, uint8_t bitOffs
  *  \brief configure a single bit of gpio with the configuration passed in config mask
  *
  */
-static inline OsStatus_t uLipeDriverGpioConfigSingle(Device_t *dev, uint8_t bitPos, uint32_t configMask )
+static __inline OsStatus_t uLipeDriverGpioConfigSingle(Device_t *dev, uint8_t bitPos, uint32_t configMask )
 {
 	GpioDeviceApi_t *api = (GpioDeviceApi_t *)dev->deviceApi;
 	OsStatus_t ret;
@@ -96,7 +96,7 @@ static inline OsStatus_t uLipeDriverGpioConfigSingle(Device_t *dev, uint8_t bitP
  *  \brief Registers a callback triggered bit edge sensed by gpio bit
  *
  */
-static inline OsStatus_t uLipeDriverGpioRegCallback(Device_t * dev, uint8_t bit, uLipeGpioCallBack_t cb)
+static __inline OsStatus_t uLipeDriverGpioRegCallback(Device_t * dev, uint8_t bit, uLipeGpioCallBack_t cb)
 {
 	GpioDeviceApi_t *api = (GpioDeviceApi_t *)dev->deviceApi;
 	OsStatus_t ret;
@@ -116,7 +116,7 @@ static inline OsStatus_t uLipeDriverGpioRegCallback(Device_t * dev, uint8_t bit,
  *  \brief writes a bit row on the device gpio output register
  *
  */
-static inline OsStatus_t uLipeDriverGpioWriteRow(Device_t *dev,uint8_t bitOffset ,uint8_t len,
+static __inline OsStatus_t uLipeDriverGpioWriteRow(Device_t *dev,uint8_t bitOffset ,uint8_t len,
 			uint32_t acceptMask, uint32_t value)
 {
 	GpioDeviceApi_t *api = (GpioDeviceApi_t *)dev->deviceApi;
@@ -136,7 +136,7 @@ static inline OsStatus_t uLipeDriverGpioWriteRow(Device_t *dev,uint8_t bitOffset
  *  \brief writes a single bit on the device gpio output register
  *
  */
-static inline OsStatus_t uLipeDriverGpioWriteSingle(Device_t *dev, uint8_t bitPos, uint8_t value )
+static __inline OsStatus_t uLipeDriverGpioWriteSingle(Device_t *dev, uint8_t bitPos, uint8_t value )
 {
 	GpioDeviceApi_t *api = (GpioDeviceApi_t *)dev->deviceApi;
 	OsStatus_t ret;
@@ -156,7 +156,7 @@ static inline OsStatus_t uLipeDriverGpioWriteSingle(Device_t *dev, uint8_t bitPo
  *  \brief reads a bit row from the device's gpio input register
  *
  */
-static inline uint32_t uLipeDriverGpioReadRow(Device_t *dev,uint8_t bitOffset ,uint8_t len,
+static __inline uint32_t uLipeDriverGpioReadRow(Device_t *dev,uint8_t bitOffset ,uint8_t len,
 			uint32_t acceptMask, OsStatus_t *err)
 {
 	GpioDeviceApi_t *api = (GpioDeviceApi_t *)dev->deviceApi;
@@ -180,7 +180,7 @@ static inline uint32_t uLipeDriverGpioReadRow(Device_t *dev,uint8_t bitOffset ,u
  *  \brief reads a bit from the device's gpio input register
  *
  */
-static inline bool uLipeDriverGpioReadSingle(Device_t *dev, uint8_t bitPos, OsStatus_t *err )
+static __inline bool uLipeDriverGpioReadSingle(Device_t *dev, uint8_t bitPos, OsStatus_t *err )
 {
 	GpioDeviceApi_t *api = (GpioDeviceApi_t *)dev->deviceApi;
 	bool ret;
