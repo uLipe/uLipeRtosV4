@@ -132,6 +132,15 @@ void uLipeKernelTaskYield(void);
 bool uLipeKernelIsRunning(void);
 
 /*!
+ *
+ * uLipeKernelExecption()
+ *
+ * \brief handles the execeptions caused during kernel execution
+ *
+ */
+void uLipeKernelExecption(void);
+
+/*!
  * 	ulipeRtosInit()
  *
  *  \brief Perform kernel initialization

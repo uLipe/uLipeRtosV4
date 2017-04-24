@@ -53,7 +53,11 @@ typedef enum						//Rtos status codes
 	kTimeout,                       //
 	kOutOfMem,                      //
 	kDeviceNotFound,                //
-	kNotImplementedForThisDevice	//
+	kNotImplementedForThisDevice,	//
+	kDeviceBusy,					//
+	kDeviceEnabled,					//
+	kDeviceDisabled,				//
+	kDeviceIoError,					//
 }OsStatus_t;						//
 
 /*
@@ -158,10 +162,10 @@ static inline void _uLipeAssert(uint32_t x)
  *  Debug configurations it will always defined, in release this macro
  *  is omitted.
  */
-#ifdef DEBUG
+#ifdef OS_DEBUG
 #define   uLipeAssert(x)  	_uLipeAssert(x)
 #else
-#define   uLipeAssert(x)
+#define   uLipeAssert(x)	(void)x
 #endif
 
 #define OS_1K                       1024

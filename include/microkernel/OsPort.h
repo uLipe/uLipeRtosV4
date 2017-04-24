@@ -110,5 +110,24 @@ extern uint32_t uLipePortBitLSScan(uint32_t arg);
  */
 extern uint32_t uLipePortBitFSScan(uint32_t x);
 
+/*!
+ *  uLipeIRQControllerInit()
+ *  \brief Inits the platform specific IRQ controller.
+ *  \param
+ *  \return
+ */
+//extern uint32_t uLipeIRQControllerInit(void);
+
+
+/*!
+ *  uLipeIRQControllerInit()
+ *  \brief Inits the platform specific IRQ controller.
+ *  \param
+ *  \return
+ */
+//extern uint32_t uLipeIRQInstallIsr(void (*func)(void *arg), uint32_t irqOffset);
+
+
+
 
 #endif

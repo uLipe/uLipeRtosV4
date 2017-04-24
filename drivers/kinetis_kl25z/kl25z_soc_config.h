@@ -33,6 +33,7 @@
 #include "fsl_uart.h"
 #include "fsl_port.h"
 #include "fsl_clock.h"
+#include "fsl_lpsci.h"
 
 #endif
 #endif

@@ -17,9 +17,9 @@
 @	execute this code in thumb mode:
 @
 
-#include "../../include/microkernel/OsConfig.h"
+#include "../../../include/microkernel/OsConfig.h"
 
-#if (OS_ARCH_CORTEX_M0 == 1)
+#if (OS_ARCH_CORTEX_M7 == 1) || (OS_ARCH_CORTEX_M4 == 1) || (OS_ARCH_CORTEX_M3 == 1)
 
 
  		.thumb
@@ -33,6 +33,8 @@
 		.extern osMainStk
 		.extern osRunning
 		.extern uLipeKernelRtosTick
+		.extern uLipeKernelExecption
+
 
 @
 @	make the routines visible outside this module
@@ -40,11 +42,14 @@
 
 		.global uLipeEnterCritical
 		.global uLipeExitCritical
+		.global uLipeKernelFindHighPrio
 		.global SVC_Handler
 		.global PendSV_Handler
 		.global SysTick_Handler
 		.global uLipeMemCpy
 		.global uLipeMemSet
+		.global uLipePortBitLSScan
+		.global uLipePortBitFSScan
 		.global uLipePortStartKernel
 
 @
@@ -77,15 +82,6 @@ uLipeMemCpy:
 
 		bx lr
 
-
-@
-@   void uLipeMemCpy(void *dest, void *src, size_t size)
-@
-uLipeMemSet:
-
-		bx lr
-
-
 @
 @ void uLipePortStartKernel (void)
 @
@@ -97,12 +93,65 @@ uLipePortStartKernel:
 		nop
 		bx lr
 
+
+@
+@   uint32_t uLipePortBitLSScan(uint32_t arg)
+@
+uLipePortBitLSScan:
+		rbit r0,r0
+		clz  r0,r0
+		bx lr
+
+@
+@   uint32_t uLipePortBitFSScan(uint32_t arg)
+@
+uLipePortBitFSScan:
+		clz r0,r0
+		bx lr
+
+@
+@   void uLipeMemCpy(void *dest, void *src, size_t size)
+@
+uLipeMemSet:
+
+		bx lr
+
+
+@
+@	uint16_t uLipeKernelFindHighPrio(OsPrioListPtr_t prioList)
+@
+		.thumb_func
+uLipeKernelFindHighPrio:
+		ldr  r1, [r0], #4  		@load prio group
+		movs r2, #31	   		@
+		clz  r1, r1		   		@
+		ands r1, #31
+		subs r1,r2,r1	  		@
+		lsl  r1, #2		   		@calculates the correct prio displacement
+		ldr  r3, [r0, r1]  		@
+		clz  r3,r3		   		@
+		ands r3,#31
+		subs r3, r2,r3	   		@
+		add  r0, r3, r1, lsl #3 @calculates prio where: prio = r3 + (r1 << 5)
+		bx 	 lr				 	@
+
+
+@
+@ void HardFault_Handler(void)
+@
+		.thumb_func
+HardFault_Handler:
+		push {lr}
+		ldr r3, =uLipeKernelExecption
+		blx r3
+		pop {pc}
+
 @
 @	void uLipeFirstSwt(void)
 @
 		.thumb_func
-
 SVC_Handler:
+
 		movs r0, #0x02			@
 		msr  control, r0		@ uses psp for now.
 		isb						@ flushes the pipeline
@@ -110,14 +159,8 @@ SVC_Handler:
 		ldr r1, =currentTask	@
 		ldr r2, [r0]			@
 		ldr r2, [r2]			@ takes the first task stack:
-
-		ldmia r2!, {r4 - r7}	@ pops the first sw context
-	    mov  r8,r4
-	    mov  r9,r5
-	    mov  r10,r6
-	    mov  r11,r7
-   	    ldmia r2!, {r4 - r7}
-		msr psp, r2				@ the hardware deals with remaining context
+		ldmia r2!, {r4 - r11}	@ pops the first sw context
+		msr	  psp, r2			@ the remainning context is dealt by hardware
 
 		ldr r0, [r0]			@
 		str r0, [r1]			@ the current task is the high prio task
@@ -125,10 +168,8 @@ SVC_Handler:
 		ldr   r0, =osRunning		@
 		movs  r1, #1			@ os is running
 		strb  r1, [r0]			@
-		movs r2, #4
-		mov r1, lr
-		orrs r1,r1, r2          @
-		mov lr, r1
+		orr   lr,lr, #0x04		@ensures the correct EXC_RETURN
+
 		bx	lr					@
 
 @
@@ -141,34 +182,19 @@ PendSV_Handler:
 		ldr r1, =currentTask	@
 		ldr r2, [r1]			@ takes the current task stack:
 		mrs r3, psp				@ takes the current stack pointer
-		subs r3, #32			@
-	    str   r3, [r2]			@
-		stmia r3!, {r4 - r7}	@ save the software context
-	    mov  r4,r8
-	    mov  r5,r9
-	    mov  r6,r10
-	    mov  r7,r11
-	    stmia r3!, {r4 - r7}	@ save the software context
+		stmdb r3!, {r4 - r11}	@ save the software context
+		str   r3, [r2]			@
 
 		ldr r2,[r0]				@
 		ldr r2,[r2]				@ takes the high prio task stk pointer
-	    adds r2, #16				@ takes first the high registers
-	    ldmia r2!, {r4 - r7}	@ pops the  sw context
-	    mov  r8,r4
-	    mov  r9,r5
-	    mov  r10,r6
-	    mov  r11,r7
+		ldmia r2!, {r4-r11}		@ pops  the new software saved context
 		msr psp, r2				@ the hardware deals with remaining context
-		subs r2, #32				@ go back and restore the low registers
-	    ldmia r2!, {r4 - r7}
 
 		ldr r2, [r0]			@
 		str r2, [r1]			@ the high prio task is the current task
-		movs r2, #4
-		mov r1, lr
-		orrs r1,r1, r2           @
-		mov lr, r1
+		orr lr,lr, #0x04        @
 		bx	lr					@ the return depennds of current task stack contents
+
 
 @
 @ the systick handler, invoke kernel tick routine
@@ -179,6 +205,7 @@ SysTick_Handler:
 	ldr r3, =uLipeKernelRtosTick
 	blx r3
 	pop {pc}
+
 #endif
 
 .end

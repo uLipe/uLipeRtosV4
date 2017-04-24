@@ -24,7 +24,7 @@
 
 #define OS_CPU_RATE  			48000000 //in Hz
 #define OS_TICK_RATE			1000	//in Hz
-
+#define OS_DEBUG
 /*
  *  Architecture selection:
  */
@@ -108,15 +108,15 @@
 
 
 /*
- * External support selection:
+ * External soc manufacturer sw support selection:
  */
-#define OS_USE_MCUEXPRESSO_FOR_KL25Z	0
+#define OS_USE_MCUEXPRESSO_FOR_KL25Z	1
 
 
 /*
  * Enable use of pin mux drivers
  */
-#define OS_USE_PINMUX_DRIVERS			0
+#define OS_USE_PINMUX_DRIVERS			1
 
 #if OS_USE_PINMUX_DRIVERS > 0
 
@@ -154,7 +154,28 @@
 /*
  * Enable use of uart drivers
  */
-#define OS_USE_UART_DRIVERS				0
+#define OS_USE_UART_DRIVERS				1
+
+#if OS_USE_UART_DRIVERS > 0
+
+	#define OS_USE_UART1_UART				1
+	#define OS_USE_UART2_UART				1
+
+
+	#define UART0_UART_DEVICE_NAME		"uart0"
+
+	#if(OS_USE_UART1_UART)
+	#define UART1_UART_DEVICE_NAME		"uart1"
+	#endif
+
+	#if(OS_USE_UART2_UART)
+	#define UART2_UART_DEVICE_NAME		"uart2"
+	#endif
+
+
+#endif
+
+
 
 /*
  * Enable use of SPI drivers

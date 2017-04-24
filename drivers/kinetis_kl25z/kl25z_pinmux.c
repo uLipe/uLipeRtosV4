@@ -64,12 +64,8 @@ static OsStatus_t KL25Z_PinMuxDriverSetToAlternate(Device_t *dev, uint8_t bitPos
 	OsStatus_t ret = kStatusOk;
 	KL25ZPinMuxDevData_t *dat = (KL25ZPinMuxDevData_t *)dev->config->devConfigData;
 
-	if(alternateFun >= kPORT_MuxAlt15) {
-		port_mux_t ksdkAlt = (port_mux_t)alternateFun;
-		PORT_SetPinMux(dat->port, bitPos, ksdkAlt);
-	} else {
-		ret = kNotImplementedForThisDevice;
-	}
+	port_mux_t ksdkAlt = (port_mux_t)alternateFun;
+	PORT_SetPinMux(dat->port, bitPos, ksdkAlt);
 
 	return(ret);
 }
@@ -106,23 +102,13 @@ static OsStatus_t KL25Z_PinMuxDriverSetRowToAlternate(Device_t * dev, uint8_t bi
 {
 	OsStatus_t ret = kStatusOk;
 	KL25ZPinMuxDevData_t *dat = (KL25ZPinMuxDevData_t *)dev->config->devConfigData;
-	bool notImplemented = false;
 
 	for(uint8_t i = 0; i < len; i++, acceptMask >>= 1) {
 		/* only modify desired pins passed with accept mask */
 		if(acceptMask & 0x01) {
-			if(alternateFun >= kPORT_MuxAlt15) {
-				port_mux_t ksdkAlt = (port_mux_t)alternateFun;
-				PORT_SetPinMux(dat->port, i + bitOffset, ksdkAlt);
-			} else {
-				notImplemented = true;
-			}
+			port_mux_t ksdkAlt = (port_mux_t)alternateFun;
+			PORT_SetPinMux(dat->port, i + bitOffset, ksdkAlt);
 		}
-	}
-
-	if(notImplemented) {
-		/* this alternate is not implemented for this device */
-		ret = kNotImplementedForThisDevice;
 	}
 
 	return(ret);

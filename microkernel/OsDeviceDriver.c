@@ -44,7 +44,7 @@ Device_t* uLipeDeviceOpen(const char *devName, OsStatus_t *err)
         if((ret->deviceApi != NULL) && (!strcmp(devName, ret->config->name))){
             /* if this driver is a first instance, then create the sync object */
             if(ret->config->refCount == 0) {
-                ret->deviceSync = uLipeSemCreate(1,0,NULL);
+                ret->deviceSync = uLipeSemCreate(0,1,NULL);
             }
 
 
@@ -69,7 +69,7 @@ Device_t* uLipeDeviceOpen(const char *devName, OsStatus_t *err)
 }
 
 
-OsStatus_t uLipeDeviceStartSync(Device_t *dev)
+OsStatus_t uLipeDeviceStartSync(Device_t *dev, uint16_t timeout)
 {
     OsStatus_t ret = kStatusOk;
 
@@ -86,7 +86,7 @@ OsStatus_t uLipeDeviceStartSync(Device_t *dev)
     }
 
     /* start the sync waiting for the I/O signal */
-    uLipeSemTake(dev->deviceSync, 0);
+   ret = uLipeSemTake(dev->deviceSync, timeout);
 
 cleanup:
     return(ret);

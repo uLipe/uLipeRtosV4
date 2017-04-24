@@ -339,6 +339,14 @@ bool uLipeKernelIsRunning(void)
     bool ret = (osRunning == TRUE)? true : false;
     return(ret);
 }
+
+
+void uLipeKernelExecption(void)
+{
+	/* Needs to be implemented, used currently for debug purposes */
+	while(1);
+}
+
 /*
  * 	ulipeRtosInit()
  */

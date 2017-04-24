@@ -22,6 +22,7 @@ typedef struct {
     uint32_t refCount;
     OsStatus_t (*earlyInitFcn) (void *arg);
     void (*driverIsr) (void *arg);
+    uint32_t irqOffset;
 }DeviceConfig_t;
 
 
@@ -62,7 +63,7 @@ Device_t* uLipeDeviceOpen(const char *devName, OsStatus_t *err);
  *  \brief Start device syncrhonization with I/O operation
  *
  */
-OsStatus_t uLipeDeviceStartSync(Device_t *dev);
+OsStatus_t uLipeDeviceStartSync(Device_t *dev, uint16_t timeout);
 
 
 /*!

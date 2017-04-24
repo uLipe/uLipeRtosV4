@@ -23,6 +23,10 @@
  *  Machine dependent macros:
  */
 
+#define OS_PORT_PENDSV_NVIC_PRIO 	0xFF
+#define OS_PORT_SVC_NVIC_PRIO 		0xFF
+#define OS_PORT_TICKER_NVIC_PRIO 	0xFE
+
 
 /** \brief  Structure type to access the System Timer (SysTick).
  */

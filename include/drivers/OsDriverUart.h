@@ -35,9 +35,9 @@ typedef struct {
  */
 #define UART_8_BITS				0x00
 #define UART_9_BITS 			0x01
-#define UART_PARITY_ODD			(0x00 << 2)
+#define UART_NO_PARIY			(0x00 << 2)
 #define UART_PARITY_EVEN		(0x01 << 2)
-#define UART_NO_PARIY			(0x02 << 2)
+#define UART_PARITY_ODD			(0x02 << 2)
 #define START_BIT_LEN_1			(0x00 << 4)
 #define START_BIT_LEN_2			(0x01 << 4)
 #define STOP_BIT_LEN_1			(0x00 << 6)

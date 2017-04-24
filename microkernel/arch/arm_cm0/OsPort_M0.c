@@ -50,7 +50,7 @@ void uLipeInitMachine(void)
 	SCB->CCR = 0x200;
 
 	//Assign priority value to pendSv and systick exc:
-	SCB->SHP[0] = 0xFF << 24;
+	SCB->SHP[0] = OS_PORT_PENDSV_NVIC_PRIO << 24;
 	SCB->SHP[1] = 0xFEFF << 16;
 
 	//Enable systick interrupts, ann use external clock source:
