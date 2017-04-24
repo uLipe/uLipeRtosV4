@@ -777,7 +777,6 @@ void UART1_IRQHandler(void)
 
 	uLipeKernelIrqIn();
 	UART_TransferHandleIRQ(dat->uart, &custom->handle);
-	UART_ClearStatusFlags(dat->uart, 0xFFFFFFFF);
 	uLipeKernelIrqOut();
 
 }
@@ -820,7 +819,6 @@ void UART2_IRQHandler(void)
 
 	uLipeKernelIrqIn();
 	UART_TransferHandleIRQ(dat->uart, &custom->handle);
-	UART_ClearStatusFlags(dat->uart, 0xFFFFFFFF);
 	uLipeKernelIrqOut();
 
 }
