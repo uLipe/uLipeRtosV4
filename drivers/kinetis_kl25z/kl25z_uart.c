@@ -597,6 +597,92 @@ cleanup:
 	return(ret);
 }
 
+
+static OsStatus_t KL25Z_UartPollOut(Device_t *this, uint8_t c)
+{
+	OsStatus_t ret = kStatusOk;
+	KL25ZUartDevData_t *dat =  (KL25ZUartDevData_t *)this->config->devConfigData;
+	KL25ZCustomUartData_t *custom = (KL25ZUartDevData_t *)this->deviceData;
+
+	if(custom->busy){
+		ret = kDeviceBusy;
+		goto cleanup;
+	}
+
+	if(!custom->enabled) {
+		/* devicemust be enabled to send byte */
+		ret = kDeviceDisabled;
+		goto cleanup;
+	}
+
+
+	if((UART0_Type *)dat->uart == UART0) {
+		/* lock device */
+		custom->busy = true;
+		/* dispatch the packet */
+		LPSCI_WriteBlocking((UART0_Type *)dat->uart, &c, 1);
+
+		custom->busy = false;
+
+	} else {
+		/* lock device */
+		custom->busy = true;
+		/* dispatch the packet */
+		UART_WriteBlocking((UART0_Type *)dat->uart, &c, 1);
+		custom->busy = false;
+
+	}
+
+cleanup:
+	return(ret);
+}
+
+static OsStatus_t KL25Z_UartPollIn(Device_t *this, uint8_t* c)
+{
+	OsStatus_t ret = kStatusOk;
+	KL25ZUartDevData_t *dat =  (KL25ZUartDevData_t *)this->config->devConfigData;
+	KL25ZCustomUartData_t *custom = (KL25ZUartDevData_t *)this->deviceData;
+
+	if(custom->busy){
+		ret = kDeviceBusy;
+		goto cleanup;
+	}
+
+	if(!custom->enabled) {
+		/* devicemust be enabled to send byte */
+		ret = kDeviceDisabled;
+		goto cleanup;
+	}
+
+	if(c == NULL) {
+		ret = kInvalidParam;
+		goto cleanup;
+	}
+
+	if((UART0_Type *)dat->uart == UART0) {
+		/* lock device */
+		custom->busy = true;
+		/* dispatch the packet */
+		LPSCI_ReadBlocking((UART0_Type *)dat->uart, c, 1);
+
+		custom->busy = false;
+
+	} else {
+		/* lock device */
+		custom->busy = true;
+		/* dispatch the packet */
+		UART_ReadBlocking(dat->uart, c, 1);
+
+		custom->busy = false;
+
+	}
+
+cleanup:
+	return(ret);
+}
+
+
+
 static OsStatus_t KL25Z_UartEnable(Device_t *this)
 {
 	OsStatus_t ret = kStatusOk;
@@ -693,6 +779,8 @@ static UartDeviceApi_t kl25zUartApi = {
 		.uLipeUartSendStream= KL25Z_UartSendStream,
 		.uLipeUartReadByte= KL25Z_UartReadByte,
 		.uLipeUartReadStream=KL25Z_UartReadStream,
+		.uLipeUartPollOut=KL25Z_UartPollOut,
+		.uLipeUartPollIn=KL25Z_UartPollIn,
 		.uLipeUartEnable=KL25Z_UartEnable,
 		.uLipeUartDisable=KL25Z_UartDisable
 };

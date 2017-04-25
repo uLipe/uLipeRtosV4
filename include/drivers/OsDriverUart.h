@@ -25,6 +25,8 @@ typedef struct {
 	OsStatus_t (*uLipeUartSendStream)(Device_t *this, void *data, uint32_t size, uint16_t timeout);
 	OsStatus_t (*uLipeUartReadByte) (Device_t *this, uint8_t *c, uint16_t timeout);
 	OsStatus_t (*uLipeUartReadStream)(Device_t *this, void *data, uint32_t expected_size, uint32_t *actual_size, uint16_t timeout);
+	OsStatus_t (*uLipeUartPollOut)(Device_t *this, uint8_t c);
+	OsStatus_t (*uLipeUartPollIn)(Device_t *this, uint8_t *c);
 	OsStatus_t (*uLipeUartEnable)(Device_t *this);
 	OsStatus_t (*uLipeUartDisable)(Device_t *this);
 }UartDeviceApi_t;
@@ -141,6 +143,44 @@ static __inline OsStatus_t uLipeDriverUartReadStream(Device_t *dev, void *data, 
 
 	return(ret);
 }
+
+/*!
+ * 	uLipeDriverUartPollOut()
+ *
+ * 	\brief Sends a single byte through device uart using polling
+ */
+static __inline OsStatus_t uLipeDriverUartPollOut(Device_t *dev, uint8_t c)
+{
+	UartDeviceApi_t *api = (UartDeviceApi_t *)dev->deviceApi;
+	OsStatus_t ret;
+
+	if(api) {
+		ret = api->uLipeUartPollOut(dev, c);
+	} else {
+		ret = kInvalidParam;
+	}
+	return(ret);
+}
+
+
+/*!
+ * 	uLipeDriverUartPollIn()
+ *
+ * 	\brief Receives a single byte through device uart using polling
+ */
+static __inline OsStatus_t uLipeDriverUartPollIn(Device_t *dev, uint8_t *c)
+{
+	UartDeviceApi_t *api = (UartDeviceApi_t *)dev->deviceApi;
+	OsStatus_t ret;
+
+	if(api) {
+		ret = api->uLipeUartPollIn(dev, c);
+	} else {
+		ret = kInvalidParam;
+	}
+	return(ret);
+}
+
 
 /*!
  * 	uLipeDriverUartEnable()

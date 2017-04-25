@@ -70,7 +70,7 @@
 /*
  * event flags kernel objects and code:
  */
-#define OS_FLAGS_MODULE_EN			 1
+#define OS_FLAGS_MODULE_EN			  1
 
 /*
  * semaphore kernel objects and code
@@ -88,10 +88,11 @@
 #define OS_QUEUE_MODULE_EN		      1
 
 
+
 /*
  * Device drivers:
  */
-#define OS_USE_DEVICE_DRIVERS           1
+#define OS_USE_DEVICE_DRIVERS           0
 #define OS_DEVICE_SECTION_NAME      ".device_driver"
 
 /*
@@ -111,6 +112,7 @@
  * External soc manufacturer sw support selection:
  */
 #define OS_USE_MCUEXPRESSO_FOR_KL25Z	1
+#define OS_USE_MCUEXPRESSO_FOR_K64F		0
 
 
 /*
@@ -158,8 +160,8 @@
 
 #if OS_USE_UART_DRIVERS > 0
 
-	#define OS_USE_UART1_UART				1
-	#define OS_USE_UART2_UART				1
+	#define OS_USE_UART1_UART				0
+	#define OS_USE_UART2_UART				0
 
 
 	#define UART0_UART_DEVICE_NAME		"uart0"
@@ -203,7 +205,26 @@
 #define OS_USE_ASSI_MULTICORE_DRIVERS	0
 
 
+/*
+ * Enable kernel console
+ */
+#define OS_CONSOLE_ENABLE			   0
 
+
+#if (OS_CONSOLE_ENABLE > 0)
+#if (OS_USE_DEVICE_DRIVERS > 0) &&  (OS_USE_UART_DRIVERS > 0)
+	#define OS_CONSOLE_DRIVER					UART0_UART_DEVICE_NAME
+	#define OS_CONSOLE_CONFIG_VALID 			1
+	#define OS_CONSOLE_DRIVER_PINMUX_NAME		PORTA_PIN_MUX_DEVICE_NAME
+	#define OS_CONSOLE_DRIVER_PIN_OFFSET	    1
+	#define OS_CONSOLE_DRIVER_PINS_LEN			2
+	#define OS_CONSOLE_ACCEPT_MASK				0x03
+	#define OS_CONSOLE_ALTERNATE				0x02
+
+#else
+	#error "Console needs to a I/O device driver, please provide one"
+#endif
+#endif
 
 
 #endif

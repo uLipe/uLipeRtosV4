@@ -401,6 +401,9 @@ OsStatus_t uLipeRtosStart(void)
 	//check for problems:
 	uLipeAssert(highPrioTask != NULL);
 
+#if OS_CONSOLE_CONFIG_VALID > 0
+	uLipePrintk("*** uLipeRTOS started! \n\r");
+#endif
 
 	//perform the first ctx switch:
 	uLipePortStartKernel();

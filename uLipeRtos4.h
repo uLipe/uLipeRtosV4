@@ -42,5 +42,6 @@
 #include "include/drivers/OsDriverSPI.h"
 #include "include/drivers/OsDriverI2C.h"
 #include "include/drivers/OsDriverEnet.h"
+#include "include/drivers/embedded_printf_console_driver/embedded_printf.h"
 
 #endif
