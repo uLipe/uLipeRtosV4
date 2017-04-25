@@ -118,7 +118,7 @@
 /*
  * Enable use of pin mux drivers
  */
-#define OS_USE_PINMUX_DRIVERS			1
+#define OS_USE_PINMUX_DRIVERS				1
 
 #if OS_USE_PINMUX_DRIVERS > 0
 
@@ -151,7 +151,33 @@
 /*
  * Enable use of GPIO Drivers
  */
-#define OS_USE_GPIO_DRIVERS				0
+#define OS_USE_GPIO_DRIVERS				1
+
+#if OS_USE_GPIO_DRIVERS > 0
+	#define OS_USE_GPIOB_GPIO 			1
+	#define OS_USE_GPIOC_GPIO			1
+	#define OS_USE_GPIOD_GPIO			1
+	#define OS_USE_GPIOE_GPIO			1
+
+
+	#define GPIOA_GPIO_DEVICE_NAME		"gpio0"
+
+	#if (OS_USE_GPIOB_GPIO > 0)
+	#define GPIOB_GPIO_DEVICE_NAME		"gpio1"
+	#endif
+
+	#if (OS_USE_GPIOC_GPIO > 0)
+	#define GPIOC_GPIO_DEVICE_NAME		"gpio2"
+	#endif
+
+	#if (OS_USE_GPIOD_GPIO > 0)
+	#define GPIOD_GPIO_DEVICE_NAME		"gpio3"
+	#endif
+
+	#if (OS_USE_GPIOE_GPIO > 0)
+	#define GPIOE_GPIO_DEVICE_NAME		"gpio4"
+	#endif
+#endif
 
 /*
  * Enable use of uart drivers
@@ -160,8 +186,8 @@
 
 #if OS_USE_UART_DRIVERS > 0
 
-	#define OS_USE_UART1_UART				0
-	#define OS_USE_UART2_UART				0
+	#define OS_USE_UART1_UART			0
+	#define OS_USE_UART2_UART			0
 
 
 	#define UART0_UART_DEVICE_NAME		"uart0"
