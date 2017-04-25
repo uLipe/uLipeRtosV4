@@ -91,7 +91,7 @@
 /*
  * Device drivers:
  */
-#define OS_USE_DEVICE_DRIVERS           0
+#define OS_USE_DEVICE_DRIVERS           1
 #define OS_DEVICE_SECTION_NAME      ".device_driver"
 
 /*

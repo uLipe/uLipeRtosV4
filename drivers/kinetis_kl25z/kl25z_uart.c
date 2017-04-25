@@ -68,8 +68,6 @@ static uart_transfer_callback_t KL25Z_UartIsr(UART_Type *base, uart_handle_t *ha
 		custom->tx_sucess = false;
 	}
 
-	/* clear all status flags */
-	UART_ClearStatusFlags(base, 0xFFFFFFFF);
 
 	/* finish syncro and give control to the waiting thread*/
 	err = uLipeDeviceFinishSync(dev);
@@ -97,9 +95,6 @@ static lpsci_transfer_callback_t KL25Z_LpSciIsr(UART0_Type *base, uart_handle_t 
 		custom->tx_sucess = false;
 	}
 
-	/* clear all status flags */
-	LPSCI_ClearStatusFlags(base, 0xFFFFFFFF);
-
 	/* finish syncro and give control to the waiting thread*/
 	err = uLipeDeviceFinishSync(dev);
 	uLipeAssert(err == kStatusOk);
@@ -118,6 +113,9 @@ static OsStatus_t KL25Z_LpSciDriverInit(void *arg)
 	Device_t *dev = (Device_t *)arg;
 	KL25ZLpSciDevData_t *dat =  (KL25ZLpSciDevData_t *)dev->config->devConfigData;
 	KL25ZCustomUartData_t *custom = (KL25ZUartDevData_t *)dev->deviceData;
+
+	/* sets the LPSCI clock source */
+	CLOCK_SetLpsci0Clock(1);
 
 	/* gates the uart peripheral clock */
 	CLOCK_EnableClock(dat->uartClk);
@@ -192,7 +190,7 @@ static OsStatus_t KL25Z_UartConfig(Device_t *this, uint32_t baud, uint32_t confi
 		LPSCI_EnableTx((UART0_Type *)dat->uart, false);
 
 
-		if(LPSCI_Init((UART0_Type *)dat->uart, &cfg, OS_CPU_RATE/2) != kStatus_Success) {
+		if(LPSCI_Init((UART0_Type *)dat->uart, &cfg, OS_CPU_RATE) != kStatus_Success) {
 			ret = kNotImplementedForThisDevice;
 		}
 
