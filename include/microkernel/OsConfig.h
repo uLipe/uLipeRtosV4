@@ -186,8 +186,8 @@
 
 #if OS_USE_UART_DRIVERS > 0
 
-	#define OS_USE_UART1_UART			0
-	#define OS_USE_UART2_UART			0
+	#define OS_USE_UART1_UART			1
+	#define OS_USE_UART2_UART			1
 
 
 	#define UART0_UART_DEVICE_NAME		"uart0"
@@ -213,7 +213,20 @@
 /*
  * Enable use of I2C drivers
  */
-#define OS_USE_I2C_DRIVERS				0
+#define OS_USE_I2C_DRIVERS				1
+
+#if OS_USE_I2C_DRIVERS > 0
+
+	#define OS_USE_I2C1_I2C			1
+
+
+	#define I2C0_I2C_DEVICE_NAME		"i2c0"
+
+	#if(OS_USE_I2C1_I2C)
+	#define I2C1_I2C_DEVICE_NAME		"i2c1"
+	#endif
+
+#endif
 
 /*
  * Enable use of AIO drivers
